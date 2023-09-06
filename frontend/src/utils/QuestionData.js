@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
  * Stores 20 example questions from Appendix 3.
  */
 
-export const data = [
+export const questionData = [
   {
     id: uuidv4(),
     title: "Reverse a String",
