@@ -12,5 +12,20 @@ export function getQuestionsLS() {
 }
 
 export function setQuestionsLS() {
-  return setLocalStorage(QUESTION_STORAGE_KEY, questionData);
+  const existingData = getLocalStorage(QUESTION_STORAGE_KEY);
+
+  // Check if local storage is empty for the specified key
+  if (!existingData) {
+    setLocalStorage(QUESTION_STORAGE_KEY, questionData);
+  }
+}
+
+
+export function addQuestionLS(question) {
+  console.log(question);
+  const questions = getQuestionsLS();
+  questions.push(question);
+  console.log(questions);
+  console.log("pushed question");
+  setLocalStorage(QUESTION_STORAGE_KEY, questions);
 }
