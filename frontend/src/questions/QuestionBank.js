@@ -6,9 +6,10 @@ import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
 
 const columns = [
-  { field: "title", headerName: "Title", width: 70 },
-  { field: "category", headerName: "Category", width: 200 },
-  { field: "complexity", headerName: "Complexity", width: 130 },
+  { field: "qid", headerName: "Question Id", width: 100 },
+  { field: "title", headerName: "Question Title", width: 300 },
+  { field: "category", headerName: "Question Category", width: 400 },
+  { field: "complexity", headerName: "Question Complexity", width: 150 },
 ];
 
 export default function QuestionBank() {
@@ -16,28 +17,39 @@ export default function QuestionBank() {
     setQuestionsLS();
   }, []);
 
-  const [questions, setQuestions] = useState(() => {
+  const [questions] = useState(() => {
+    let count = 1;
     return (
       getQuestionsLS().map((question) => {
-        return { ...question, id: uuidv4() };
+        return { ...question, id: uuidv4(), qid: count++ };
       }) || []
     );
   });
 
   return (
-    <DataGrid
-      rows={questions}
-      columns={columns}
-      initialState={{
-        pagination: {
-          paginationModel: { page: 0, pageSize: 5 },
-        },
-      }}
-      pageSizeOptions={[5, 10]}
-      checkboxSelection
-    />
+    <div className="p-10 bg-grey">
+      <div className="mb-4 flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">Question Bank</h2>
+        <div className="space-x-4">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+            Add
+          </button>
+          <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+            Delete
+          </button>
+        </div>
+      </div>
+      <DataGrid
+        rows={questions}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: { page: 0, pageSize: 5 },
+          },
+        }}
+        pageSizeOptions={[5, 10]}
+        checkboxSelection
+      />
+    </div>
   );
-  // return questions.map((question) => (
-  //   <Question key={uuidv4()} question={question} />
-  // ));
 }
