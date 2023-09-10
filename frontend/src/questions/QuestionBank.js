@@ -16,7 +16,7 @@ export default function QuestionBank() {
     setQuestionsLS();
   }, []);
 
-  const [questions, setQuestions] = useState(() => {
+  const [questions] = useState(() => {
     return (
       getQuestionsLS().map((question) => {
         return { ...question, id: uuidv4() };
