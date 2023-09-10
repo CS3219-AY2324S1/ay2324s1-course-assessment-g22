@@ -5,11 +5,21 @@ import { setQuestionsLS, getQuestionsLS } from "./utils/QuestionQueries";
 import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
 
-const columns = [
-  { field: "qid", headerName: "Question Id", width: 100 },
-  { field: "title", headerName: "Question Title", width: 300 },
-  { field: "category", headerName: "Question Category", width: 400 },
-  { field: "complexity", headerName: "Question Complexity", width: 150 },
+const COLUMNS = [
+  { field: "qid", headerName: "Question Id", flex: 1, minWidth: 100 },
+  { field: "title", headerName: "Question Title", flex: 4, minWidth: 100 },
+  {
+    field: "category",
+    headerName: "Question Category",
+    flex: 3,
+    minWidth: 100,
+  },
+  {
+    field: "complexity",
+    headerName: "Question Complexity",
+    flex: 1.5,
+    minWidth: 100,
+  },
 ];
 
 export default function QuestionBank() {
@@ -41,7 +51,7 @@ export default function QuestionBank() {
       </div>
       <DataGrid
         rows={questions}
-        columns={columns}
+        columns={COLUMNS}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
