@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import Question from "./Question";
+// import Question from "./Question";
 import { setQuestionsLS, getQuestionsLS } from "./utils/QuestionQueries";
 import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
@@ -16,7 +16,7 @@ export default function QuestionBank() {
     setQuestionsLS();
   }, []);
 
-  const [questions, setQuestions] = useState(() => {
+  const [questions] = useState(() => {
     return (
       getQuestionsLS().map((question) => {
         return { ...question, id: uuidv4() };
@@ -37,7 +37,4 @@ export default function QuestionBank() {
       checkboxSelection
     />
   );
-  // return questions.map((question) => (
-  //   <Question key={uuidv4()} question={question} />
-  // ));
 }
