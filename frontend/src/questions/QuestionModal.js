@@ -48,8 +48,19 @@ export default function CustomModal({ open, handleClose, formData, handleInputCh
               value={formData.complexity}
               onChange={handleInputChange}
             />
-            <button type="button" onClick={handleSubmit}>
-              Save
+            <button 
+              type="button" 
+              onClick={handleSubmit}
+              style={{
+                backgroundColor: '#0074d9',    // Blue background color
+                color: 'white',                // Text color
+                border: '2px solid #001f3f',  // Blue border
+                borderRadius: '5px',          // Curved border
+                padding: '8px 16px',          // Padding around text
+                cursor: 'pointer',            // Show pointer cursor on hover
+              }}
+              >
+              ADD
             </button>
           </form>
         </Box>
