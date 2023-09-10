@@ -60,7 +60,7 @@ export default function CustomModal({ open, handleClose, formData, handleInputCh
                 cursor: 'pointer',            // Show pointer cursor on hover
               }}
               >
-              ADD
+              Add
             </button>
           </form>
         </Box>
