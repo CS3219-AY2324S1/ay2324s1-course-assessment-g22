@@ -6,10 +6,10 @@ import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
 
 const columns = [
-  { field: "qid", headerName: "Question Id", width: 100 },
-  { field: "title", headerName: "Question Title", width: 300 },
-  { field: "category", headerName: "Question Category", width: 400 },
-  { field: "complexity", headerName: "Question Complexity", width: 150 },
+  { field: "qid", headerName: "Question Id", flex: 1 },
+  { field: "title", headerName: "Question Title", flex: 3 },
+  { field: "category", headerName: "Question Category", flex: 4 },
+  { field: "complexity", headerName: "Question Complexity", flex: 1.5 },
 ];
 
 export default function QuestionBank() {
