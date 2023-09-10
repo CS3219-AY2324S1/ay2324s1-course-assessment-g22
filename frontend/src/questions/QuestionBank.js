@@ -41,12 +41,10 @@ export default function QuestionBank() {
       ...formData,
       [name]: value,
     });
-    console.log(formData);
   };
 
   // Function to handle form submission
   const handleSubmit = () => {
-    console.log("submitted");
     addQuestionLS(formData); // Add the form data to local storage
     closeModal(); // Close the modal after handling the form submission
     window.location.reload();

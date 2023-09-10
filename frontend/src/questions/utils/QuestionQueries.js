@@ -22,10 +22,7 @@ export function setQuestionsLS() {
 
 
 export function addQuestionLS(question) {
-  console.log(question);
   const questions = getQuestionsLS();
   questions.push(question);
-  console.log(questions);
-  console.log("pushed question");
   setLocalStorage(QUESTION_STORAGE_KEY, questions);
 }
