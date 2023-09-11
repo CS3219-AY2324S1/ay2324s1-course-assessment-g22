@@ -64,6 +64,10 @@ export default function QuestionBank() {
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
   const handleDelete = () => {
+    if (rowSelectionModel.length === 0) {
+      alert("Please select at least one question to delete.");
+      return;
+    }
     const newQuestions = questions.filter((question) => {
       for (let i = 0; i < rowSelectionModel.length; i++) {
         if (question.id === rowSelectionModel[i]) {
