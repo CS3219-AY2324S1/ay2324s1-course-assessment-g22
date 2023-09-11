@@ -45,9 +45,20 @@ export default function QuestionBank() {
 
   // Function to handle form submission
   const handleSubmit = () => {
-    addQuestionLS(formData); // Add the form data to local storage
-    closeModal(); // Close the modal after handling the form submission
-    window.location.reload();
+    if (hasDuplicateTitle(questions, formData.title.toLowerCase())) {
+      alert("Duplicate title found. Please check your input.");
+    } else if (formData.title === "" || formData.category === "" || formData.complexity === "") {
+      alert("Please fill out all fields.");
+    } else {
+      addQuestionLS(formData); // Add the form data to local storage
+      closeModal(); // Close the modal after handling the form submission
+      window.location.reload();
+    }
+  };
+
+  // Function to check for duplicate questions (Case insensitive)
+  const hasDuplicateTitle = (array, newTitle) => {
+    return array.some((item) => item.title.toLowerCase() === newTitle);
   };
 
   useEffect(() => {
