@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { setQuestionsLS, getQuestionsLS, addQuestionLS } from "./utils/QuestionQueries";
 import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
@@ -61,13 +61,28 @@ export default function QuestionBank() {
     return array.some((item) => item.title.toLowerCase() === newTitle);
   };
 
-  useEffect(() => {
-    setQuestionsLS();
-  }, []);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+
+  const handleDelete = () => {
+    console.log(rowSelectionModel);
+    const newQuestions = questions.filter((question) => {
+      console.log(question.title, question.id);
+      for (let i = 0; i < rowSelectionModel.length; i++) {
+        if (question.id === rowSelectionModel[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+    );
+    console.log(newQuestions);
+    setQuestionsLS(newQuestions);
+    setRowSelectionModel([]);
+    window.location.reload();
+  };
 
   const [questions] = useState(() => {
     let count = 1;
-    setQuestionsLS();
     return (
       getQuestionsLS().map((question) => {
         return { ...question, id: uuidv4(), qid: count++ };
@@ -83,7 +98,7 @@ export default function QuestionBank() {
           <button className="bg-blue-500 text-white px-4 py-2 rounded-lg" onClick={openModal}>
             Add
           </button>
-          <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+          <button className="bg-red-500 text-white px-4 py-2 rounded-lg" onClick={handleDelete}>
             Delete
           </button>
         </div>
@@ -98,6 +113,10 @@ export default function QuestionBank() {
         }}
         pageSizeOptions={[5, 10]}
         checkboxSelection
+        onRowSelectionModelChange={(newRowSelectionModel) => {
+          setRowSelectionModel(newRowSelectionModel);
+        }}
+        rowSelectionModel={rowSelectionModel}
       />
 
       <QuestionModal

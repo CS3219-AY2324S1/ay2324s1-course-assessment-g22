@@ -8,16 +8,17 @@ import { questionData } from "./QuestionData";
 const QUESTION_STORAGE_KEY = "questions";
 
 export function getQuestionsLS() {
-  return getLocalStorage(QUESTION_STORAGE_KEY);
-}
-
-export function setQuestionsLS() {
   const existingData = getLocalStorage(QUESTION_STORAGE_KEY);
 
-  // Check if local storage is empty for the specified key
   if (!existingData) {
     setLocalStorage(QUESTION_STORAGE_KEY, questionData);
   }
+
+  return getLocalStorage(QUESTION_STORAGE_KEY);
+}
+
+export function setQuestionsLS(updatedQuestions) {
+  setLocalStorage(QUESTION_STORAGE_KEY, updatedQuestions);
 }
 
 
