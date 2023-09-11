@@ -64,9 +64,7 @@ export default function QuestionBank() {
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
   const handleDelete = () => {
-    console.log(rowSelectionModel);
     const newQuestions = questions.filter((question) => {
-      console.log(question.title, question.id);
       for (let i = 0; i < rowSelectionModel.length; i++) {
         if (question.id === rowSelectionModel[i]) {
           return false;
@@ -75,7 +73,6 @@ export default function QuestionBank() {
       return true;
     }
     );
-    console.log(newQuestions);
     setQuestionsLS(newQuestions);
     setRowSelectionModel([]);
     window.location.reload();
