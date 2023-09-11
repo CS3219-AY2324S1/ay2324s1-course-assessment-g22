@@ -56,6 +56,7 @@ export default function QuestionBank() {
 
   const [questions] = useState(() => {
     let count = 1;
+    setQuestionsLS();
     return (
       getQuestionsLS().map((question) => {
         return { ...question, id: uuidv4(), qid: count++ };
