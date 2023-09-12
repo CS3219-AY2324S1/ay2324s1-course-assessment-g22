@@ -1,11 +1,20 @@
 import "./App.css";
 import QuestionBank from "./questions/QuestionBank";
+import QuestionDescription from "./questions/QuestionDescription";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
   return (
-    <>
-      <QuestionBank />
-    </>
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<QuestionBank />} />
+        <Route
+          path="/question/:id"
+          element={<QuestionDescription />}
+          // render={() => <QuestionDescription questions={questions} />}
+        />
+      </Routes>
+    </Router>
   );
 }
 

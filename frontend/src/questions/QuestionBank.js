@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   setQuestionsLS,
   getQuestionsLS,
@@ -9,10 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import QuestionModal from "./QuestionModal";
-
-const handleClick = () => {
-  console.log("clicked");
-};
+import { Link } from "react-router-dom";
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
@@ -23,17 +20,19 @@ const columns = [
     field: "description",
     headerName: "Question Description",
     flex: 2,
-    renderCell: (cellValue) => {
+    renderCell: (params) => {
       return (
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={(event) => {
-            handleClick(event, cellValue);
-          }}
-        >
-          Description
-        </Button>
+        <Link to={`/question/${params.row.qid}`}>
+          <Button
+            variant="outlined"
+            color="primary"
+            // onClick={() => {
+            //   handleClick(params);
+            // }}
+          >
+            Description
+          </Button>
+        </Link>
       );
     },
   },

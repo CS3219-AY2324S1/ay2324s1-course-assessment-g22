@@ -128,7 +128,7 @@ export const questionData = [
   },
 ];
 
-const questionDescriptions = [
+export const questionDescriptions = [
   {
     qid: 1,
     description: `<div class="xFUwe" data-track-load="description_content"><p>Write a function that reverses a string. The input string is given as an array of characters <code>s</code>.</p>
