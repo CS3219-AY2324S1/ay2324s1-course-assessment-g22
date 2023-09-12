@@ -130,7 +130,7 @@ export const questionData = [
 
 export const questionDescriptions = [
   {
-    qid: 1,
+    title: "Reverse a String",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Write a function that reverses a string. The input string is given as an array of characters <code>s</code>.</p>
 
       <p>You must do this by modifying the input array <a href="https://en.wikipedia.org/wiki/In-place_algorithm" target="_blank">in-place</a> with <code>O(1)</code> extra memory.</p>
@@ -153,7 +153,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 2,
+    title: "Linked List Cycle Detection",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Given <code>head</code>, the head of a linked list, determine if the linked list has a cycle in it.</p>
 
       <p>There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the&nbsp;<code>next</code>&nbsp;pointer. Internally, <code>pos</code>&nbsp;is used to denote the index of the node that&nbsp;tail's&nbsp;<code>next</code>&nbsp;pointer is connected to.&nbsp;<strong>Note that&nbsp;<code>pos</code>&nbsp;is not passed as a parameter</strong>.</p>
@@ -196,7 +196,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 3,
+    title: "Roman to Integer",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Roman numerals are represented by seven different symbols:&nbsp;<code>I</code>, <code>V</code>, <code>X</code>, <code>L</code>, <code>C</code>, <code>D</code> and <code>M</code>.</p>
 
       <pre><strong>Symbol</strong>       <strong>Value</strong>
@@ -253,7 +253,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 4,
+    title: "Add Binary",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Given two binary strings <code>a</code> and <code>b</code>, return <em>their sum as a binary string</em>.</p>
 
       <p>&nbsp;</p>
@@ -275,7 +275,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 5,
+    title: "Fibonacci Number",
     description: `<div class="xFUwe" data-track-load="description_content"><p>The <b>Fibonacci numbers</b>, commonly denoted <code>F(n)</code> form a sequence, called the <b>Fibonacci sequence</b>, such that each number is the sum of the two preceding ones, starting from <code>0</code> and <code>1</code>. That is,</p>
 
       <pre>F(0) = 0, F(1) = 1
@@ -315,7 +315,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 6,
+    title: "Implement Stack using Queues",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Implement a last-in-first-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (<code>push</code>, <code>top</code>, <code>pop</code>, and <code>empty</code>).</p>
 
       <p>Implement the <code>MyStack</code> class:</p>
@@ -366,7 +366,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 7,
+    title: "Combine Two Tables",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Table: <code>Person</code></p>
 
       <pre>+-------------+---------+
@@ -436,7 +436,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 8,
+    title: "Repeated DNA Sequences",
     description: `<div class="xFUwe" data-track-load="description_content"><p>The <strong>DNA sequence</strong> is composed of a series of nucleotides abbreviated as <code>'A'</code>, <code>'C'</code>, <code>'G'</code>, and <code>'T'</code>.</p>
 
       <ul>
@@ -465,7 +465,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 9,
+    title: "Course Schedule",
     description: `<div class="xFUwe" data-track-load="description_content"><p>There are a total of <code>numCourses</code> courses you have to take, labeled from <code>0</code> to <code>numCourses - 1</code>. You are given an array <code>prerequisites</code> where <code>prerequisites[i] = [a<sub>i</sub>, b<sub>i</sub>]</code> indicates that you <strong>must</strong> take course <code>b<sub>i</sub></code> first if you want to take course <code>a<sub>i</sub></code>.</p>
 
       <ul>
@@ -504,7 +504,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 10,
+    title: "LRU Cache Design",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Design a data structure that follows the constraints of a <strong><a href="https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU" target="_blank">Least Recently Used (LRU) cache</a></strong>.</p>
 
       <p>Implement the <code>LRUCache</code> class:</p>
@@ -551,7 +551,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 11,
+    title: "Longest Common Subsequence",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Given two strings <code>text1</code> and <code>text2</code>, return <em>the length of their longest <strong>common subsequence</strong>. </em>If there is no <strong>common subsequence</strong>, return <code>0</code>.</p>
 
       <p>A <strong>subsequence</strong> of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.</p>
@@ -594,7 +594,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 12,
+    title: "Rotate Image",
     description: `<div class="xFUwe" data-track-load="description_content"><p>You are given an <code>n x n</code> 2D <code>matrix</code> representing an image, rotate the image by <strong>90</strong> degrees (clockwise).</p>
 
       <p>You have to rotate the image <a href="https://en.wikipedia.org/wiki/In-place_algorithm" target="_blank"><strong>in-place</strong></a>, which means you have to modify the input 2D matrix directly. <strong>DO NOT</strong> allocate another 2D matrix and do the rotation.</p>
@@ -623,7 +623,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 13,
+    title: "Airplane Seat Assignment Probability",
     description: `<div class="xFUwe" data-track-load="description_content"><p><code>n</code> passengers board an airplane with exactly <code>n</code> seats. The first passenger has lost the ticket and picks a seat randomly. But after that, the rest of the passengers will:</p>
 
       <ul>
@@ -656,7 +656,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 14,
+    title: "Validate Binary Search Tree",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Given the <code>root</code> of a binary tree, <em>determine if it is a valid binary search tree (BST)</em>.</p>
 
       <p>A <strong>valid BST</strong> is defined as follows:</p>
@@ -691,7 +691,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 15,
+    title: "Sliding Window Maximum",
     description: `<div class="xFUwe" data-track-load="description_content"><p>You are given an array of integers&nbsp;<code>nums</code>, there is a sliding window of size <code>k</code> which is moving from the very left of the array to the very right. You can only see the <code>k</code> numbers in the window. Each time the sliding window moves right by one position.</p>
 
       <p>Return <em>the max sliding window</em>.</p>
@@ -729,7 +729,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 16,
+    title: "N-Queen Problem",
     description: `<div class="xFUwe" data-track-load="description_content"><p>The <strong>n-queens</strong> puzzle is the problem of placing <code>n</code> queens on an <code>n x n</code> chessboard such that no two queens attack each other.</p>
 
       <p>Given an integer <code>n</code>, return <em>all distinct solutions to the <strong>n-queens puzzle</strong></em>. You may return the answer in <strong>any order</strong>.</p>
@@ -759,7 +759,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 17,
+    title: "Serialize and Deserialize a Binary Tree",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.</p>
 
       <p>Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.</p>
@@ -789,7 +789,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 18,
+    title: "Wildcard Matching",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Given an input string (<code>s</code>) and a pattern (<code>p</code>), implement wildcard pattern matching with support for <code>'?'</code> and <code>'*'</code> where:</p>
 
       <ul>
@@ -832,7 +832,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 19,
+    title: "Chalkboard XOR Game",
     description: `<div class="xFUwe" data-track-load="description_content"><p>You are given an array of integers <code>nums</code> represents the numbers written on a chalkboard.</p>
 
       <p>Alice and Bob take turns erasing exactly one number from the chalkboard, with Alice starting first. If erasing a number causes the bitwise XOR of all the elements of the chalkboard to become <code>0</code>, then that player loses. The bitwise XOR of one element is that element itself, and the bitwise XOR of no elements is <code>0</code>.</p>
@@ -874,7 +874,7 @@ export const questionDescriptions = [
       </div>`,
   },
   {
-    qid: 20,
+    title: "Trips and Users",
     description: `<div class="xFUwe" data-track-load="description_content"><p>Table: <code>Trips</code></p>
 
       <pre>

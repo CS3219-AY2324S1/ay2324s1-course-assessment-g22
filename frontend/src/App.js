@@ -8,11 +8,7 @@ function App() {
     <Router>
       <Routes>
         <Route exact path="/" element={<QuestionBank />} />
-        <Route
-          path="/question/:id"
-          element={<QuestionDescription />}
-          // render={() => <QuestionDescription questions={questions} />}
-        />
+        <Route path="/question/:title" element={<QuestionDescription />} />
       </Routes>
     </Router>
   );

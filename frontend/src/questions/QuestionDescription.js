@@ -5,8 +5,8 @@ import parse from "html-react-parser";
 
 export const QuestionDescription = () => {
   const urlPathQnId = useParams();
-  const questionId = Number(urlPathQnId.id);
-  const question = questionDescriptions.find((qn) => qn.qid === questionId);
+  const questionId = urlPathQnId.title;
+  const question = questionDescriptions.find((qn) => qn.title === questionId);
   return <div>{parse(question.description)}</div>;
 };
 

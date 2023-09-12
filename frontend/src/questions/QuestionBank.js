@@ -22,14 +22,8 @@ const columns = [
     flex: 2,
     renderCell: (params) => {
       return (
-        <Link to={`/question/${params.row.qid}`}>
-          <Button
-            variant="outlined"
-            color="primary"
-            // onClick={() => {
-            //   handleClick(params);
-            // }}
-          >
+        <Link to={`/question/${params.row.title}`}>
+          <Button variant="outlined" color="primary">
             Description
           </Button>
         </Link>
