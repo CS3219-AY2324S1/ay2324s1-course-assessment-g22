@@ -71,15 +71,13 @@ export default function QuestionBank() {
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
-    if (questions.length === 0) {
-      // console.log("Runs twice");
-      let count = 1;
-      setQuestions(
-        getQuestionsLS().map((question) => {
-          return { ...question, id: uuidv4(), qid: count++ };
-        }) || []
-      );
-    }
+    // console.log("Runs twice");
+    let count = 1;
+    setQuestions(
+      getQuestionsLS().map((question) => {
+        return { ...question, id: uuidv4(), qid: count++ };
+      }) || []
+    );
   }, []);
 
   useEffect(() => {
