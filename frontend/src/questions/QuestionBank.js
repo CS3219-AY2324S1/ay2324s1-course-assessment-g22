@@ -91,19 +91,34 @@ export default function QuestionBank() {
     return array.some((item) => item.title.toLowerCase() === newTitle);
   };
 
-  useEffect(() => {
-    setQuestionsLS();
-  }, []);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+
+  const handleDelete = () => {
+    if (rowSelectionModel.length === 0) {
+      alert("Please select at least one question to delete.");
+      return;
+    }
+    const newQuestions = questions.filter((question) => {
+      for (let i = 0; i < rowSelectionModel.length; i++) {
+        if (question.id === rowSelectionModel[i]) {
+          return false;
+        }
+      }
+      return true;
+    });
+    setQuestionsLS(newQuestions);
+    setRowSelectionModel([]);
+    window.location.reload();
+  };
 
   const [questions] = useState(() => {
     let count = 1;
-    setQuestionsLS();
     return (
       getQuestionsLS().map((question) => {
         return { ...question, id: uuidv4(), qid: count++ };
       }) || []
     );
-  });
+  }, []);
 
   return (
     <div className="p-10 bg-grey">
@@ -116,7 +131,10 @@ export default function QuestionBank() {
           >
             Add
           </button>
-          <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded-lg"
+            onClick={handleDelete}
+          >
             Delete
           </button>
         </div>
@@ -131,6 +149,10 @@ export default function QuestionBank() {
         }}
         pageSizeOptions={[5, 10]}
         checkboxSelection
+        onRowSelectionModelChange={(newRowSelectionModel) => {
+          setRowSelectionModel(newRowSelectionModel);
+        }}
+        rowSelectionModel={rowSelectionModel}
       />
 
       <QuestionModal

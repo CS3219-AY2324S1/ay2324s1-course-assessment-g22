@@ -7,22 +7,26 @@ import { questionData } from "./QuestionData";
 
 const QUESTION_STORAGE_KEY = "questions";
 
+// Get questions from local storage
 export function getQuestionsLS() {
+  const existingData = getLocalStorage(QUESTION_STORAGE_KEY);
+
+  if (!existingData) {
+    // initialization
+    console.log("setting questionData to local storage");
+    setQuestionsLS(questionData);
+  }
+
   return getLocalStorage(QUESTION_STORAGE_KEY);
 }
 
-export function setQuestionsLS() {
-  const existingData = getLocalStorage(QUESTION_STORAGE_KEY);
-
-  // Check if local storage is empty for the specified key
-  if (!existingData) {
-    setLocalStorage(QUESTION_STORAGE_KEY, questionData);
-  }
+// Set questions to local storage
+export function setQuestionsLS(questions) {
+  setLocalStorage(QUESTION_STORAGE_KEY, questions);
 }
-
 
 export function addQuestionLS(question) {
   const questions = getQuestionsLS();
   questions.push(question);
-  setLocalStorage(QUESTION_STORAGE_KEY, questions);
+  setQuestionsLS(questions);
 }
