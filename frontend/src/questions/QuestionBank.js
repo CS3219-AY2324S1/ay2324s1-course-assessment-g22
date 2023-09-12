@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   setQuestionsLS,
   getQuestionsLS,
@@ -88,21 +88,15 @@ export default function QuestionBank() {
     setRowSelectionModel([]);
     window.location.reload();
   };
-  const [questions, setQuestions] = useState([]);
 
-  useEffect(() => {
-    // console.log("Runs twice");
+  const [questions] = useState(() => {
     let count = 1;
-    setQuestions(
+    return (
       getQuestionsLS().map((question) => {
         return { ...question, id: uuidv4(), qid: count++ };
       }) || []
     );
   }, []);
-
-  useEffect(() => {
-    setQuestionsLS(questions);
-  }, [questions]);
 
   return (
     <div className="p-10 bg-grey">
