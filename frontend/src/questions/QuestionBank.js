@@ -1,16 +1,42 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { setQuestionsLS, getQuestionsLS, addQuestionLS } from "./utils/QuestionQueries";
+import {
+  setQuestionsLS,
+  getQuestionsLS,
+  addQuestionLS,
+} from "./utils/QuestionQueries";
 import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
+import { Button } from "@mui/material";
 import QuestionModal from "./QuestionModal";
 
+const handleClick = () => {
+  console.log("clicked");
+};
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
   { field: "title", headerName: "Question Title", flex: 3 },
   { field: "category", headerName: "Question Category", flex: 4 },
   { field: "complexity", headerName: "Question Complexity", flex: 1.5 },
+  {
+    field: "description",
+    headerName: "Question Description",
+    flex: 2,
+    renderCell: (cellValue) => {
+      return (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={(event) => {
+            handleClick(event, cellValue);
+          }}
+        >
+          Description
+        </Button>
+      );
+    },
+  },
 ];
 
 export default function QuestionBank() {
@@ -47,7 +73,11 @@ export default function QuestionBank() {
   const handleSubmit = () => {
     if (hasDuplicateTitle(questions, formData.title.toLowerCase())) {
       alert("Duplicate title found. Please check your input.");
-    } else if (formData.title === "" || formData.category === "" || formData.complexity === "") {
+    } else if (
+      formData.title === "" ||
+      formData.category === "" ||
+      formData.complexity === ""
+    ) {
       alert("Please fill out all fields.");
     } else {
       addQuestionLS(formData); // Add the form data to local storage
@@ -80,7 +110,10 @@ export default function QuestionBank() {
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Question Bank</h2>
         <div className="space-x-4">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg" onClick={openModal}>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+            onClick={openModal}
+          >
             Add
           </button>
           <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
