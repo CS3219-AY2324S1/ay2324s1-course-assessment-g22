@@ -28,7 +28,7 @@ export const questionData = [
     Constraints: \n
      
     1 <= s.length <= 105\n
-    s[i] is a printable ascii character.`
+    s[i] is a printable ascii character.`,
   },
   {
     title: "Linked List Cycle Detection",
@@ -61,7 +61,7 @@ export const questionData = [
     -10^5 <= Node.val <= 10^5 \n
     pos is -1 or a valid index in the linked-list. \n
      
-    Follow up: Can you solve it using O(1) (i.e. constant) memory? `
+    Follow up: Can you solve it using O(1) (i.e. constant) memory? `,
   },
   {
     title: "Roman to Integer",
@@ -107,7 +107,7 @@ export const questionData = [
     1 <= s.length <= 15 \n
     s contains only the characters ('I', 'V', 'X', 'L', 'C', 'D', 'M'). \n
     It is guaranteed that s is a valid roman numeral in the range [1, 
-    3999].`
+    3999].`,
   },
   {
     title: "Add Binary",
@@ -125,7 +125,7 @@ export const questionData = [
     1 <= a.length, b.length <= 104 \n
     a and b consist only of '0' or '1' characters. \n
     Each string does not contain leading zeros except for the zero itself.
-    `
+    `,
   },
   {
     title: "Fibonacci Number",
@@ -152,7 +152,7 @@ export const questionData = [
     Explanation: F(4) = F(3) + F(2) = 2 + 1 = 3. \n
      
     Constraints: \n
-    0 <= n <= 30 `
+    0 <= n <= 30 `,
   },
   {
     title: "Implement Stack using Queues",
@@ -193,7 +193,7 @@ export const questionData = [
     All the calls to pop and top are valid. \n
      
     Follow-up: Can you implement the stack using only one queue? 
-    `
+    `,
   },
   {
     title: "Combine Two Tables",
@@ -257,7 +257,7 @@ export const questionData = [
     Explanation: \n
     There is no address in the address table for the personId = 1 so we return 
     null in their city and state. \n
-    addressId = 1 contains information about the address of personId = 2. `
+    addressId = 1 contains information about the address of personId = 2. `,
   },
   {
     title: "Repeated DNA Sequences",
@@ -279,7 +279,7 @@ export const questionData = [
      
     Constraints: \n
     1 <= s.length <= 105\n
-    s[i] is either 'A', 'C', 'G', or 'T'. `
+    s[i] is either 'A', 'C', 'G', or 'T'. `,
   },
   {
     title: "Course Schedule",
@@ -310,7 +310,7 @@ export const questionData = [
     0 <= prerequisites.length <= 5000 \n
     prerequisites[i].length == 2 \n
     0 <= ai, bi < numCourses \n
-    All the pairs prerequisites[i] are unique. `
+    All the pairs prerequisites[i] are unique. `,
   },
   {
     title: "LRU Cache Design",
@@ -350,7 +350,7 @@ export const questionData = [
     0 <= key <= 10^4\n
     0 <= value <= 10^5\n
     At most 2 * 10^5 calls will be made to get and put. \n
-    `
+    `,
   },
   {
     title: "Longest Common Subsequence",
@@ -379,7 +379,7 @@ export const questionData = [
      
     Constraints: \n
     1 <= text1.length, text2.length <= 1000 \n
-    text1 and text2 consist of only lowercase English characters.`
+    text1 and text2 consist of only lowercase English characters.`,
   },
   {
     title: "Rotate Image",
@@ -399,7 +399,7 @@ export const questionData = [
     Constraints: \n
     n == matrix.length == matrix[i].length \n
     1 <= n <= 20 \n
-    -1000 <= matrix[i][j] <= 1000 `
+    -1000 <= matrix[i][j] <= 1000 `,
   },
   {
     title: "Airplane Seat Assignment Probability",
@@ -422,7 +422,7 @@ export const questionData = [
     seat (when first person gets the first seat). \n
      
     Constraints: \n
-    1 <= n <= 10^5`
+    1 <= n <= 10^5`,
   },
   {
     title: "Validate Binary Search Tree",
@@ -446,7 +446,7 @@ export const questionData = [
     Constraints: \n
     The number of nodes in the tree is in the range [1, 104
     ]. \n
-    -231 <= Node.val <= 231 - 1 `
+    -231 <= Node.val <= 231 - 1 `,
   },
   {
     title: "Sliding Window Maximum",
@@ -477,7 +477,7 @@ export const questionData = [
     Constraints: \n
     1 <= nums.length <= 10^5
     -10^4 <= nums[i] <= 10^4\n
-    1 <= k <= nums.length`
+    1 <= k <= nums.length`,
   },
   {
     title: "N-Queen Problem",
@@ -501,7 +501,7 @@ export const questionData = [
     Input: n = 1 \n
     Output: [["Q"]] \n
     Constraints: \n
-    1 <= n <= 9`
+    1 <= n <= 9`,
   },
   {
     title: "Serialize and Deserialize a Binary Tree",
@@ -527,7 +527,7 @@ export const questionData = [
     Constraints: \n
     The number of nodes in the tree is in the range [0, 104
     ]. \n
-    -1000 <= Node.val <= 1000`
+    -1000 <= Node.val <= 1000`,
   },
   {
     title: "Wildcard Matching",
@@ -556,7 +556,7 @@ export const questionData = [
     Constraints: \n
     0 <= s.length, p.length <= 2000 \n
     s contains only lowercase English letters.\n 
-    p contains only lowercase English letters, '?' or '*'. `
+    p contains only lowercase English letters, '?' or '*'. `,
   },
   {
     title: "Chalkboard XOR Game",
@@ -592,7 +592,7 @@ export const questionData = [
     Output: true \n
     Constraints: \n
     1 <= nums.length <= 1000 \n
-    0 <= nums[i] < 2^16`
+    0 <= nums[i] < 2^16`,
   },
   {
     title: "Trips and Users",
@@ -693,6 +693,6 @@ export const questionData = [
      - There were 3 requests in total, 1 of which was canceled. \n
      - The request with Id=8 was made by a banned client, so it is ignored. \n
      - Hence there are 2 unbanned request in total, 1 of which were canceled. \n
-     - The Cancellation Rate is (1 / 2) = 0.50`
+     - The Cancellation Rate is (1 / 2) = 0.50`,
   },
 ];
