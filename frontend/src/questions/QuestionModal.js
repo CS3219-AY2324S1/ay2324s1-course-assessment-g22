@@ -77,9 +77,6 @@ export default function CustomModal({ open, handleClose, formData, category, han
               rows={10}
               value={formData.description}
               onChange={handleInputChange}
-              sx={{
-                maxWidth: "100%", // Set the maximum width to 100% of the parent container
-              }}
             />
             <div>
             <button 
