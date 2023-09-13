@@ -1,11 +1,11 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { questionData } from "./utils/QuestionData";
+import { getQuestionsLS } from "./utils/QuestionQueries";
 
 export const QuestionDescription = () => {
   const urlPathQnId = useParams();
   const questionTitle = urlPathQnId.title;
-  const question = questionData.find((qn) => qn.title === questionTitle);
+  const question = getQuestionsLS().find((qn) => qn.title === questionTitle);
   if (question.description === undefined) {
     return (
       <div className="bg-white">
