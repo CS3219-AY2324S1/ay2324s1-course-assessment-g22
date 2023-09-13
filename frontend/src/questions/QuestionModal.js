@@ -7,9 +7,8 @@ import TextField from "@mui/material/TextField";
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-// import Autocomplete from '@mui/material/Autocomplete';
+import Autocomplete from '@mui/material/Autocomplete';
 import { categories } from "./utils/QuestionCategories";
-import MultiSelectComponent from './components/MultiSelectComponent';
 
 export default function CustomModal({ open, handleClose, formData, category, handleInputChange, handleCategoryChange, handleSubmit }) {
 
@@ -20,7 +19,7 @@ export default function CustomModal({ open, handleClose, formData, category, han
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 400, bgcolor: "background.paper", boxShadow: 24, p: 4 }}>
+        <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 500, bgcolor: "background.paper", boxShadow: 24, p: 4}}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Add a Question
           </Typography>
@@ -31,19 +30,24 @@ export default function CustomModal({ open, handleClose, formData, category, han
               variant="outlined"
               fullWidth
               margin="normal"
+              multiline
+              rows={4}
               value={formData.title}
               onChange={handleInputChange}
             />
-            <MultiSelectComponent
-              fullWidth
-              margin="normal"
-              getOptionLabel={options => options}
-              label="Question Category"
-              value={category}
+            <Autocomplete
+              multiple
               options={categories}
+              getOptionLabel={(option) => option}
+              value={category}
               onChange={handleCategoryChange}
-              limitTags={3} // limits number of chip to render while out of focus, useful for responsiveness
-              getLimitTagsText={count => `+${count}📦`} // modify the limit tag text, useful for translation too
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Question Categories"
+                  placeholder="Favorites"
+                />
+              )}
             />
             <FormControl
               fullWidth
@@ -63,6 +67,20 @@ export default function CustomModal({ open, handleClose, formData, category, han
                 <MenuItem value={"Hard"}>Hard</MenuItem>
               </Select>
             </FormControl>
+            <TextField
+              name="description"
+              label="Question Description"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              multiline
+              rows={10}
+              value={formData.description}
+              onChange={handleInputChange}
+              sx={{
+                maxWidth: "100%", // Set the maximum width to 100% of the parent container
+              }}
+            />
             <div>
             <button 
               type="button" 

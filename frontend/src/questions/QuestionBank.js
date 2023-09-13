@@ -25,8 +25,9 @@ export default function QuestionBank() {
   // State for storing form input values
   const [formData, setFormData] = useState({
     title: "",
-    category: "",
+    category: [],
     complexity: "",
+    description: "",
   });
 
   // Function to open the modal
@@ -69,14 +70,14 @@ export default function QuestionBank() {
     } else if (
       formData.title === "" ||
       formData.category === "" ||
-      formData.complexity === ""
+      formData.complexity === "" ||
+      formData.description === ""
     ) {
       alert("Please fill out all fields.");
     } else {
       addQuestionLS(formData); // Add the form data to local storage
       closeModal(); // Close the modal after handling the form submission
       window.location.reload();
-      console.log(formData);
     }
   };
 
