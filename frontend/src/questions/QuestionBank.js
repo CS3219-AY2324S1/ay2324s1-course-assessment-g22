@@ -25,7 +25,7 @@ export default function QuestionBank() {
   // State for storing form input values
   const [formData, setFormData] = useState({
     title: "",
-    category: [],
+    category: "",
     complexity: "",
     description: "",
   });
