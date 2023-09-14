@@ -7,13 +7,29 @@ import {
 } from "./utils/QuestionQueries";
 import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
+import { Button } from "@mui/material";
 import QuestionModal from "./QuestionModal";
+import { Link } from "react-router-dom";
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
   { field: "title", headerName: "Question Title", flex: 3 },
   { field: "category", headerName: "Question Category", flex: 4 },
   { field: "complexity", headerName: "Question Complexity", flex: 1.5 },
+  {
+    field: "description",
+    headerName: "Question Description",
+    flex: 2,
+    renderCell: (params) => {
+      return (
+        <Link to={`/question/${params.row.title}`}>
+          <Button variant="outlined" color="primary">
+            Description
+          </Button>
+        </Link>
+      );
+    },
+  },
 ];
 
 export default function QuestionBank() {
@@ -100,8 +116,7 @@ export default function QuestionBank() {
         }
       }
       return true;
-    }
-    );
+    });
     setQuestionsLS(newQuestions);
     setRowSelectionModel([]);
     window.location.reload();
@@ -127,7 +142,10 @@ export default function QuestionBank() {
           >
             Add
           </button>
-          <button className="bg-red-500 text-white px-4 py-2 rounded-lg" onClick={handleDelete}>
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded-lg"
+            onClick={handleDelete}
+          >
             Delete
           </button>
         </div>

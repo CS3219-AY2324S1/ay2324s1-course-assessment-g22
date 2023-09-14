@@ -9,14 +9,11 @@ const QUESTION_STORAGE_KEY = "questions";
 
 // Get questions from local storage
 export function getQuestionsLS() {
-  const existingData = getLocalStorage(QUESTION_STORAGE_KEY);
-
-  if (!existingData) {
+  if (localStorage.getItem(QUESTION_STORAGE_KEY) === null) {
     // initialization
     console.log("setting questionData to local storage");
     setQuestionsLS(questionData);
   }
-
   return getLocalStorage(QUESTION_STORAGE_KEY);
 }
 
