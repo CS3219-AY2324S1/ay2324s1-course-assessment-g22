@@ -20,11 +20,14 @@ export default function QuestionBank() {
   // State for managing the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [category, setCategory] = useState([]);
+
   // State for storing form input values
   const [formData, setFormData] = useState({
     title: "",
     category: "",
     complexity: "",
+    description: "",
   });
 
   // Function to open the modal
@@ -37,14 +40,28 @@ export default function QuestionBank() {
     setIsModalOpen(false);
   };
 
+  // Function to handle category changes
+  const handleCategoryChange = (event, value) => {
+    setCategory({
+      ...category,
+      value
+    });
+    const categoryString = "category";
+    setFormData({
+      ...formData,
+      [categoryString]: value.toString()
+    });
+  };
+
   // Function to handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: value
     });
   };
+
 
   // Function to handle form submission
   const handleSubmit = () => {
@@ -53,7 +70,8 @@ export default function QuestionBank() {
     } else if (
       formData.title === "" ||
       formData.category === "" ||
-      formData.complexity === ""
+      formData.complexity === "" ||
+      formData.description === ""
     ) {
       alert("Please fill out all fields.");
     } else {
@@ -135,6 +153,7 @@ export default function QuestionBank() {
         handleClose={closeModal}
         formData={formData}
         handleInputChange={handleInputChange}
+        handleCategoryChange={handleCategoryChange}
         handleSubmit={handleSubmit}
       />
     </div>
