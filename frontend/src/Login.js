@@ -11,8 +11,10 @@ export const Login = ({ onLogin }) => {
         console.log("placeholder")
         let isLoggedIn = true;
 
+        let id = 1;
+        
         if (isLoggedIn) {
-            onLogin();
+            onLogin(id);
         } else {
             
         }
