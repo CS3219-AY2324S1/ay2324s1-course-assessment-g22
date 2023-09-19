@@ -2,7 +2,9 @@ const express = require("express");
 const questionModels = require("../config/dbModels.js");
 const app = express();
 
-app.post("/add_qn", async (req, res) => {
+const urlPrefix = "/api/questions";
+
+app.post(`${urlPrefix}`, async (req, res) => {
   const qn = new questionModels(req.body);
 
   try {
@@ -13,7 +15,7 @@ app.post("/add_qn", async (req, res) => {
   }
 });
 
-app.get("/get_qn", async (req, res) => {
+app.get(`${urlPrefix}`, async (req, res) => {
   const qn = await questionModels.find({});
 
   try {
