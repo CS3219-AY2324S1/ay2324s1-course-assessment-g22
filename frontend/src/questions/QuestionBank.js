@@ -104,23 +104,6 @@ export default function QuestionBank() {
 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
-  const handleBackend = () => {
-    fetch('http://localhost:4000/api/user-accounts')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json(); // Parse the JSON response
-    })
-    .then((data) => {
-      // Set the received data in the state
-      console.log(data);
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-    });
-  };
-
   const handleDelete = () => {
     if (rowSelectionModel.length === 0) {
       alert("Please select at least one question to delete.");
@@ -152,13 +135,7 @@ export default function QuestionBank() {
     <div className="p-10 bg-grey">
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Question Bank</h2>
-        <div className="space-x-4">
-        <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            onClick={handleBackend}
-          >
-            Test
-          </button>
+        <div className="space-x-4">       
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded-lg"
             onClick={openModal}
