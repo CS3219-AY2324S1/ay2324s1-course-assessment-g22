@@ -12,6 +12,9 @@ const Profile = ({ username, updateUsername }) => {
   const [isUpdated, setIsUpdated] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const [searchUsername, setSearchUsername] = useState(""); // New state for search
+  const [foundUser, setFoundUser] = useState(null); // New state for found user
+
   const [editedUser, setEditedUser] = useState({
     oldUsername: username,
     newUsername: "",
@@ -39,6 +42,19 @@ const Profile = ({ username, updateUsername }) => {
 
     getUser();
   }, [username, isUpdated]);
+
+  const handleSearch = async () => {
+    // Send a GET request to search for the user
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/api/users/${searchUsername}`
+      );
+      setFoundUser(response.data);
+    } catch (error) {
+      console.error("User not found:", error);
+      setFoundUser(null);
+    }
+  };
 
   const handleEdit = () => {
     // Open the edit modal and pre-fill data
@@ -79,13 +95,14 @@ const Profile = ({ username, updateUsername }) => {
   const handleDelete = () => {
     // Send a DELETE request to delete the user's account
     try {
-      const response = axios.delete(
-        `http://localhost:4000/api/users/${username}`
-      );
-      console.log("User deleted");
-      navigate("/");
-      window.location.reload();
-      alert("User deleted");
+      axios
+        .delete(`http://localhost:4000/api/users/${username}`)
+        .then((response) => {
+          console.log("User deleted:", response.data);
+          alert("User deleted");
+          navigate("/");
+          window.location.reload();
+        });
     } catch (error) {
       console.error("Error deleting user:", error);
     }
@@ -114,7 +131,41 @@ const Profile = ({ username, updateUsername }) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex flex-row items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md max-w-md w-full mb-4 md:mb-0">
+        <div className="mb-4">
+          <label className="block text-gray-600 font-medium">
+            Search Username
+          </label>
+          <div className="flex">
+            <input
+              type="text"
+              name="searchUsername"
+              value={searchUsername}
+              onChange={(e) => setSearchUsername(e.target.value)}
+              className="mt-1 p-2 border rounded w-full"
+            />
+            <button
+              onClick={handleSearch}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 ml-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+        {foundUser ? (
+          <div>
+            <h3 className="text-xl font-bold mt-4">Found User</h3>
+            <p>Username: {foundUser.username}</p>
+            <p>First Name: {foundUser.firstname}</p>
+            <p>Last Name: {foundUser.lastname}</p>
+            <p>Email: {foundUser.email}</p>
+          </div>
+        ) : (
+          <p>No users found.</p>
+        )}
+      </div>
+      <div className="p-8"></div>
       <div className="bg-white p-8 rounded shadow-md max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-4xl font-bold mb-4">User Profile</h2>
