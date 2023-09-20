@@ -8,7 +8,6 @@ const Profile = ({ username, updateUsername }) => {
 
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isUpdated, setIsUpdated] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -34,14 +33,16 @@ const Profile = ({ username, updateUsername }) => {
         setIsLoading(false);
         setIsUpdated(false);
       } catch (error) {
-        console.error(error);
-        setError(error);
-        setIsLoading(false);
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          navigate("/profile");
+        } else {
+          navigate("/");
+        }
       }
     };
-
     getUser();
-  }, [username, isUpdated]);
+  }, [username, isUpdated, navigate]);
 
   const handleSearch = async () => {
     // Send a GET request to search for the user
@@ -100,6 +101,7 @@ const Profile = ({ username, updateUsername }) => {
         .then((response) => {
           console.log("User deleted:", response.data);
           alert("User deleted");
+          localStorage.removeItem("user");
           navigate("/");
           window.location.reload();
         });
@@ -110,10 +112,6 @@ const Profile = ({ username, updateUsername }) => {
 
   if (isLoading) {
     return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>Error: {error.message}</p>;
   }
 
   if (!user) {

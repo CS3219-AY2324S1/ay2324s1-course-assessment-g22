@@ -3,7 +3,7 @@ import QuestionBank from "./questions/QuestionBank";
 import QuestionDescription from "./questions/QuestionDescription";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Login } from "./Login";
 import { Register } from "./Register";
 import Profile from "./Profile";
@@ -12,14 +12,26 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setIsLoggedIn(true);
+      setUsername(storedUser);
+    }
+  }, []);
+
   const handleLogin = (username) => {
     setIsLoggedIn(true);
     setUsername(username);
+
+    localStorage.setItem("user", username);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername("");
+
+    localStorage.removeItem("user");
   };
 
   const updateUsername = (username) => {
