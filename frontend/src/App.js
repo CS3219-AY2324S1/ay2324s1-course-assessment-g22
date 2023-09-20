@@ -10,15 +10,20 @@ import Profile from "./Profile";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userID, setUserID] = useState(null);
+  const [username, setUsername] = useState("");
 
-  const handleLogin = (id) => {
+  const handleLogin = (username) => {
     setIsLoggedIn(true);
-    setUserID(id);
+    setUsername(username);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setUsername("");
+  };
+
+  const updateUsername = (username) => {
+    setUsername(username);
   };
 
   return (
@@ -53,10 +58,12 @@ function App() {
           }
         />
         <Route path="/question/:title" element={<QuestionDescription />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Register onLogin={handleLogin} />} />
         <Route
           path="/profile"
-          element={<Profile userID={userID} />} // Pass the userID as a prop
+          element={
+            <Profile username={username} updateUsername={updateUsername} />
+          }
         />
       </Routes>
     </Router>

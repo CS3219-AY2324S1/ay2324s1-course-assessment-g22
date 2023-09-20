@@ -1,57 +1,94 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Modal from "react-modal";
 
-const Profile = ({ userID }) => {
+const Profile = ({ username, updateUsername }) => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isUpdated, setIsUpdated] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const [editedUser, setEditedUser] = useState({
+    oldUsername: username,
+    newUsername: "",
+    firstname: "",
+    lastname: "",
+    email: "",
+  });
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users/1")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setUser(data);
+    const getUser = async () => {
+      console.log("Fetching user data...");
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/users/${username}`
+        );
+        setUser(response.data);
         setIsLoading(false);
-      })
-      .catch((error) => {
+        setIsUpdated(false);
+      } catch (error) {
+        console.error(error);
         setError(error);
         setIsLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    getUser();
+  }, [username, isUpdated]);
 
   const handleEdit = () => {
-    const updatedName = prompt("Enter new name:", user.name);
-    const updatedEmail = prompt("Enter new email:", user.email);
+    // Open the edit modal and pre-fill data
+    setEditedUser({
+      oldUsername: user.username,
+      newUsername: user.username,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+    });
+    setIsEditModalOpen(true);
+  };
 
-    if (updatedName !== null && updatedEmail !== null) {
-      const updatedUser = { ...user, name: updatedName, email: updatedEmail };
-      setUser(updatedUser);
+  const handleEditModalClose = () => {
+    // Close the edit modal
+    setIsEditModalOpen(false);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Send a PUT request to update the user's account
+    try {
+      const response = await axios.put(
+        "http://localhost:4000/api/users",
+        editedUser
+      );
+      console.log("User updated:", response.data);
+      setIsUpdated(true);
+      setIsEditModalOpen(false);
+      updateUsername(editedUser.newUsername);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert(`Error updating user! ${error.response.data.error}`);
     }
   };
 
   const handleDelete = () => {
     // Send a DELETE request to delete the user's account
-    fetch(`https://jsonplaceholder.typicode.com/users/${userID}`, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        window.location.reload();
-        navigate("/");
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    try {
+      const response = axios.delete(
+        `http://localhost:4000/api/users/${username}`
+      );
+      console.log("User deleted");
+      navigate("/");
+      window.location.reload();
+      alert("User deleted");
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
   };
 
   if (isLoading) {
@@ -72,7 +109,7 @@ const Profile = ({ userID }) => {
     );
   }
 
-  if (!userID) {
+  if (!username) {
     navigate("/");
   }
 
@@ -89,16 +126,20 @@ const Profile = ({ userID }) => {
           </button>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-600 font-medium">Name</label>
-          <p className="mt-1">{user.name}</p>
+          <label className="block text-gray-600 font-medium">Username</label>
+          <p className="mt-1">{user.username}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-600 font-medium">First Name</label>
+          <p className="mt-1">{user.firstname}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-600 font-medium">Last Name</label>
+          <p className="mt-1">{user.lastname}</p>
         </div>
         <div className="mb-4">
           <label className="block text-gray-600 font-medium">Email</label>
           <p className="mt-1">{user.email}</p>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-600 font-medium">User ID</label>
-          <p className="mt-1">{userID}</p>
         </div>
         <div className="mb-8">
           <Link
@@ -116,6 +157,87 @@ const Profile = ({ userID }) => {
             Delete Account
           </button>
         </div>
+        <Modal
+          isOpen={isEditModalOpen}
+          onRequestClose={handleEditModalClose}
+          contentLabel="Edit User Data"
+        >
+          <div className="mb-4">
+            <label className="block text-gray-600 font-medium">Username</label>
+          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-gray-600 font-medium">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={editedUser.newUsername}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser, newUsername: e.target.value })
+                }
+                className="mt-1 p-2 border rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 font-medium">
+                First Name
+              </label>
+              <input
+                type="text"
+                name="firstname"
+                value={editedUser.firstname}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser, firstname: e.target.value })
+                }
+                className="mt-1 p-2 border rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 font-medium">
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="lastname"
+                value={editedUser.lastname}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser, lastname: e.target.value })
+                }
+                className="mt-1 p-2 border rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-600 font-medium">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={editedUser.email}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser, email: e.target.value })
+                }
+                className="mt-1 p-2 border rounded w-full"
+              />
+            </div>
+            <div className="mb-4">{/* Add more form fields as needed */}</div>
+            <div className="flex justify-between">
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-300"
+              >
+                Save Changes
+              </button>
+              <button
+                type="button"
+                onClick={handleEditModalClose}
+                className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </Modal>
       </div>
     </div>
   );
