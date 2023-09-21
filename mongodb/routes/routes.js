@@ -3,46 +3,49 @@ const questionModel = require("../config/dbModels.js");
 const app = express();
 
 const urlPrefix = "/api/questions";
-const questionTitle = "title";
 const fieldsRequred = ["title", "category", "complexity", "description"];
 
 // Create and save questions
 app.post(`${urlPrefix}`, async (req, res) => {
   // Check if any fields are not in the HTTP request
   if (!fieldsRequred.every((field) => field in req.body)) {
-    res.status(400).json({ error: "Some necessary field(s) are not present!" });
+    res
+      .status(400)
+      .json({ message: "Some necessary field(s) are not present!" });
     return;
   }
 
-  const qn = new questionModel(req.body);
+  try {
+    const existingQn = await questionModel.findOne({
+      title: { $regex: new RegExp(req.body.title, "i") },
+    });
 
-  // Check if question title is already in mongodb
-  let hasTitle = questionModel.exists({ title: `/${qn.title}/i` });
-  if (hasTitle) {
-    res.status(400).json({ error: "Title already exists!" });
-    return;
+    if (existingQn) {
+      res
+        .status(409)
+        .json({ message: "Question with the same title already exists" });
+    } else {
+      const qn = new questionModel(req.body);
+      await qn.save();
+      res.status(200).json({ message: "Question added successfully", qn });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error adding question", error });
   }
-
-  await qn
-    .save()
-    .then((qn) => {
-      res.send(qn); // Double check successful adding
-    })
-    .catch((err) => res.status(500).send(err));
 });
 
 // Get all questions
 app.get(`${urlPrefix}`, async (req, res) => {
   await questionModel
     .find({})
-    .then((qns) => res.send(qns))
-    .catch((err) => res.status(500).send(err));
+    .then((qns) => res.json({ questions: qns }))
+    .catch((err) => res.status(500).json({ error: err }));
 });
 
 // Update question into database
-app.put(`${urlPrefix}/${questionTitle}`, async (req, res) => {
-  const filter = { title: `${questionTitle}` };
-  const update = req.body;
+app.put(`${urlPrefix}/:questionTitle`, async (req, res) => {
+  // const filter = { title: `${questionTitle}` };
+  // const update = req.body;
   // {
   //   $set: {
   //     title: `${questionTitle}`,
@@ -62,12 +65,24 @@ app.put(`${urlPrefix}/${questionTitle}`, async (req, res) => {
 });
 
 // Delete question in database
-app.delete(`${urlPrefix}/${questionTitle}`, async (req, res) => {
-  const filter = { title: `${questionTitle}` };
-  await questionModel
-    .deleteOne(filter)
-    .then(() => res.status(200).send("Question deleted successfully"))
-    .catch((err) => res.status(500).send(err));
+app.delete(`${urlPrefix}/:questionTitle`, async (req, res) => {
+  const questionTitle = req.params.questionTitle;
+
+  try {
+    const questionToDelete = await questionModel.findOne({
+      title: { $regex: questionTitle, $options: "i" },
+    });
+
+    if (!questionToDelete) {
+      res.status(404).json({ message: "No such question found" });
+      return;
+    }
+    await questionToDelete.deleteOne();
+
+    res.status(200).json({ message: "Question deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting question", error });
+  }
 });
 
 module.exports = app;
