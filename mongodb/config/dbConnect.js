@@ -17,7 +17,10 @@ mongoose
   .connect(
     `mongodb+srv://${username}:${password}@${clusterName}.rwipe4m.mongodb.net/${databaseName}?retryWrites=true&w=majority`
   )
-  .catch((error) => console.log(error));
+  .catch((error) => {
+    console.log("Cannot connect to database: ", error);
+    process.exit();
+  });
 
 // Error handling after connection is established
 const db = mongoose.connection;
@@ -26,5 +29,5 @@ db.once("open", () => console.log("Connected successfully to MongoDB"));
 
 app.use(router);
 app.listen(LISTEN_PORT_NUMBER, () => {
-  console.log("Connected to port 3000");
+  console.log(`Connected to port ${LISTEN_PORT_NUMBER}`);
 });

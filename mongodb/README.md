@@ -5,10 +5,6 @@ All API calls to MongoDB uses:
 - Port 3000
 - Raw JSON input/output
 
-For example,
-
-> GET `http://localhost:3000/get_qn` (insert data here)
-
 Nuances
 
 - All fields (title, category, complexity, description) must be included for each item
@@ -20,6 +16,7 @@ Nuances
 ### Create new question
 
 - API: POST http://localhost:3000/api/questions
+- Body of the HTTP POST request should have **title, category, complexity, description**
 
 ### Read question data
 
@@ -28,7 +25,8 @@ Nuances
 ### Update question
 
 - API: PUT http://localhost:3000/api/questions/{question_title}
+- Body of the HTTP POST request should have **title, category, complexity, description**
 
 ### Delete question
 
-- API: DELETE http://localhost:3000/api/questions/{question_title}
+- API: DELETE http://localhost:3000//api/questions/{question_title}

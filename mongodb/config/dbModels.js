@@ -4,6 +4,7 @@ const questionSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    unique: true,
   },
   category: {
     type: String,
@@ -19,6 +20,6 @@ const questionSchema = new mongoose.Schema({
   },
 });
 
-const questionModels = mongoose.model("questionmodels", questionSchema);
+const questionModel = mongoose.model("questionmodels", questionSchema);
 
-module.exports = questionModels;
+module.exports = questionModel;
