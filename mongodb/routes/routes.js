@@ -44,24 +44,38 @@ app.get(`${urlPrefix}`, async (req, res) => {
 
 // Update question into database
 app.put(`${urlPrefix}/:questionTitle`, async (req, res) => {
-  // const filter = { title: `${questionTitle}` };
-  // const update = req.body;
-  // {
-  //   $set: {
-  //     title: `${questionTitle}`,
-  //     category: req.body.category,
-  //     complexity: req.body.complexity,
-  //     description: req.body.description,
-  //   },
-  // };
-  await questionModel
-    .findOneAndUpdate(filter, update)
-    .then((qn) => {
-      qn
-        ? res.status(404).send("No such question!")
-        : res.status(200).send("Question updated successfully.");
-    })
-    .catch((err) => res.status(500).send(err));
+  if (req.params.questionTitle.toLowerCase() !== req.body.title.toLowerCase()) {
+    res.status(400).json({ message: "URL does not match title field!" });
+    return;
+  }
+
+  const newQuestion = req.body;
+  const questionTitle = newQuestion.title;
+
+  try {
+    const questionToUpdate = await questionModel.findOne({
+      title: { $regex: new RegExp(questionTitle, "i") },
+    });
+
+    if (!questionToUpdate) {
+      res.status(404).json({ message: "No such question found" });
+      return;
+    }
+
+    questionToUpdate.title = newQuestion.title;
+    questionToUpdate.category = newQuestion.category;
+    questionToUpdate.complexity = newQuestion.complexity;
+    questionToUpdate.description = newQuestion.description;
+
+    await questionToUpdate.save();
+
+    res.status(200).json({
+      message: "Question updated successfully",
+      updatedQuestion: questionToUpdate,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating question", error });
+  }
 });
 
 // Delete question in database
