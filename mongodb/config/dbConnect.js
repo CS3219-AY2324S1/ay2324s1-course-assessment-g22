@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const router = require("../routes/routes");
 const dbAdmin = require("./dbAdmin");
+const cors = require("cors");
 
 const LISTEN_PORT_NUMBER = 4567;
 const username = dbAdmin.username;
@@ -11,6 +12,12 @@ const databaseName = dbAdmin.databaseName;
 
 const app = express();
 app.use(express.json());
+
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: "POST, GET, PUT, DELETE",
+};
+app.use(cors(corsOptions)); // Use the cors middleware
 
 // Initial connection to database
 mongoose

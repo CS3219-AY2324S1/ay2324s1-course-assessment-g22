@@ -1,5 +1,3 @@
-import { getLocalStorage, setLocalStorage } from "./LocalStorageQueries";
-import { questionData } from "./QuestionData";
 import {
   handleAddQuestion,
   handleGetQuestions,
@@ -21,13 +19,15 @@ export function getQuestions() {
 // Set questions to mongodb
 export function deleteQuestions(questions) {
   for (const question in questions) {
-    handleDeleteQuestion(question);
+    const a = handleDeleteQuestion(question);
+    console.log(a);
   }
 }
 
 // Add questions to mongodb
 export function addQuestion(question) {
-  handleAddQuestion(question);
+  const a = handleAddQuestion(question);
+  console.log(a);
 }
 
 // // Get questions from local storage
