@@ -3,12 +3,12 @@ const questionModel = require("../config/dbModels.js");
 const app = express();
 
 const urlPrefix = "/api/questions";
-const fieldsRequred = ["title", "category", "complexity", "description"];
+const fieldsRequired = ["title", "category", "complexity", "description"];
 
 // Create and save questions
 app.post(`${urlPrefix}`, async (req, res) => {
   // Check if any fields are not in the HTTP request
-  if (!fieldsRequred.every((field) => field in req.body)) {
+  if (!fieldsRequired.every((field) => field in req.body)) {
     res
       .status(400)
       .json({ message: "Some necessary field(s) are not present!" });
