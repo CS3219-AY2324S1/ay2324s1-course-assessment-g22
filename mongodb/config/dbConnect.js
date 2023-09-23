@@ -3,7 +3,7 @@ const express = require("express");
 const router = require("../routes/routes");
 const dbAdmin = require("./dbAdmin");
 
-const LISTEN_PORT_NUMBER = 3000;
+const LISTEN_PORT_NUMBER = 4567;
 const username = dbAdmin.username;
 const password = dbAdmin.password;
 const clusterName = dbAdmin.clusterName;
