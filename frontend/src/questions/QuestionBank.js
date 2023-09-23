@@ -1,9 +1,9 @@
 import React from "react";
 import { useState } from "react";
 import {
-  setQuestionsLS,
-  getQuestionsLS,
-  addQuestionLS,
+  deleteQuestions,
+  getQuestions,
+  addQuestion,
 } from "./utils/QuestionQueries";
 import { v4 as uuidv4 } from "uuid";
 import { DataGrid } from "@mui/x-data-grid";
@@ -60,12 +60,12 @@ export default function QuestionBank() {
   const handleCategoryChange = (event, value) => {
     setCategory({
       ...category,
-      value
+      value,
     });
     const categoryString = "category";
     setFormData({
       ...formData,
-      [categoryString]: value.toString()
+      [categoryString]: value.toString(),
     });
   };
 
@@ -74,10 +74,9 @@ export default function QuestionBank() {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
-
 
   // Function to handle form submission
   const handleSubmit = () => {
@@ -91,7 +90,7 @@ export default function QuestionBank() {
     ) {
       alert("Please fill out all fields.");
     } else {
-      addQuestionLS(formData); // Add the form data to local storage
+      addQuestion(formData); // Add the form data to local storage
       closeModal(); // Close the modal after handling the form submission
       window.location.reload();
     }
@@ -109,15 +108,15 @@ export default function QuestionBank() {
       alert("Please select at least one question to delete.");
       return;
     }
-    const newQuestions = questions.filter((question) => {
+    const deletedQuestions = questions.filter((question) => {
       for (let i = 0; i < rowSelectionModel.length; i++) {
         if (question.id === rowSelectionModel[i]) {
-          return false;
+          return true;
         }
       }
-      return true;
+      return false;
     });
-    setQuestionsLS(newQuestions);
+    deleteQuestions(deletedQuestions);
     setRowSelectionModel([]);
     window.location.reload();
   };
@@ -125,7 +124,7 @@ export default function QuestionBank() {
   const [questions] = useState(() => {
     let count = 1;
     return (
-      getQuestionsLS().map((question) => {
+      getQuestions().map((question) => {
         return { ...question, id: uuidv4(), qid: count++ };
       }) || []
     );
@@ -135,7 +134,7 @@ export default function QuestionBank() {
     <div className="p-10 bg-grey">
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Question Bank</h2>
-        <div className="space-x-4">       
+        <div className="space-x-4">
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded-lg"
             onClick={openModal}

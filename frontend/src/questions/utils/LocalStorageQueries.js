@@ -1,5 +1,6 @@
 /**
  * Queries for local storage
+ * DEPRECATED FOR QUESTIONS
  */
 
 export function getLocalStorage(key) {
