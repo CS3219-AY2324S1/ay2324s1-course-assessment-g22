@@ -17,7 +17,7 @@ const corsOptions = {
   origin: "http://localhost:3000",
   methods: "POST, GET, PUT, DELETE",
 };
-app.use(cors(corsOptions)); // Use the cors middleware
+app.use(cors(corsOptions));
 
 // Initial connection to database
 mongoose
@@ -26,7 +26,6 @@ mongoose
   )
   .catch((error) => {
     console.log("Cannot connect to database: ", error);
-    process.exit();
   });
 
 // Error handling after connection is established
