@@ -1,11 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getQuestions } from "./utils/QuestionQueries";
+import { getQuestions } from "./utils/mongodb/questionApi";
 
 export const QuestionDescription = () => {
-  const urlPathQnId = useParams();
-  const questionTitle = urlPathQnId.title;
-  const question = getQuestions().find((qn) => qn.title === questionTitle);
+  const urlPathOnId = useParams();
+  const questionTitle = urlPathOnId.title;
+  const [question, setQuestion] = useState("");
+
+  useEffect(() => {
+    const getQns = async () => {
+      try {
+        const qns = await getQuestions();
+        const displayQuestion = qns.questions.find(
+          (qn) => qn.title === questionTitle
+        );
+        setQuestion(displayQuestion);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    getQns();
+  }, [questionTitle]);
+
   if (question.description === undefined) {
     return (
       <div className="bg-white p-4">
