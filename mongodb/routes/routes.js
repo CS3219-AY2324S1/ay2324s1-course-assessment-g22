@@ -44,17 +44,9 @@ app.get(`${urlPrefix}`, async (req, res) => {
 
 // Update question into database
 app.put(`${urlPrefix}/:questionTitle`, async (req, res) => {
-  if (req.params.questionTitle.toLowerCase() !== req.body.title.toLowerCase()) {
-    res.status(400).json({ message: "URL does not match title field!" });
-    return;
-  }
-
-  const newQuestion = req.body;
-  const questionTitle = newQuestion.title;
-
   try {
     const questionToUpdate = await questionModel.findOne({
-      title: new RegExp(`^${questionTitle}$`, "i"),
+      title: new RegExp(`^${req.params.questionTitle}$`, "i"),
     });
 
     if (!questionToUpdate) {
@@ -62,6 +54,7 @@ app.put(`${urlPrefix}/:questionTitle`, async (req, res) => {
       return;
     }
 
+    const newQuestion = req.body;
     questionToUpdate.title = newQuestion.title;
     questionToUpdate.category = newQuestion.category;
     questionToUpdate.complexity = newQuestion.complexity;

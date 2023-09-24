@@ -4,6 +4,7 @@ import {
   deleteQuestions,
   getQuestions,
   addQuestion,
+  updateQuestion,
 } from "./utils/mongodb/questionApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
@@ -34,7 +35,8 @@ const columns = [
 export default function QuestionBank() {
   // State for managing the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isAdd, setIsAdd] = useState(false);
+  const [editQuestionTitle, setEditQuestionTitle] = useState("");
   const [category, setCategory] = useState([]);
 
   // State for storing form input values
@@ -46,7 +48,8 @@ export default function QuestionBank() {
   });
 
   // Function to open the modal
-  const openModal = () => {
+  const openModal = (isAdd) => {
+    setIsAdd(isAdd);
     setIsModalOpen(true);
   };
 
@@ -89,7 +92,9 @@ export default function QuestionBank() {
     ) {
       alert("Please fill out all fields.");
     } else {
-      await addQuestion(formData); // Add the form data to local storage
+      isAdd
+        ? await addQuestion(formData)
+        : await updateQuestion(formData, editQuestionTitle);
       closeModal(); // Close the modal after handling the form submission
       window.location.reload();
     }
@@ -120,6 +125,18 @@ export default function QuestionBank() {
     window.location.reload();
   };
 
+  const handleEdit = async () => {
+    if (rowSelectionModel.length !== 1) {
+      alert("Please select only one question to edit.");
+      return;
+    }
+    const questionToEdit = questions.find(
+      (question) => question.id === rowSelectionModel[0]
+    );
+    setEditQuestionTitle(questionToEdit.title);
+    openModal(false);
+  };
+
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
@@ -140,8 +157,14 @@ export default function QuestionBank() {
         <h2 className="text-2xl font-semibold">Question Bank</h2>
         <div className="space-x-4">
           <button
+            className="bg-green-500 text-white px-4 py-2 rounded-lg"
+            onClick={handleEdit}
+          >
+            Edit
+          </button>
+          <button
             className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            onClick={openModal}
+            onClick={() => openModal(true)}
           >
             Add
           </button>
@@ -176,6 +199,7 @@ export default function QuestionBank() {
         handleInputChange={handleInputChange}
         handleCategoryChange={handleCategoryChange}
         handleSubmit={handleSubmit}
+        isAdd={isAdd}
       />
     </div>
   );

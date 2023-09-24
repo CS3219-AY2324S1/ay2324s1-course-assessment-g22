@@ -40,24 +40,22 @@ export const getQuestions = async () => {
   }
 };
 
-export const updateQuestion = async (question) => {
+export const updateQuestion = async (question, beforeTitle) => {
   if (!fieldsRequired.every((field) => field in question)) {
     console.error("Some fields for question are not present!");
     return;
   }
 
-  const questionInfo = {
-    title: question.title,
-    category: question.category,
-    complexity: question.complexity,
-    description: question.description,
-  };
-
   try {
-    axios
-      .put(`${urlPrefix}/${question.title}`, questionInfo)
+    await axios
+      .put(`${urlPrefix}/${beforeTitle}`, {
+        title: question.title,
+        category: question.category,
+        complexity: question.complexity,
+        description: question.description,
+      })
       .then((response) => {
-        console.log("Response Data:", response.data);
+        console.log("Successfully updated question: ", response.data);
       });
   } catch (error) {
     console.error("Could not update question in mongodb: ", error);
