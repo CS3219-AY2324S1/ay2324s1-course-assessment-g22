@@ -126,4 +126,4 @@ app.get("/", (req, res) => {
   res.send("Successful response.");
 });
 
-app.listen(4000, () => console.log("Example app is listening on port 4000."));
+app.listen(4000, () => console.log("User database is listening on port 4000."));

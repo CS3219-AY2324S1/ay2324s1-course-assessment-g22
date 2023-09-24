@@ -1,11 +1,10 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   deleteQuestions,
   getQuestions,
   addQuestion,
-} from "./utils/QuestionQueries";
-import { v4 as uuidv4 } from "uuid";
+} from "./utils/mongodb/questionApi";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import QuestionModal from "./QuestionModal";
@@ -79,7 +78,7 @@ export default function QuestionBank() {
   };
 
   // Function to handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (hasDuplicateTitle(questions, formData.title.toLowerCase())) {
       alert("Duplicate title found. Please check your input.");
     } else if (
@@ -90,7 +89,7 @@ export default function QuestionBank() {
     ) {
       alert("Please fill out all fields.");
     } else {
-      addQuestion(formData); // Add the form data to local storage
+      await addQuestion(formData); // Add the form data to local storage
       closeModal(); // Close the modal after handling the form submission
       window.location.reload();
     }
@@ -103,12 +102,12 @@ export default function QuestionBank() {
 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (rowSelectionModel.length === 0) {
       alert("Please select at least one question to delete.");
       return;
     }
-    const deletedQuestions = questions.filter((question) => {
+    const questionsToDelete = questions.filter((question) => {
       for (let i = 0; i < rowSelectionModel.length; i++) {
         if (question.id === rowSelectionModel[i]) {
           return true;
@@ -116,18 +115,23 @@ export default function QuestionBank() {
       }
       return false;
     });
-    deleteQuestions(deletedQuestions);
+    await deleteQuestions(questionsToDelete);
     setRowSelectionModel([]);
     window.location.reload();
   };
 
-  const [questions] = useState(() => {
+  const [questions, setQuestions] = useState([]);
+
+  useEffect(() => {
     let count = 1;
-    return (
-      getQuestions().map((question) => {
-        return { ...question, id: uuidv4(), qid: count++ };
-      }) || []
-    );
+    getQuestions().then((data) => {
+      const displayQuestions = data.questions.map((q) => ({
+        ...q,
+        id: q._id,
+        qid: count++,
+      }));
+      setQuestions(displayQuestions);
+    });
   }, []);
 
   return (

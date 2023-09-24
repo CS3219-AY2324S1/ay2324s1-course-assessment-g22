@@ -1,53 +1,31 @@
-import {
-  handleAddQuestion,
-  handleGetQuestions,
-  handleUpdateQuestion,
-  handleDeleteQuestion,
-} from "./mongodb/questionApi";
+import { questionData } from "./QuestionData";
+import { getLocalStorage, setLocalStorage } from "./LocalStorageQueries";
 
 /**
- * Queries for questions on mongodb
+ * Queries for questions on local storage
+ * DEPRECATED
  */
 
-// Get questions from mongodb
+const QUESTION_STORAGE_KEY = "questions";
+
+// Get questions from local storage
 export function getQuestions() {
-  const a = handleGetQuestions();
-  console.log(a);
-  return handleGetQuestions();
-}
-
-// Set questions to mongodb
-export function deleteQuestions(questions) {
-  for (const question in questions) {
-    const a = handleDeleteQuestion(question);
-    console.log(a);
+  if (localStorage.getItem(QUESTION_STORAGE_KEY) === null) {
+    // initialization
+    console.log("setting questionData to local storage");
+    setQuestions(questionData);
   }
+  return getLocalStorage(QUESTION_STORAGE_KEY);
 }
 
-// Add questions to mongodb
+// Set questions to local storage
+export function setQuestions(questions) {
+  setLocalStorage(QUESTION_STORAGE_KEY, questions);
+}
+
+// // Add questions to local storage
 export function addQuestion(question) {
-  const a = handleAddQuestion(question);
-  console.log(a);
+  const questions = getQuestions();
+  questions.push(question);
+  setQuestions(questions);
 }
-
-// // Get questions from local storage
-// export function getQuestionsLS() {
-//   if (localStorage.getItem(QUESTION_STORAGE_KEY) === null) {
-//     // initialization
-//     console.log("setting questionData to local storage");
-//     setQuestionsLS(questionData);
-//   }
-//   return getLocalStorage(QUESTION_STORAGE_KEY);
-// }
-
-// // Set questions to mongodb
-// export function setQuestionsLS(questions) {
-//   setLocalStorage(QUESTION_STORAGE_KEY, questions);
-// }
-
-// // Add questions to mongodb
-// export function addQuestionLS(question) {
-//   const questions = getQuestions();
-//   questions.push(question);
-//   setQuestionsLS(questions);
-// }

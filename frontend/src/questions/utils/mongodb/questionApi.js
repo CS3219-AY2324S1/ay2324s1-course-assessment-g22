@@ -1,48 +1,46 @@
 import axios from "axios";
 
-const localhost = "http://localhost";
 const LISTEN_PORT_NUMBER = 4567;
-const urlPrefix = "/api/questions";
+const urlPrefix = `http://localhost:${LISTEN_PORT_NUMBER}/api/questions`;
 const fieldsRequired = ["title", "category", "complexity", "description"];
 
-export const handleAddQuestion = ({ question }) => {
+export const addQuestion = async (question) => {
   if (!fieldsRequired.every((field) => field in question)) {
     console.error("Some fields for question are not present!");
     return;
   }
-
-  const questionInfo = {
-    title: question.title,
-    category: question.category,
-    complexity: question.complexity,
-    description: question.description,
-  };
-
-  axios
-    .post(`${localhost}:${LISTEN_PORT_NUMBER}${urlPrefix}`, questionInfo)
-    .then((response) => {
-      console.log("Successfully added question to mongodb: ", response.data);
-    })
-    .catch((error) => {
-      console.error("Addition of question to mongodb failed: ", error.response);
-    });
-};
-
-export const handleGetQuestions = () => {
   try {
-    axios
-      .get(`${localhost}:${LISTEN_PORT_NUMBER}${urlPrefix}`)
+    await axios
+      .post(`${urlPrefix}`, {
+        title: question.title,
+        category: question.category,
+        complexity: question.complexity,
+        description: question.description,
+      })
       .then((response) => {
-        // Handle the response data here
-        // console.log("Response Data: ", response.data);
-        return response.data; // List of question objects with relevant fields
+        console.log("Successfully added question to mongodb: ", response.data);
       });
   } catch (error) {
-    console.error("Could not get questions from mongodb: ", error);
+    console.error("Addition of question to mongodb failed: ", error.response);
   }
 };
 
-export const handleUpdateQuestion = ({ question }) => {
+export const getQuestions = async () => {
+  const url = `${urlPrefix}`;
+  try {
+    const res = await axios.get(url, {
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.log("Error getting questions from mongodb: ", error);
+    throw error;
+  }
+};
+
+export const updateQuestion = async (question) => {
   if (!fieldsRequired.every((field) => field in question)) {
     console.error("Some fields for question are not present!");
     return;
@@ -57,29 +55,29 @@ export const handleUpdateQuestion = ({ question }) => {
 
   try {
     axios
-      .put(
-        `${localhost}:${LISTEN_PORT_NUMBER}${urlPrefix}/${question.title}`,
-        questionInfo
-      )
+      .put(`${urlPrefix}/${question.title}`, questionInfo)
       .then((response) => {
-        // Handle the response data here
         console.log("Response Data:", response.data);
       });
   } catch (error) {
-    // Handle any errors that occurred during the request
     console.error("Could not update question in mongodb: ", error);
   }
 };
 
-export const handleDeleteQuestion = ({ question }) => {
+export const deleteQuestion = async (question) => {
   try {
-    axios
-      .delete(
-        `${localhost}:${LISTEN_PORT_NUMBER}${urlPrefix}/${question.title}`
-      )
-      .then((response) => {
-        console.log("Delete Request Successful");
-      });
+    await axios.delete(`${urlPrefix}/${question.title}`);
+  } catch (error) {
+    console.error("Could not delete question in mongodb: ", error);
+  }
+};
+
+export const deleteQuestions = async (questions) => {
+  try {
+    for (const question of questions) {
+      await deleteQuestion(question);
+    }
+    console.log("Question deletions successful");
   } catch (error) {
     console.error("Could not delete question in mongodb: ", error);
   }
