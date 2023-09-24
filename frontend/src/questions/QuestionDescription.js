@@ -5,7 +5,7 @@ import { getQuestions } from "./utils/mongodb/questionApi";
 export const QuestionDescription = () => {
   const urlPathOnId = useParams();
   const questionTitle = urlPathOnId.title;
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState({});
 
   useEffect(() => {
     const getQns = async () => {
@@ -22,7 +22,27 @@ export const QuestionDescription = () => {
     getQns();
   }, [questionTitle]);
 
-  if (question.description === undefined) {
+  if (question === undefined) {
+    return (
+      <div className="bg-white p-4">
+        <h1 className="text-3xl font-bold mb-4 p-4 rounded shadow-lg">
+          {"No Question available"}
+        </h1>
+        <div className="mb-2 p-4 rounded shadow-lg">
+          <p className="text-gray-700 font-bold">Category:</p>
+          <p className="text-xl">{"No category available"}</p>
+        </div>
+        <div className="mb-2 p-4 rounded shadow-lg">
+          <p className="text-gray-700 font-bold">Complexity:</p>
+          <p className="text-lg">{"No complexity available"}</p>
+        </div>
+        <div className="mb-2 p-4 rounded shadow-lg">
+          <p className="text-gray-700 font-bold">Description:</p>
+          <p className="text-gray-700">{"No Description Available"}</p>
+        </div>
+      </div>
+    );
+  } else if (question.description === undefined) {
     return (
       <div className="bg-white p-4">
         <h1 className="text-3xl font-bold mb-4 p-4 rounded shadow-lg">
