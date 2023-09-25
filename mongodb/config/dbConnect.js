@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const express = require("express");
 const router = require("../routes/routes");
 const dbAdmin = require("./dbAdmin");
+const cors = require("cors");
 
-const LISTEN_PORT_NUMBER = 3000;
+const LISTEN_PORT_NUMBER = 4567;
 const username = dbAdmin.username;
 const password = dbAdmin.password;
 const clusterName = dbAdmin.clusterName;
@@ -12,6 +13,12 @@ const databaseName = dbAdmin.databaseName;
 const app = express();
 app.use(express.json());
 
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: "POST, GET, PUT, DELETE",
+};
+app.use(cors(corsOptions));
+
 // Initial connection to database
 mongoose
   .connect(
@@ -19,7 +26,6 @@ mongoose
   )
   .catch((error) => {
     console.log("Cannot connect to database: ", error);
-    process.exit();
   });
 
 // Error handling after connection is established

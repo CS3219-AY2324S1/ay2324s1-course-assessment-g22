@@ -3,27 +3,27 @@ const questionModel = require("../config/dbModels.js");
 const app = express();
 
 const urlPrefix = "/api/questions";
-const fieldsRequred = ["title", "category", "complexity", "description"];
+const fieldsRequired = ["title", "category", "complexity", "description"];
 
 // Create and save questions
 app.post(`${urlPrefix}`, async (req, res) => {
   // Check if any fields are not in the HTTP request
-  if (!fieldsRequred.every((field) => field in req.body)) {
-    res
-      .status(400)
-      .json({ message: "Some necessary field(s) are not present!" });
-    return;
-  }
-
   try {
+    if (!fieldsRequired.every((field) => field in req.body)) {
+      res
+        .status(400)
+        .json({ message: "Some necessary field(s) are not present!" });
+      return;
+    }
+
     const existingQn = await questionModel.findOne({
-      title: { $regex: new RegExp(req.body.title, "i") },
+      title: new RegExp(`^${req.body.title}$`, "i"),
     });
 
     if (existingQn) {
-      res
-        .status(409)
-        .json({ message: "Question with the same title already exists" });
+      res.status(409).json({
+        message: "Question with the same title already exists",
+      });
     } else {
       const qn = new questionModel(req.body);
       await qn.save();
@@ -44,24 +44,17 @@ app.get(`${urlPrefix}`, async (req, res) => {
 
 // Update question into database
 app.put(`${urlPrefix}/:questionTitle`, async (req, res) => {
-  if (req.params.questionTitle.toLowerCase() !== req.body.title.toLowerCase()) {
-    res.status(400).json({ message: "URL does not match title field!" });
-    return;
-  }
-
-  const newQuestion = req.body;
-  const questionTitle = newQuestion.title;
-
   try {
     const questionToUpdate = await questionModel.findOne({
-      title: { $regex: new RegExp(questionTitle, "i") },
+      title: new RegExp(`^${req.params.questionTitle}$`, "i"),
     });
 
     if (!questionToUpdate) {
-      res.status(404).json({ message: "No such question found" });
+      res.status(400).json({ message: "No such question found" });
       return;
     }
 
+    const newQuestion = req.body;
     questionToUpdate.title = newQuestion.title;
     questionToUpdate.category = newQuestion.category;
     questionToUpdate.complexity = newQuestion.complexity;
@@ -84,7 +77,7 @@ app.delete(`${urlPrefix}/:questionTitle`, async (req, res) => {
 
   try {
     const questionToDelete = await questionModel.findOne({
-      title: { $regex: questionTitle, $options: "i" },
+      title: new RegExp(`^${questionTitle}$`, "i"),
     });
 
     if (!questionToDelete) {
