@@ -68,10 +68,9 @@ export default function QuestionBank() {
 
   // Function to handle category changes
   const handleCategoryChange = (event, value) => {
-    setCategory({
-      ...category,
-      value,
-    });
+    console.log(category);
+    const updatedCategory = value.map(option => option);
+    setCategory(updatedCategory);
     const categoryString = "category";
     setFormData({
       ...formData,
@@ -145,6 +144,8 @@ export default function QuestionBank() {
       (question) => question.id === rowSelectionModel[0]
     );
     setEditQuestionTitle(questionToEdit.title);
+    const categoryArray = questionToEdit.category.split(",");
+    setCategory(categoryArray);
     setFormData({
       title: questionToEdit.title,
       category: questionToEdit.category,
@@ -212,6 +213,7 @@ export default function QuestionBank() {
       <QuestionModal
         open={isModalOpen}
         handleClose={closeModal}
+        category={category}
         formData={formData}
         handleInputChange={handleInputChange}
         handleCategoryChange={handleCategoryChange}
