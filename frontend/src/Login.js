@@ -2,8 +2,10 @@ import React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useSignIn } from "react-auth-kit";
 
 export const Login = ({ onLogin }) => {
+  const signIn = useSignIn();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,6 +20,14 @@ export const Login = ({ onLogin }) => {
       .post("http://localhost:4000/api/login", loginData)
       .then((response) => {
         console.log("Login successful:", response.data);
+        signIn({
+          token: response.data.token,
+          expiresIn: 60 * 60 * 24 * 3,
+          tokenType: "Bearer",
+          authState: {
+            username: username,
+          },
+        });
         onLogin(username);
       })
       .catch((error) => {

@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "react-modal";
+import Cookies from "js-cookie";
 
 const Profile = ({ username, updateUsername }) => {
   const navigate = useNavigate();
+  const authToken = getAuthTokenFromCookie();
 
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,12 +24,22 @@ const Profile = ({ username, updateUsername }) => {
     email: "",
   });
 
+  function getAuthTokenFromCookie() {
+    const authToken = Cookies.get("_auth");
+    return authToken || null;
+  }
+
   useEffect(() => {
     const getUser = async () => {
       console.log("Fetching user data...");
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/users/${username}`
+          `http://localhost:4000/api/users/${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
         );
         setUser(response.data);
         setIsLoading(false);
@@ -81,7 +93,12 @@ const Profile = ({ username, updateUsername }) => {
     try {
       const response = await axios.put(
         "http://localhost:4000/api/users",
-        editedUser
+        editedUser,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
       console.log("User updated:", response.data);
       setIsUpdated(true);
@@ -97,7 +114,11 @@ const Profile = ({ username, updateUsername }) => {
     // Send a DELETE request to delete the user's account
     try {
       axios
-        .delete(`http://localhost:4000/api/users/${username}`)
+        .delete(`http://localhost:4000/api/users/${username}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        })
         .then((response) => {
           console.log("User deleted:", response.data);
           alert("User deleted");

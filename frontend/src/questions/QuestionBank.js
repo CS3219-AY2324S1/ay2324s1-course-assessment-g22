@@ -10,6 +10,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import QuestionModal from "./QuestionModal";
 import { Link } from "react-router-dom";
+import { useAuthHeader } from "react-auth-kit";
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
@@ -69,7 +70,7 @@ export default function QuestionBank() {
   // Function to handle category changes
   const handleCategoryChange = (event, value) => {
     console.log(category);
-    const updatedCategory = value.map(option => option);
+    const updatedCategory = value.map((option) => option);
     setCategory(updatedCategory);
     const categoryString = "category";
     setFormData({

@@ -32,8 +32,7 @@ export const Register = ({ onLogin }) => {
       .post("http://localhost:4000/api/users", registerData)
       .then((response) => {
         console.log("Register successful:", response.data);
-        alert("Register successful! Logging in Now.");
-        onLogin(username);
+        alert("Register successful!");
         navigate("/");
       })
       .catch((error) => {

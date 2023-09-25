@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const { Pool } = require("pg");
 const cors = require("cors"); // Import the cors middleware
 const config = require("./config.js");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(bodyParser.json());
@@ -22,8 +23,27 @@ const pool = new Pool({
   port: dbConfig.port,
 });
 
+function verifyToken(req, res, next) {
+  const authHeader = req.header("Authorization");
+  if (!authHeader) {
+    return res.status(401).json({ error: `Access denied. No token provided.` });
+  }
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: `Access denied. Not Bearer Token.` });
+  }
+  const token = authHeader.substring(7, authHeader.length);
+  try {
+    const decoded = jwt.verify(token, config.jwtSecret);
+    req.user = decoded.username; // Store the decoded user information in the request object
+    next(); // Move to the next middleware
+  } catch (error) {
+    temp = error;
+    res.status(400).json({ error: `Invalid token.` });
+  }
+}
+
 // GET /api/users/:username - Retrieve user details by username
-app.get("/api/users/:username", async (req, res) => {
+app.get("/api/users/:username", verifyToken, async (req, res) => {
   const username = req.params.username;
   try {
     const query =
@@ -40,7 +60,7 @@ app.get("/api/users/:username", async (req, res) => {
   }
 });
 
-// POST /api/login - Login without Auth
+// POST /api/login - Login with JWT
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -50,7 +70,13 @@ app.post("/api/login", async (req, res) => {
     if (result.rows.length === 0) {
       res.status(401).json({ error: "Incorrect username or Password" });
     } else {
-      res.status(200).json(result.rows[0]);
+      // Create a JWT token
+      const user = result.rows[0];
+      const token = jwt.sign(
+        { username: user.username, role: user.role },
+        config.jwtSecret
+      );
+      res.status(200).json({ token });
     }
   } catch (error) {
     console.error("Error creating user:", error);
@@ -81,7 +107,7 @@ app.post("/api/users", async (req, res) => {
 });
 
 // PUT /api/users/ - Update user details
-app.put("/api/users", async (req, res) => {
+app.put("/api/users", verifyToken, async (req, res) => {
   const { oldUsername, newUsername, email, password, firstname, lastname } =
     req.body;
   try {

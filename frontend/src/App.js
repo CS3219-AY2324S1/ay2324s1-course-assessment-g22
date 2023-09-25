@@ -7,10 +7,12 @@ import { useState, useEffect } from "react";
 import { Login } from "./Login";
 import { Register } from "./Register";
 import Profile from "./Profile";
+import { useSignOut } from "react-auth-kit";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const signOut = useSignOut();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -31,6 +33,7 @@ function App() {
     setIsLoggedIn(false);
     setUsername("");
 
+    signOut();
     localStorage.removeItem("user");
   };
 

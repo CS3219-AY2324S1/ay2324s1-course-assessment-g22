@@ -1,12 +1,56 @@
 const express = require("express");
 const questionModel = require("../config/dbModels.js");
 const app = express();
+const jwt = require("jsonwebtoken");
+const dbAdmin = require("../config/dbAdmin.js");
 
 const urlPrefix = "/api/questions";
 const fieldsRequired = ["title", "category", "complexity", "description"];
 
+function verifyToken(req, res, next) {
+  const authHeader = req.header("Authorization");
+  if (!authHeader) {
+    return res.status(401).json({ error: `Access denied. No token provided.` });
+  }
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: `Access denied. Not Bearer Token.` });
+  }
+  const token = authHeader.substring(7, authHeader.length);
+  try {
+    const decoded = jwt.verify(token, dbAdmin.jwtSecret);
+    req.user = decoded.username; // Store the decoded user information in the request object
+    next(); // Move to the next middleware
+  } catch (error) {
+    temp = error;
+    res.status(400).json({ error: `Invalid token.` });
+  }
+}
+
+function verifyAdminToken(req, res, next) {
+  const authHeader = req.header("Authorization");
+  if (!authHeader) {
+    return res.status(401).json({ error: `Access denied. No token provided.` });
+  }
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: `Access denied. Not Bearer Token.` });
+  }
+  const token = authHeader.substring(7, authHeader.length);
+  try {
+    const decoded = jwt.verify(token, dbAdmin.jwtSecret);
+    req.user = decoded.username;
+    if (decoded.role !== "maintainer") {
+      return res
+        .status(401)
+        .json({ error: "Access denied. Not a maintainer (admin)." });
+    }
+    next(); // Move to the next middleware
+  } catch (error) {
+    res.status(400).json({ error: "Invalid token." });
+  }
+}
+
 // Create and save questions
-app.post(`${urlPrefix}`, async (req, res) => {
+app.post(`${urlPrefix}`, verifyAdminToken, async (req, res) => {
   // Check if any fields are not in the HTTP request
   try {
     if (!fieldsRequired.every((field) => field in req.body)) {
@@ -35,7 +79,7 @@ app.post(`${urlPrefix}`, async (req, res) => {
 });
 
 // Get all questions
-app.get(`${urlPrefix}`, async (req, res) => {
+app.get(`${urlPrefix}`, verifyToken, async (req, res) => {
   await questionModel
     .find({})
     .then((qns) => res.json({ questions: qns }))
@@ -43,7 +87,7 @@ app.get(`${urlPrefix}`, async (req, res) => {
 });
 
 // Update question into database
-app.put(`${urlPrefix}/:questionTitle`, async (req, res) => {
+app.put(`${urlPrefix}/:questionTitle`, verifyAdminToken, async (req, res) => {
   try {
     const questionToUpdate = await questionModel.findOne({
       title: new RegExp(`^${req.params.questionTitle}$`, "i"),
@@ -72,24 +116,28 @@ app.put(`${urlPrefix}/:questionTitle`, async (req, res) => {
 });
 
 // Delete question in database
-app.delete(`${urlPrefix}/:questionTitle`, async (req, res) => {
-  const questionTitle = req.params.questionTitle;
+app.delete(
+  `${urlPrefix}/:questionTitle`,
+  verifyAdminToken,
+  async (req, res) => {
+    const questionTitle = req.params.questionTitle;
 
-  try {
-    const questionToDelete = await questionModel.findOne({
-      title: new RegExp(`^${questionTitle}$`, "i"),
-    });
+    try {
+      const questionToDelete = await questionModel.findOne({
+        title: new RegExp(`^${questionTitle}$`, "i"),
+      });
 
-    if (!questionToDelete) {
-      res.status(404).json({ message: "No such question found" });
-      return;
+      if (!questionToDelete) {
+        res.status(404).json({ message: "No such question found" });
+        return;
+      }
+      await questionToDelete.deleteOne();
+
+      res.status(200).json({ message: "Question deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting question", error });
     }
-    await questionToDelete.deleteOne();
-
-    res.status(200).json({ message: "Question deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting question", error });
   }
-});
+);
 
 module.exports = app;
