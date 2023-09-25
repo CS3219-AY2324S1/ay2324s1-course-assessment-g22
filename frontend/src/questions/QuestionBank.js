@@ -49,6 +49,14 @@ export default function QuestionBank() {
 
   // Function to open the modal
   const openModal = (isAdd) => {
+    if (isAdd) {
+      setFormData({
+        title: "",
+        category: "",
+        complexity: "",
+        description: "",
+      });
+    }
     setIsAdd(isAdd);
     setIsModalOpen(true);
   };
@@ -82,7 +90,10 @@ export default function QuestionBank() {
 
   // Function to handle form submission
   const handleSubmit = async () => {
-    if (hasDuplicateTitle(questions, formData.title.toLowerCase())) {
+    if (
+      formData.title.toLowerCase() !== editQuestionTitle.toLowerCase() &&
+      hasDuplicateTitle(questions, formData.title.toLowerCase())
+    ) {
       alert("Duplicate title found. Please check your input.");
     } else if (
       formData.title === "" ||
@@ -134,6 +145,12 @@ export default function QuestionBank() {
       (question) => question.id === rowSelectionModel[0]
     );
     setEditQuestionTitle(questionToEdit.title);
+    setFormData({
+      title: questionToEdit.title,
+      category: questionToEdit.category,
+      complexity: questionToEdit.complexity,
+      description: questionToEdit.description,
+    });
     openModal(false);
   };
 

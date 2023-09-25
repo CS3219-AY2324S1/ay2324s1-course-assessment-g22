@@ -61,11 +61,7 @@ export default function CustomModal({
             value={category}
             onChange={handleCategoryChange}
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Question Categories"
-                placeholder="Favorites"
-              />
+              <TextField {...params} label="Question Categories" />
             )}
           />
           <FormControl fullWidth margin="normal">

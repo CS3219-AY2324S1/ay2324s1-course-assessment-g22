@@ -46,6 +46,12 @@ function App() {
           {isLoggedIn ? (
             <div className="flex items-center space-x-4">
               <Link
+                to="/"
+                className="bg-white text-blue-700 px-4 py-2 rounded-full hover:bg-blue-700 hover:text-white"
+              >
+                Home
+              </Link>
+              <Link
                 to="/profile"
                 className="bg-white text-blue-700 px-4 py-2 rounded-full hover:bg-blue-700 hover:text-white"
               >
