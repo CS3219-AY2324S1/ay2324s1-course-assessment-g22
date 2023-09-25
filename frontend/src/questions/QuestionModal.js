@@ -30,6 +30,8 @@ export default function CustomModal({
       <Box
         sx={{
           position: "absolute",
+          overflowY: "scroll",
+          maxHeight: "90%",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
