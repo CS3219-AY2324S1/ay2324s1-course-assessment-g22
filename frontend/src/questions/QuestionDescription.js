@@ -1,15 +1,53 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getQuestionsLS } from "./utils/QuestionQueries";
+import { getQuestions } from "./utils/mongodb/questionApi";
 
 export const QuestionDescription = () => {
-  const urlPathQnId = useParams();
-  const questionTitle = urlPathQnId.title;
-  const question = getQuestionsLS().find((qn) => qn.title === questionTitle);
-  if (question.description === undefined) {
+  const urlPathOnId = useParams();
+  const questionTitle = urlPathOnId.title;
+  const [question, setQuestion] = useState({});
+
+  useEffect(() => {
+    const getQns = async () => {
+      try {
+        const qns = await getQuestions();
+        const displayQuestion = qns.questions.find(
+          (qn) => qn.title === questionTitle
+        );
+        setQuestion(displayQuestion);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    getQns();
+  }, [questionTitle]);
+
+  if (question === undefined) {
     return (
       <div className="bg-white p-4">
-        <h1 className="text-3xl font-bold mb-4 p-4 rounded shadow-lg">{question.title}</h1>
+        <h1 className="text-3xl font-bold mb-4 p-4 rounded shadow-lg">
+          {"No Question available"}
+        </h1>
+        <div className="mb-2 p-4 rounded shadow-lg">
+          <p className="text-gray-700 font-bold">Category:</p>
+          <p className="text-xl">{"No category available"}</p>
+        </div>
+        <div className="mb-2 p-4 rounded shadow-lg">
+          <p className="text-gray-700 font-bold">Complexity:</p>
+          <p className="text-lg">{"No complexity available"}</p>
+        </div>
+        <div className="mb-2 p-4 rounded shadow-lg">
+          <p className="text-gray-700 font-bold">Description:</p>
+          <p className="text-gray-700">{"No Description Available"}</p>
+        </div>
+      </div>
+    );
+  } else if (question.description === undefined) {
+    return (
+      <div className="bg-white p-4">
+        <h1 className="text-3xl font-bold mb-4 p-4 rounded shadow-lg">
+          {question.title}
+        </h1>
         <div className="mb-2 p-4 rounded shadow-lg">
           <p className="text-gray-700 font-bold">Category:</p>
           <p className="text-xl">{question.category}</p>
@@ -28,7 +66,9 @@ export const QuestionDescription = () => {
   const descriptionParas = question.description.split("\n");
   return (
     <div className="bg-white p-4">
-      <h1 className="text-3xl font-bold mb-4 p-4 rounded shadow-lg">{question.title}</h1>
+      <h1 className="text-3xl font-bold mb-4 p-4 rounded shadow-lg">
+        {question.title}
+      </h1>
       <div className="mb-2 p-4 rounded shadow-lg">
         <p className="text-gray-700 font-bold">Category:</p>
         <p className="text-xl">{question.category}</p>

@@ -2,11 +2,53 @@
 
 # AssignmentTemplate
 
-### Start development
+# Setup
+
+#### Use npm install on the following directories
+
+- ~/backend
+- ~/frontend
+- ~/mongodb
+
+#### Postgres DB
+
+- Download pgAdmin with postgres15.
+- Create new DB using pgAdmin
+- Add config.js to ~/backend
+
+```
+module.exports = {
+  database: {
+    user: 'your-db-user',
+    host: 'your-db-host',
+    database: 'your-db-name',
+    password: 'your-db-password',
+    port: 5432, // Change to your database port
+  },
+};
+```
+
+- Use files in sqlFiles to create table and insert default values
+
+#### MongoDB
+
+- Add dbAdmin.js in ~/mongodb/config
+
+```
+const username = "REDACTED";
+const password = "REDACTED";
+const clusterName = "REDACTED";
+const databaseName = "REDACTED";
+
+module.exports = {
+  username,
+  password,
+  clusterName,
+  databaseName,
+};
+```
+
+### Test App
 
 - cd frontend
 - npm start
-
-### Eric
-
-- local storage and question/questionbank for assignment 1

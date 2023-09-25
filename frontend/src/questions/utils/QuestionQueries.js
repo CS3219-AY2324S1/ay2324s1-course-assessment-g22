@@ -1,29 +1,31 @@
-import { getLocalStorage, setLocalStorage } from "./LocalStorageQueries";
 import { questionData } from "./QuestionData";
+import { getLocalStorage, setLocalStorage } from "./LocalStorageQueries";
 
 /**
  * Queries for questions on local storage
+ * DEPRECATED
  */
 
 const QUESTION_STORAGE_KEY = "questions";
 
 // Get questions from local storage
-export function getQuestionsLS() {
+export function getQuestions() {
   if (localStorage.getItem(QUESTION_STORAGE_KEY) === null) {
     // initialization
     console.log("setting questionData to local storage");
-    setQuestionsLS(questionData);
+    setQuestions(questionData);
   }
   return getLocalStorage(QUESTION_STORAGE_KEY);
 }
 
 // Set questions to local storage
-export function setQuestionsLS(questions) {
+export function setQuestions(questions) {
   setLocalStorage(QUESTION_STORAGE_KEY, questions);
 }
 
-export function addQuestionLS(question) {
-  const questions = getQuestionsLS();
+// // Add questions to local storage
+export function addQuestion(question) {
+  const questions = getQuestions();
   questions.push(question);
-  setQuestionsLS(questions);
+  setQuestions(questions);
 }
