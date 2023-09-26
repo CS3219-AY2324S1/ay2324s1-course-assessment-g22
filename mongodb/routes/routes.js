@@ -18,6 +18,10 @@ function verifyToken(req, res, next) {
   const token = authHeader.substring(7, authHeader.length);
   try {
     const decoded = jwt.verify(token, dbAdmin.jwtSecret);
+    const currentTimeInSeconds = Date.now();
+    if (decoded.exp && currentTimeInSeconds > decoded.exp) {
+      return res.status(401).json({ error: "Token has expired." });
+    }
     req.user = decoded.username; // Store the decoded user information in the request object
     next(); // Move to the next middleware
   } catch (error) {
@@ -37,6 +41,10 @@ function verifyAdminToken(req, res, next) {
   const token = authHeader.substring(7, authHeader.length);
   try {
     const decoded = jwt.verify(token, dbAdmin.jwtSecret);
+    const currentTimeInSeconds = Date.now();
+    if (decoded.exp && currentTimeInSeconds > decoded.exp) {
+      return res.status(401).json({ error: "Token has expired." });
+    }
     req.user = decoded.username;
     if (decoded.role !== "maintainer") {
       return res

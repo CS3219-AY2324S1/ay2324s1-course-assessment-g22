@@ -21,16 +21,44 @@ export const Login = ({ onLogin }) => {
       .post("http://localhost:4000/api/login", loginData)
       .then((response) => {
         console.log("Login successful:", response.data);
-        signIn({
-          token: response.data.token,
-          expiresIn: 60 * 60 * 24 * 3,
-          tokenType: "Bearer",
-          authState: {
-            username: response.data.username,
-            role: response.data.role,
-            exp: response.data.exp,
-          },
-        });
+        try {
+          signIn({
+            token: response.data.token,
+            expiresIn: 1,
+            tokenType: "Bearer",
+            authState: {
+              username: response.data.username,
+              role: response.data.role,
+              exp: response.data.exp,
+            },
+          });
+        } catch (error) {
+          console.log("Error signing in:", error);
+        }
+
+        // Format the date and time as a string
+        var options = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZone: "Asia/Singapore",
+        };
+
+        var formattedDate = new Date(Date.now()).toLocaleString(
+          "en-US",
+          options
+        );
+        var formattedExp = new Date(response.data.exp).toLocaleString(
+          "en-US",
+          options
+        );
+
+        console.log("Login Time (GMT +8):", formattedDate);
+        console.log("Token expiry time (GMT +8):", formattedExp);
+
         // Delay needed for token to be set in cookie
         setTimeout(() => {
           navigate("/");

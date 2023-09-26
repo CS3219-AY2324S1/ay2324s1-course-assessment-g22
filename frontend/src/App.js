@@ -2,15 +2,24 @@ import "./App.css";
 import QuestionBank from "./questions/QuestionBank";
 import QuestionDescription from "./questions/QuestionDescription";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Login } from "./Login";
 import { Register } from "./Register";
 import Profile from "./Profile";
-import { useSignOut, RequireAuth, useIsAuthenticated } from "react-auth-kit";
+import axios from "axios";
+import Cookies from "js-cookie";
+import {
+  useSignIn,
+  useSignOut,
+  RequireAuth,
+  useIsAuthenticated,
+} from "react-auth-kit";
 
 function App() {
+  const signIn = useSignIn();
   const signOut = useSignOut();
   const isAuthenticated = useIsAuthenticated();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleLogin = (username) => {
     // Placeholder for post login actions
@@ -18,13 +27,69 @@ function App() {
 
   const handleLogout = () => {
     signOut();
+    window.location.reload();
   };
+
+  useEffect(() => {
+    const refreshToken = () => {
+      if (isRefreshing || Cookies.get("_auth") === undefined) {
+        return;
+      }
+      setIsRefreshing(true);
+      axios
+        .get("http://localhost:4000/api/refresh", {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
+          },
+        })
+        .then((response) => {
+          signIn({
+            token: response.data.token,
+            expiresIn: 1,
+            tokenType: "Bearer",
+            authState: {
+              username: response.data.username,
+              role: response.data.role,
+              exp: response.data.exp,
+            },
+          });
+
+          console.log("Token now in storage", Cookies.get("_auth"));
+          var options = {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            timeZone: "Asia/Singapore",
+          };
+
+          var formattedExp = new Date(response.data.exp).toLocaleString(
+            "en-US",
+            options
+          );
+
+          console.log("Token expiry time (GMT +8):", formattedExp);
+
+          setTimeout(refreshToken, 10 * 1000);
+        })
+        .catch((error) => {
+          console.error("Token refresh failed:", error);
+
+          setTimeout(refreshToken, 10 * 1000);
+        });
+    };
+    if (isAuthenticated()) {
+      setTimeout(refreshToken, 10 * 1000);
+    }
+  });
 
   return (
     <Router>
-      <div class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-4">
-        <div class="container mx-auto flex justify-between items-center">
-          <h1 class="text-4xl font-extrabold tracking-tight">PeerPrep</h1>
+      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-4xl font-extrabold tracking-tight">PeerPrep</h1>
           {isAuthenticated() ? (
             <div className="flex items-center space-x-4">
               <Link

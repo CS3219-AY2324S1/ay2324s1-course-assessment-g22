@@ -34,11 +34,14 @@ function verifyToken(req, res, next) {
   const token = authHeader.substring(7, authHeader.length);
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
+    const currentTimeInSeconds = Date.now();
+    if (decoded.exp && currentTimeInSeconds > decoded.exp) {
+      return res.status(401).json({ error: "Token has expired." });
+    }
     req.user = decoded.username; // Store the decoded user information in the request object
     next(); // Move to the next middleware
   } catch (error) {
-    temp = error;
-    res.status(400).json({ error: `Invalid token.` });
+    res.status(400).json({ error: `Error while verifying token. ${error}` });
   }
 }
 
@@ -72,23 +75,45 @@ app.post("/api/login", async (req, res) => {
     } else {
       // Create a JWT token
       const user = result.rows[0];
-      const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 3;
+      const exp = Date.now() + 1000 * 60 * 1;
       const token = jwt.sign(
-        { username: user.username, role: user.role },
+        { username: user.username, role: user.role, exp: exp },
         config.jwtSecret
       );
-      res
-        .status(200)
-        .json({
-          username: user.username,
-          role: user.role,
-          token: token,
-          exp: exp,
-        });
+      res.status(200).json({
+        username: user.username,
+        role: user.role,
+        token: token,
+        exp: exp,
+      });
     }
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ error: "Incorrect username or Password" });
+  }
+});
+
+// GET /api/refresh - Refresh JWT token
+app.get("/api/refresh", verifyToken, async (req, res) => {
+  try {
+    const authHeader = req.header("Authorization");
+    const token = authHeader.substring(7, authHeader.length);
+    const decoded = jwt.verify(token, config.jwtSecret);
+
+    const newExp = Date.now() + 1000 * 60 * 1;
+    const newToken = jwt.sign(
+      { username: decoded.username, role: decoded.role, exp: newExp },
+      config.jwtSecret
+    );
+
+    res.status(200).json({
+      username: decoded.username,
+      role: decoded.role,
+      token: newToken,
+      exp: newExp,
+    });
+  } catch (error) {
+    res.status(400).json({ error: `Error Refreshing Token: ${error}` });
   }
 });
 
