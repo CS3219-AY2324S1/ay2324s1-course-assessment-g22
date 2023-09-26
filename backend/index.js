@@ -72,11 +72,19 @@ app.post("/api/login", async (req, res) => {
     } else {
       // Create a JWT token
       const user = result.rows[0];
+      const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 3;
       const token = jwt.sign(
         { username: user.username, role: user.role },
         config.jwtSecret
       );
-      res.status(200).json({ token });
+      res
+        .status(200)
+        .json({
+          username: user.username,
+          role: user.role,
+          token: token,
+          exp: exp,
+        });
     }
   } catch (error) {
     console.error("Error creating user:", error);
@@ -132,7 +140,7 @@ app.put("/api/users", verifyToken, async (req, res) => {
 });
 
 // DELETE /api/users/:username - Delete a user by username
-app.delete("/api/users/:username", async (req, res) => {
+app.delete("/api/users/:username", verifyToken, async (req, res) => {
   const username = req.params.username;
   try {
     const query = "DELETE FROM userAccounts WHERE username = $1 RETURNING *";

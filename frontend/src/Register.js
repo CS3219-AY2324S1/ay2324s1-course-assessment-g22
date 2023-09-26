@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export const Register = ({ onLogin }) => {
+export const Register = () => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");

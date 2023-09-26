@@ -1,10 +1,11 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSignIn } from "react-auth-kit";
 
 export const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
   const signIn = useSignIn();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,10 +26,16 @@ export const Login = ({ onLogin }) => {
           expiresIn: 60 * 60 * 24 * 3,
           tokenType: "Bearer",
           authState: {
-            username: username,
+            username: response.data.username,
+            role: response.data.role,
+            exp: response.data.exp,
           },
         });
-        onLogin(username);
+        // Delay needed for token to be set in cookie
+        setTimeout(() => {
+          navigate("/");
+          onLogin(username);
+        }, 20);
       })
       .catch((error) => {
         console.error("Login failed:", error.response);

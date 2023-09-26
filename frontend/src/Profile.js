@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "react-modal";
 import Cookies from "js-cookie";
+import { useSignOut, useAuthUser } from "react-auth-kit";
 
-const Profile = ({ username, updateUsername }) => {
+const Profile = () => {
   const navigate = useNavigate();
   const authToken = getAuthTokenFromCookie();
+  const auth = useAuthUser();
+  const signOut = useSignOut();
 
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdated, setIsUpdated] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const [searchUsername, setSearchUsername] = useState(""); // New state for search
-  const [foundUser, setFoundUser] = useState(null); // New state for found user
+  const [searchUsername, setSearchUsername] = useState("");
+  const [foundUser, setFoundUser] = useState(null);
 
   const [editedUser, setEditedUser] = useState({
-    oldUsername: username,
+    oldUsername: auth().username,
     newUsername: "",
     firstname: "",
     lastname: "",
@@ -34,7 +37,7 @@ const Profile = ({ username, updateUsername }) => {
       console.log("Fetching user data...");
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/users/${username}`,
+          `http://localhost:4000/api/users/${auth().username}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -45,22 +48,23 @@ const Profile = ({ username, updateUsername }) => {
         setIsLoading(false);
         setIsUpdated(false);
       } catch (error) {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          navigate("/profile");
-        } else {
-          navigate("/");
-        }
+        setIsLoading(true);
       }
     };
-    getUser();
-  }, [username, isUpdated, navigate]);
+    if (!user || isUpdated) {
+      getUser();
+    }
+  }, [user, isUpdated, navigate, auth, authToken]);
 
   const handleSearch = async () => {
-    // Send a GET request to search for the user
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/users/${searchUsername}`
+        `http://localhost:4000/api/users/${searchUsername}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
       setFoundUser(response.data);
     } catch (error) {
@@ -89,7 +93,6 @@ const Profile = ({ username, updateUsername }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Send a PUT request to update the user's account
     try {
       const response = await axios.put(
         "http://localhost:4000/api/users",
@@ -103,7 +106,6 @@ const Profile = ({ username, updateUsername }) => {
       console.log("User updated:", response.data);
       setIsUpdated(true);
       setIsEditModalOpen(false);
-      updateUsername(editedUser.newUsername);
     } catch (error) {
       console.error("Error updating user:", error);
       alert(`Error updating user! ${error.response.data.error}`);
@@ -114,7 +116,7 @@ const Profile = ({ username, updateUsername }) => {
     // Send a DELETE request to delete the user's account
     try {
       axios
-        .delete(`http://localhost:4000/api/users/${username}`, {
+        .delete(`http://localhost:4000/api/users/${auth().username}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -122,12 +124,11 @@ const Profile = ({ username, updateUsername }) => {
         .then((response) => {
           console.log("User deleted:", response.data);
           alert("User deleted");
-          localStorage.removeItem("user");
-          navigate("/");
-          window.location.reload();
+          signOut();
         });
     } catch (error) {
       console.error("Error deleting user:", error);
+      alert(`Error deleting user! ${error.response.data.error}`);
     }
   };
 
@@ -143,10 +144,6 @@ const Profile = ({ username, updateUsername }) => {
         </div>
       </div>
     );
-  }
-
-  if (!username) {
-    navigate("/");
   }
 
   return (
@@ -211,14 +208,6 @@ const Profile = ({ username, updateUsername }) => {
           <label className="block text-gray-600 font-medium">Email</label>
           <p className="mt-1">{user.email}</p>
         </div>
-        <div className="mb-8">
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-300 mb-2"
-          >
-            Back to Home
-          </Link>
-        </div>
         <div className="mb-4">
           <button
             onClick={handleDelete}
@@ -236,7 +225,7 @@ const Profile = ({ username, updateUsername }) => {
             <label className="block text-gray-600 font-medium">Username</label>
           </div>
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label className="block text-gray-600 font-medium">
                 Username
               </label>
@@ -249,7 +238,7 @@ const Profile = ({ username, updateUsername }) => {
                 }
                 className="mt-1 p-2 border rounded w-full"
               />
-            </div>
+            </div> */}
             <div className="mb-4">
               <label className="block text-gray-600 font-medium">
                 First Name
