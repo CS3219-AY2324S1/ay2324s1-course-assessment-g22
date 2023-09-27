@@ -1,8 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { QUESTIONS_URL } from "../../../Constants";
 
-const LISTEN_PORT_NUMBER = 4567;
-const urlPrefix = `http://localhost:${LISTEN_PORT_NUMBER}/api/questions`;
 const fieldsRequired = ["title", "category", "complexity", "description"];
 
 function getAuthTokenFromCookie() {
@@ -19,7 +18,7 @@ export const addQuestion = async (question) => {
   try {
     await axios
       .post(
-        `${urlPrefix}`,
+        `${QUESTIONS_URL}`,
         {
           title: question.title,
           category: question.category,
@@ -42,7 +41,7 @@ export const addQuestion = async (question) => {
 
 export const getQuestions = async () => {
   const authToken = getAuthTokenFromCookie();
-  const url = `${urlPrefix}`;
+  const url = `${QUESTIONS_URL}`;
   try {
     const res = await axios.get(url, {
       headers: {
@@ -67,7 +66,7 @@ export const updateQuestion = async (question, beforeTitle) => {
   try {
     await axios
       .put(
-        `${urlPrefix}/${beforeTitle}`,
+        `${QUESTIONS_URL}/${beforeTitle}`,
         {
           title: question.title,
           category: question.category,
@@ -91,7 +90,7 @@ export const updateQuestion = async (question, beforeTitle) => {
 export const deleteQuestion = async (question) => {
   const authToken = getAuthTokenFromCookie();
   try {
-    await axios.delete(`${urlPrefix}/${question.title}`, {
+    await axios.delete(`${QUESTIONS_URL}/${question.title}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },

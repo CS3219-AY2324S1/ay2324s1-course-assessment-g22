@@ -1,11 +1,4 @@
 import "./App.css";
-import QuestionBank from "./questions/QuestionBank";
-import QuestionDescription from "./questions/QuestionDescription";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import React, { useState, useEffect } from "react";
-import { Login } from "./Login";
-import { Register } from "./Register";
-import Profile from "./Profile";
 import axios from "axios";
 import Cookies from "js-cookie";
 import {
@@ -14,6 +7,16 @@ import {
   RequireAuth,
   useIsAuthenticated,
 } from "react-auth-kit";
+
+import QuestionBank from "./questions/QuestionBank";
+import QuestionDescription from "./questions/QuestionDescription";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Login } from "./Login";
+import { Register } from "./Register";
+import Profile from "./Profile";
+
+import { USERS_BASE_URL } from "./Constants";
 
 function App() {
   const signIn = useSignIn();
@@ -37,7 +40,7 @@ function App() {
       }
       setIsRefreshing(true);
       axios
-        .get("http://localhost:4000/api/refresh", {
+        .get(`${USERS_BASE_URL}/api/refresh`, {
           headers: {
             Authorization: `Bearer ${Cookies.get("_auth")}`,
           },
@@ -55,6 +58,7 @@ function App() {
           });
 
           console.log("Token now in storage", Cookies.get("_auth"));
+
           var options = {
             year: "numeric",
             month: "2-digit",

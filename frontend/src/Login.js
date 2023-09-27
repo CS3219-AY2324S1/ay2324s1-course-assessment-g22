@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSignIn } from "react-auth-kit";
+import { USERS_BASE_URL } from "./Constants";
 
 export const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export const Login = ({ onLogin }) => {
       password: password,
     };
     axios
-      .post("http://localhost:4000/api/login", loginData)
+      .post(`${USERS_BASE_URL}/api/login`, loginData)
       .then((response) => {
         console.log("Login successful:", response.data);
         try {

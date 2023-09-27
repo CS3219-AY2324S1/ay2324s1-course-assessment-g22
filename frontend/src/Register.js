@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { USERS_BASE_URL } from "./Constants";
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -28,8 +29,9 @@ export const Register = () => {
       firstname: firstname,
       lastname: lastname,
     };
+
     axios
-      .post("http://localhost:4000/api/users", registerData)
+      .post(`${USERS_BASE_URL}/api/users`, registerData)
       .then((response) => {
         console.log("Register successful:", response.data);
         alert("Register successful!");

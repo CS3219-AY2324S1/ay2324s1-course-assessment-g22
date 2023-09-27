@@ -4,6 +4,7 @@ import axios from "axios";
 import Modal from "react-modal";
 import Cookies from "js-cookie";
 import { useSignOut, useAuthUser } from "react-auth-kit";
+import { USERS_BASE_URL } from "./Constants";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const Profile = () => {
       console.log("Fetching user data...");
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/users/${auth().username}`,
+          `${USERS_BASE_URL}/api/users/${auth().username}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -59,7 +60,7 @@ const Profile = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/users/${searchUsername}`,
+        `${USERS_BASE_URL}/api/users/${searchUsername}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -95,7 +96,7 @@ const Profile = () => {
 
     try {
       const response = await axios.put(
-        "http://localhost:4000/api/users",
+        `${USERS_BASE_URL}/api/users`,
         editedUser,
         {
           headers: {
@@ -116,7 +117,7 @@ const Profile = () => {
     // Send a DELETE request to delete the user's account
     try {
       axios
-        .delete(`http://localhost:4000/api/users/${auth().username}`, {
+        .delete(`${USERS_BASE_URL}/api/users/${auth().username}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
