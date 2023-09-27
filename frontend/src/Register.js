@@ -2,8 +2,9 @@ import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { USERS_BASE_URL } from "./Constants";
 
-export const Register = ({ onLogin }) => {
+export const Register = () => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -28,12 +29,12 @@ export const Register = ({ onLogin }) => {
       firstname: firstname,
       lastname: lastname,
     };
+
     axios
-      .post("http://localhost:4000/api/users", registerData)
+      .post(`${USERS_BASE_URL}/api/users`, registerData)
       .then((response) => {
         console.log("Register successful:", response.data);
-        alert("Register successful! Logging in Now.");
-        onLogin(username);
+        alert("Register successful!");
         navigate("/");
       })
       .catch((error) => {

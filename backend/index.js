@@ -1,8 +1,11 @@
-const express = require("express");
 const bodyParser = require("body-parser");
-const { Pool } = require("pg");
 const cors = require("cors"); // Import the cors middleware
 const config = require("./config.js");
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const { Pool } = require("pg");
+
+const TOKEN_EXPIRE_TIME = 60000; // in milliseconds
 
 const app = express();
 app.use(bodyParser.json());
@@ -22,8 +25,87 @@ const pool = new Pool({
   port: dbConfig.port,
 });
 
+function verifyToken(req, res, next) {
+  const authHeader = req.header("Authorization");
+
+  if (!authHeader) {
+    return res.status(401).json({ error: `Access denied. No token provided.` });
+  }
+
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: `Access denied. Not Bearer Token.` });
+  }
+
+  const token = authHeader.substring(7, authHeader.length);
+
+  try {
+    const decoded = jwt.verify(token, config.jwtSecret);
+    const currentTimeInSeconds = Date.now();
+    if (decoded.exp && currentTimeInSeconds > decoded.exp) {
+      return res.status(401).json({ error: "Token has expired." });
+    }
+    req.user = decoded.username;
+    next(); // Move to the next middleware
+  } catch (error) {
+    res.status(400).json({ error: `Error while verifying token. ${error}` });
+  }
+}
+
+// POST /api/login - Login with JWT
+app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const query =
+      "SELECT * FROM userAccounts WHERE username = $1 and password = $2";
+    const result = await pool.query(query, [username, password]);
+    if (result.rows.length === 0) {
+      res.status(401).json({ error: "Incorrect username or Password" });
+    } else {
+      const user = result.rows[0];
+      const exp = Date.now() + TOKEN_EXPIRE_TIME;
+      const token = jwt.sign(
+        { username: user.username, role: user.role, exp: exp },
+        config.jwtSecret
+      );
+      res.status(200).json({
+        username: user.username,
+        role: user.role,
+        token: token,
+        exp: exp,
+      });
+    }
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Incorrect username or Password" });
+  }
+});
+
+// GET /api/refresh - Refresh JWT token
+app.get("/api/refresh", verifyToken, async (req, res) => {
+  try {
+    const authHeader = req.header("Authorization");
+    const token = authHeader.substring(7, authHeader.length);
+    const decoded = jwt.verify(token, config.jwtSecret);
+
+    const newExp = Date.now() + TOKEN_EXPIRE_TIME;
+    const newToken = jwt.sign(
+      { username: decoded.username, role: decoded.role, exp: newExp },
+      config.jwtSecret
+    );
+
+    res.status(200).json({
+      username: decoded.username,
+      role: decoded.role,
+      token: newToken,
+      exp: newExp,
+    });
+  } catch (error) {
+    res.status(400).json({ error: `Error Refreshing Token: ${error}` });
+  }
+});
+
 // GET /api/users/:username - Retrieve user details by username
-app.get("/api/users/:username", async (req, res) => {
+app.get("/api/users/:username", verifyToken, async (req, res) => {
   const username = req.params.username;
   try {
     const query =
@@ -37,24 +119,6 @@ app.get("/api/users/:username", async (req, res) => {
   } catch (error) {
     console.error("Error retrieving user:", error);
     res.status(500).json({ error: "Fail to receive username." });
-  }
-});
-
-// POST /api/login - Login without Auth
-app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const query =
-      "SELECT * FROM userAccounts WHERE username = $1 and password = $2";
-    const result = await pool.query(query, [username, password]);
-    if (result.rows.length === 0) {
-      res.status(401).json({ error: "Incorrect username or Password" });
-    } else {
-      res.status(200).json(result.rows[0]);
-    }
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Incorrect username or Password" });
   }
 });
 
@@ -81,15 +145,18 @@ app.post("/api/users", async (req, res) => {
 });
 
 // PUT /api/users/ - Update user details
-app.put("/api/users", async (req, res) => {
-  const { oldUsername, newUsername, email, password, firstname, lastname } =
-    req.body;
+app.put("/api/users", verifyToken, async (req, res) => {
+  const { username, email, password, firstname, lastname } = req.body;
+
+  if (req.user !== username) {
+    return res.status(401).json({ error: "Access denied." });
+  }
+
   try {
     const query =
-      "UPDATE userAccounts SET username = $2, email = $3, firstname = $4, lastname = $5 WHERE username = $1 RETURNING *";
+      "UPDATE userAccounts SET email = $2, firstname = $3, lastname = $4 WHERE username = $1 RETURNING *";
     const result = await pool.query(query, [
-      oldUsername,
-      newUsername,
+      username,
       email,
       firstname,
       lastname,
@@ -106,8 +173,13 @@ app.put("/api/users", async (req, res) => {
 });
 
 // DELETE /api/users/:username - Delete a user by username
-app.delete("/api/users/:username", async (req, res) => {
+app.delete("/api/users/:username", verifyToken, async (req, res) => {
   const username = req.params.username;
+
+  if (req.user !== username) {
+    return res.status(401).json({ error: "Access denied." });
+  }
+
   try {
     const query = "DELETE FROM userAccounts WHERE username = $1 RETURNING *";
     const result = await pool.query(query, [username]);

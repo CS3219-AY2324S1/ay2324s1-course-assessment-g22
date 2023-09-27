@@ -10,6 +10,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import QuestionModal from "./QuestionModal";
 import { Link } from "react-router-dom";
+import { useAuthUser } from "react-auth-kit";
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
@@ -33,6 +34,8 @@ const columns = [
 ];
 
 export default function QuestionBank() {
+  const auth = useAuthUser();
+
   // State for managing the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
@@ -46,6 +49,10 @@ export default function QuestionBank() {
     complexity: "",
     description: "",
   });
+
+  function isMaintainer() {
+    return auth().role === "maintainer";
+  }
 
   // Function to open the modal
   const openModal = (isAdd) => {
@@ -69,7 +76,7 @@ export default function QuestionBank() {
   // Function to handle category changes
   const handleCategoryChange = (event, value) => {
     console.log(category);
-    const updatedCategory = value.map(option => option);
+    const updatedCategory = value.map((option) => option);
     setCategory(updatedCategory);
     const categoryString = "category";
     setFormData({
@@ -174,24 +181,28 @@ export default function QuestionBank() {
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Question Bank</h2>
         <div className="space-x-4">
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded-lg"
-            onClick={handleEdit}
-          >
-            Edit
-          </button>
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            onClick={() => openModal(true)}
-          >
-            Add
-          </button>
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded-lg"
-            onClick={handleDelete}
-          >
-            Delete
-          </button>
+          {isMaintainer() && (
+            <>
+              <button
+                className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                onClick={handleEdit}
+              >
+                Edit
+              </button>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                onClick={() => openModal(true)}
+              >
+                Add
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </>
+          )}
         </div>
       </div>
       <DataGrid

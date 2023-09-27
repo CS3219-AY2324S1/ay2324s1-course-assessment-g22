@@ -1,49 +1,101 @@
 import "./App.css";
+import axios from "axios";
+import Cookies from "js-cookie";
+import {
+  useSignIn,
+  useSignOut,
+  RequireAuth,
+  useIsAuthenticated,
+} from "react-auth-kit";
+
 import QuestionBank from "./questions/QuestionBank";
 import QuestionDescription from "./questions/QuestionDescription";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Login } from "./Login";
 import { Register } from "./Register";
 import Profile from "./Profile";
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
+import { USERS_BASE_URL } from "./Constants";
+import { TOKEN_EXPIRE_TIME } from "./Constants";
+import { TOKEN_REFRESH_TIME } from "./Constants";
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setIsLoggedIn(true);
-      setUsername(storedUser);
-    }
-  }, []);
+function App() {
+  const signIn = useSignIn();
+  const signOut = useSignOut();
+  const isAuthenticated = useIsAuthenticated();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleLogin = (username) => {
-    setIsLoggedIn(true);
-    setUsername(username);
-
-    localStorage.setItem("user", username);
+    // Placeholder for post login actions
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername("");
-
-    localStorage.removeItem("user");
+    signOut();
+    window.location.reload();
   };
 
-  const updateUsername = (username) => {
-    setUsername(username);
-  };
+  useEffect(() => {
+    const refreshToken = () => {
+      if (isRefreshing || Cookies.get("_auth") === undefined) {
+        return;
+      }
+      setIsRefreshing(true);
+      axios
+        .get(`${USERS_BASE_URL}/api/refresh`, {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
+          },
+        })
+        .then((response) => {
+          signIn({
+            token: response.data.token,
+            expiresIn: TOKEN_EXPIRE_TIME,
+            tokenType: "Bearer",
+            authState: {
+              username: response.data.username,
+              role: response.data.role,
+              exp: response.data.exp,
+            },
+          });
+
+          var options = {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            timeZone: "Asia/Singapore",
+          };
+
+          var formattedExp = new Date(response.data.exp).toLocaleString(
+            "en-US",
+            options
+          );
+
+          console.log("Token expiry time (GMT +8):", formattedExp);
+
+          setTimeout(refreshToken, TOKEN_REFRESH_TIME);
+        })
+        .catch((error) => {
+          console.error("Token refresh failed:", error);
+
+          setTimeout(refreshToken, TOKEN_REFRESH_TIME);
+        });
+    };
+    if (isAuthenticated()) {
+      // First refresh is given earlier
+      setTimeout(refreshToken, 10000);
+    }
+  });
 
   return (
     <Router>
-      <div class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-4">
-        <div class="container mx-auto flex justify-between items-center">
-          <h1 class="text-4xl font-extrabold tracking-tight">PeerPrep</h1>
-          {isLoggedIn ? (
+      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-4xl font-extrabold tracking-tight">PeerPrep</h1>
+          {isAuthenticated() ? (
             <div className="flex items-center space-x-4">
               <Link
                 to="/"
@@ -58,7 +110,7 @@ function App() {
                 Profile
               </Link>
               <Link
-                to="/"
+                to="/login"
                 className="w-full bg-white text-blue-700 px-4 py-2 rounded-full hover:bg-blue-700 hover:text-white"
                 onClick={handleLogout}
               >
@@ -72,15 +124,27 @@ function App() {
         <Route
           path="/"
           element={
-            isLoggedIn ? <QuestionBank /> : <Login onLogin={handleLogin} />
+            <RequireAuth loginPath="/login">
+              <QuestionBank />
+            </RequireAuth>
           }
         />
-        <Route path="/question/:title" element={<QuestionDescription />} />
-        <Route path="/register" element={<Register onLogin={handleLogin} />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route
+          path="/question/:title"
+          element={
+            <RequireAuth loginPath="/login">
+              <QuestionDescription />
+            </RequireAuth>
+          }
+        />
+        <Route path="/register" element={<Register />} />
         <Route
           path="/profile"
           element={
-            <Profile username={username} updateUsername={updateUsername} />
+            <RequireAuth loginPath="/login">
+              <Profile />
+            </RequireAuth>
           }
         />
       </Routes>

@@ -1,9 +1,15 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSignIn } from "react-auth-kit";
+
+import { USERS_BASE_URL } from "./Constants";
+import { TOKEN_EXPIRE_TIME } from "./Constants";
 
 export const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
+  const signIn = useSignIn();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,10 +21,52 @@ export const Login = ({ onLogin }) => {
       password: password,
     };
     axios
-      .post("http://localhost:4000/api/login", loginData)
+      .post(`${USERS_BASE_URL}/api/login`, loginData)
       .then((response) => {
         console.log("Login successful:", response.data);
-        onLogin(username);
+        try {
+          signIn({
+            token: response.data.token,
+            expiresIn: TOKEN_EXPIRE_TIME,
+            tokenType: "Bearer",
+            authState: {
+              username: response.data.username,
+              role: response.data.role,
+              exp: response.data.exp,
+            },
+          });
+        } catch (error) {
+          console.log("Error signing in:", error);
+        }
+
+        // Format the date and time as a string
+        var options = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZone: "Asia/Singapore",
+        };
+
+        var formattedDate = new Date(Date.now()).toLocaleString(
+          "en-US",
+          options
+        );
+        var formattedExp = new Date(response.data.exp).toLocaleString(
+          "en-US",
+          options
+        );
+
+        console.log("Login Time (GMT +8):", formattedDate);
+        console.log("Token expiry time (GMT +8):", formattedExp);
+
+        // Delay needed for token to be set in cookie
+        setTimeout(() => {
+          navigate("/");
+          onLogin(username);
+        }, 20);
       })
       .catch((error) => {
         console.error("Login failed:", error.response);

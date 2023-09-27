@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS userAccounts (
     password VARCHAR(100) NOT NULL,
     firstname VARCHAR(50) NOT NULL,
     lastname VARCHAR(50) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT current_timestamp
+    created_at TIMESTAMPTZ DEFAULT current_timestamp,
+    role VARCHAR(50) DEFAULT 'user' NOT NULL
 );
-
