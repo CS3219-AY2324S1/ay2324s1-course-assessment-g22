@@ -5,8 +5,8 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const { Pool } = require("pg");
 
-// Ensure this value is same as the one set in frontend
-const TOKEN_EXPIRE_TIME = 300000; // in milliseconds
+// Ensure this time is equivilant as the one set in frontend that's in minutes
+const TOKEN_EXPIRE_TIME = 900000; // in milliseconds
 
 const app = express();
 app.use(bodyParser.json());
