@@ -7,22 +7,20 @@ import { useSignOut, useAuthUser } from "react-auth-kit";
 import { USERS_BASE_URL } from "./Constants";
 
 const Profile = () => {
-  const navigate = useNavigate();
-  const authToken = getAuthTokenFromCookie();
   const auth = useAuthUser();
+  const authToken = getAuthTokenFromCookie();
+  const navigate = useNavigate();
   const signOut = useSignOut();
 
-  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdated, setIsUpdated] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const [user, setUser] = useState(null);
   const [searchUsername, setSearchUsername] = useState("");
   const [foundUser, setFoundUser] = useState(null);
-
   const [editedUser, setEditedUser] = useState({
-    oldUsername: auth().username,
-    newUsername: "",
+    username: auth().username,
     firstname: "",
     lastname: "",
     email: "",
@@ -77,8 +75,7 @@ const Profile = () => {
   const handleEdit = () => {
     // Open the edit modal and pre-fill data
     setEditedUser({
-      oldUsername: user.username,
-      newUsername: user.username,
+      username: user.username,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
@@ -226,20 +223,6 @@ const Profile = () => {
             <label className="block text-gray-600 font-medium">Username</label>
           </div>
           <form onSubmit={handleSubmit}>
-            {/* <div className="mb-4">
-              <label className="block text-gray-600 font-medium">
-                Username
-              </label>
-              <input
-                type="text"
-                name="username"
-                value={editedUser.newUsername}
-                onChange={(e) =>
-                  setEditedUser({ ...editedUser, newUsername: e.target.value })
-                }
-                className="mt-1 p-2 border rounded w-full"
-              />
-            </div> */}
             <div className="mb-4">
               <label className="block text-gray-600 font-medium">
                 First Name

@@ -3,7 +3,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSignIn } from "react-auth-kit";
+
 import { USERS_BASE_URL } from "./Constants";
+import { TOKEN_EXPIRE_TIME } from "./Constants";
 
 export const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export const Login = ({ onLogin }) => {
         try {
           signIn({
             token: response.data.token,
-            expiresIn: 1,
+            expiresIn: TOKEN_EXPIRE_TIME,
             tokenType: "Bearer",
             authState: {
               username: response.data.username,

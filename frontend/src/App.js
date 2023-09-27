@@ -17,6 +17,8 @@ import { Register } from "./Register";
 import Profile from "./Profile";
 
 import { USERS_BASE_URL } from "./Constants";
+import { TOKEN_EXPIRE_TIME } from "./Constants";
+import { TOKEN_REFRESH_TIME } from "./Constants";
 
 function App() {
   const signIn = useSignIn();
@@ -48,7 +50,7 @@ function App() {
         .then((response) => {
           signIn({
             token: response.data.token,
-            expiresIn: 1,
+            expiresIn: TOKEN_EXPIRE_TIME,
             tokenType: "Bearer",
             authState: {
               username: response.data.username,
@@ -76,16 +78,16 @@ function App() {
 
           console.log("Token expiry time (GMT +8):", formattedExp);
 
-          setTimeout(refreshToken, 10 * 1000);
+          setTimeout(refreshToken, TOKEN_REFRESH_TIME);
         })
         .catch((error) => {
           console.error("Token refresh failed:", error);
 
-          setTimeout(refreshToken, 10 * 1000);
+          setTimeout(refreshToken, TOKEN_REFRESH_TIME);
         });
     };
     if (isAuthenticated()) {
-      setTimeout(refreshToken, 10 * 1000);
+      setTimeout(refreshToken, TOKEN_REFRESH_TIME);
     }
   });
 
