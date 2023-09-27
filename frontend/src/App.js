@@ -59,8 +59,6 @@ function App() {
             },
           });
 
-          console.log("Token now in storage", Cookies.get("_auth"));
-
           var options = {
             year: "numeric",
             month: "2-digit",

@@ -6,6 +6,6 @@ INSERT INTO userAccounts (username, email, password, firstname, lastname) VALUES
 ('user5', 'user5@example.com', 'hashed_password_5', 'Michael', 'Brown');
 
 INSERT INTO userAccounts (username, email, password, firstname, lastname, role) VALUES
-('maintainer', 'maintainer@example.com', 'hashed_password_1', 'Joe', 'The Maintainer', 'maintainer'),
-('m', 'maintainer@example.com', 'm', 'Steve', 'The Maintainer', 'maintainer'),
-('admin', 'maintainer@example.com', 'a', 'Martin', 'The Maintainer', 'maintainer');
+('maintainer', 'maintainer1@example.com', 'hashed_password_1', 'Joe', 'The Maintainer', 'maintainer'),
+('m', 'maintainer2@example.com', 'm', 'Steve', 'The Maintainer', 'maintainer'),
+('admin', 'maintainer3@example.com', 'a', 'Martin', 'The Maintainer', 'maintainer');
