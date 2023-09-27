@@ -85,7 +85,8 @@ function App() {
         });
     };
     if (isAuthenticated()) {
-      setTimeout(refreshToken, TOKEN_REFRESH_TIME);
+      // First refresh is given earlier
+      setTimeout(refreshToken, 10000);
     }
   });
 
