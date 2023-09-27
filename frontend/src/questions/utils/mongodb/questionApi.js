@@ -4,13 +4,7 @@ import { QUESTIONS_URL } from "../../../Constants";
 
 const fieldsRequired = ["title", "category", "complexity", "description"];
 
-function getAuthTokenFromCookie() {
-  const authToken = Cookies.get("_auth");
-  return authToken || null;
-}
-
 export const addQuestion = async (question) => {
-  const authToken = getAuthTokenFromCookie();
   if (!fieldsRequired.every((field) => field in question)) {
     console.error("Some fields for question are not present!");
     return;
@@ -27,7 +21,7 @@ export const addQuestion = async (question) => {
         },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
           },
         }
       )
@@ -40,13 +34,12 @@ export const addQuestion = async (question) => {
 };
 
 export const getQuestions = async () => {
-  const authToken = getAuthTokenFromCookie();
   const url = `${QUESTIONS_URL}`;
   try {
     const res = await axios.get(url, {
       headers: {
         "Content-type": "application/json",
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${Cookies.get("_auth")}`,
       },
     });
     return res.data;
@@ -57,7 +50,6 @@ export const getQuestions = async () => {
 };
 
 export const updateQuestion = async (question, beforeTitle) => {
-  const authToken = getAuthTokenFromCookie();
   if (!fieldsRequired.every((field) => field in question)) {
     console.error("Some fields for question are not present!");
     return;
@@ -75,7 +67,7 @@ export const updateQuestion = async (question, beforeTitle) => {
         },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
           },
         }
       )
@@ -88,11 +80,10 @@ export const updateQuestion = async (question, beforeTitle) => {
 };
 
 export const deleteQuestion = async (question) => {
-  const authToken = getAuthTokenFromCookie();
   try {
     await axios.delete(`${QUESTIONS_URL}/${question.title}`, {
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${Cookies.get("_auth")}`,
       },
     });
   } catch (error) {

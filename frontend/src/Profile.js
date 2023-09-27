@@ -8,7 +8,6 @@ import { USERS_BASE_URL } from "./Constants";
 
 const Profile = () => {
   const auth = useAuthUser();
-  const authToken = getAuthTokenFromCookie();
   const navigate = useNavigate();
   const signOut = useSignOut();
 
@@ -26,11 +25,6 @@ const Profile = () => {
     email: "",
   });
 
-  function getAuthTokenFromCookie() {
-    const authToken = Cookies.get("_auth");
-    return authToken || null;
-  }
-
   useEffect(() => {
     const getUser = async () => {
       console.log("Fetching user data...");
@@ -39,7 +33,7 @@ const Profile = () => {
           `${USERS_BASE_URL}/api/users/${auth().username}`,
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${Cookies.get("_auth")}`,
             },
           }
         );
@@ -53,7 +47,7 @@ const Profile = () => {
     if (!user || isUpdated) {
       getUser();
     }
-  }, [user, isUpdated, navigate, auth, authToken]);
+  }, [user, isUpdated, navigate, auth]);
 
   const handleSearch = async () => {
     try {
@@ -61,7 +55,7 @@ const Profile = () => {
         `${USERS_BASE_URL}/api/users/${searchUsername}`,
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
           },
         }
       );
@@ -97,7 +91,7 @@ const Profile = () => {
         editedUser,
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
           },
         }
       );
@@ -116,7 +110,7 @@ const Profile = () => {
       axios
         .delete(`${USERS_BASE_URL}/api/users/${auth().username}`, {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
           },
         })
         .then((response) => {
