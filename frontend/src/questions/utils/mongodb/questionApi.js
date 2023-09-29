@@ -1,7 +1,7 @@
 import axios from "axios";
+import Cookies from "js-cookie";
+import { QUESTIONS_URL } from "../../../Constants";
 
-const LISTEN_PORT_NUMBER = 4567;
-const urlPrefix = `http://localhost:${LISTEN_PORT_NUMBER}/api/questions`;
 const fieldsRequired = ["title", "category", "complexity", "description"];
 
 export const addQuestion = async (question) => {
@@ -11,12 +11,20 @@ export const addQuestion = async (question) => {
   }
   try {
     await axios
-      .post(`${urlPrefix}`, {
-        title: question.title,
-        category: question.category,
-        complexity: question.complexity,
-        description: question.description,
-      })
+      .post(
+        `${QUESTIONS_URL}`,
+        {
+          title: question.title,
+          category: question.category,
+          complexity: question.complexity,
+          description: question.description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
+          },
+        }
+      )
       .then((response) => {
         console.log("Successfully added question to mongodb: ", response.data);
       });
@@ -26,11 +34,12 @@ export const addQuestion = async (question) => {
 };
 
 export const getQuestions = async () => {
-  const url = `${urlPrefix}`;
+  const url = `${QUESTIONS_URL}`;
   try {
     const res = await axios.get(url, {
       headers: {
         "Content-type": "application/json",
+        Authorization: `Bearer ${Cookies.get("_auth")}`,
       },
     });
     return res.data;
@@ -48,12 +57,20 @@ export const updateQuestion = async (question, beforeTitle) => {
 
   try {
     await axios
-      .put(`${urlPrefix}/${beforeTitle}`, {
-        title: question.title,
-        category: question.category,
-        complexity: question.complexity,
-        description: question.description,
-      })
+      .put(
+        `${QUESTIONS_URL}/${beforeTitle}`,
+        {
+          title: question.title,
+          category: question.category,
+          complexity: question.complexity,
+          description: question.description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("_auth")}`,
+          },
+        }
+      )
       .then((response) => {
         console.log("Successfully updated question: ", response.data);
       });
@@ -64,7 +81,11 @@ export const updateQuestion = async (question, beforeTitle) => {
 
 export const deleteQuestion = async (question) => {
   try {
-    await axios.delete(`${urlPrefix}/${question.title}`);
+    await axios.delete(`${QUESTIONS_URL}/${question.title}`, {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("_auth")}`,
+      },
+    });
   } catch (error) {
     console.error("Could not delete question in mongodb: ", error);
   }
