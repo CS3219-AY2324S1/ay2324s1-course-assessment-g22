@@ -7,7 +7,7 @@ import {
   RequireAuth,
   useIsAuthenticated,
 } from "react-auth-kit";
-
+import  io from "socket.io-client";
 import QuestionBank from "./questions/QuestionBank";
 import QuestionDescription from "./questions/QuestionDescription";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
@@ -19,12 +19,17 @@ import Profile from "./Profile";
 import { USERS_BASE_URL } from "./Constants";
 import { TOKEN_EXPIRE_TIME } from "./Constants";
 import { TOKEN_REFRESH_TIME } from "./Constants";
+import Match from "./Matching/Match";
+import { UserProvider } from "./Context/UserContext";
+import CollaborationPage from "./Pages/CollaborationPage";
 
 function App() {
   const signIn = useSignIn();
   const signOut = useSignOut();
   const isAuthenticated = useIsAuthenticated();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const socket = io('http://localhost:5000', {autoConnect:false});
+  socket.connect(); 
 
   const handleLogin = (username) => {
     // Placeholder for post login actions
@@ -126,6 +131,9 @@ function App() {
           element={
             <RequireAuth loginPath="/login">
               <QuestionBank />
+              <UserProvider>
+                <Match socket={socket}/>
+              </UserProvider>
             </RequireAuth>
           }
         />
@@ -146,6 +154,13 @@ function App() {
               <Profile />
             </RequireAuth>
           }
+        />
+        <Route path="/collab"
+        element={
+          <RequireAuth loginPath="/login">
+            <CollaborationPage />
+          </RequireAuth>
+        }
         />
       </Routes>
     </Router>
