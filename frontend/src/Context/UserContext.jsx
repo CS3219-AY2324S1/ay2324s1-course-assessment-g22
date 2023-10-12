@@ -8,16 +8,16 @@ export const UserContext = createContext(null);
 export const UserProvider = ({ children }) => {
 
   const [username, setUserName] = useState(null);
-  
+
   async function getUserName() {
     try {
-      const response = await axios.get(`${USERS_BASE_URL}/api/refresh`, {
+      const response = await axios.get(`${USERS_BASE_URL}/api/user`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("_auth")}`,
         },
       });
       const userName = await response.data.username;
-      setUserName(userName)
+      setUserName(userName);
       console.log("Username successfully fetched");
     } catch (error) {
       console.log("Unable to fetch username");
@@ -26,7 +26,7 @@ export const UserProvider = ({ children }) => {
   
   // Setting the username
   getUserName();
-  
+
   const value = useMemo(() => {
     return username;
   }, [username]);

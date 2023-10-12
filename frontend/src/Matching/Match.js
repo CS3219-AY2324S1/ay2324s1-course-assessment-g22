@@ -1,5 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
-import styles from './Match.module.css'
+import React, {useContext, useState} from 'react';
 // import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 // import { ToastContainer, toast } from 'react-toastify';
@@ -12,8 +11,7 @@ export default function Match({socket}) {
   const user = useContext(UserContext);
   const [difficulty, setDifficulty] = useState(null);
   const [category, setCategory] = useState("Any");
-  // useContext(UserContext).then(username => setUsername(username));
-
+  
   const matchUser = () => {
 
     socket.emit("matchUser", {user, difficulty, category});
@@ -23,9 +21,9 @@ export default function Match({socket}) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className="m-auto shadow-[0_1px_2px_0px_rgba(0,0,0,0.5)] mb-5 border-transparent rounded w-6/12 p-2 flex flex-col items-center gap-4">
         <div>Please select a category</div>
-        <select className={styles.input} onChange={(event) => {
+        <select className="w-1/2 rounded border border-blue-500 text-base py-3 px-4" onChange={(event) => {
           setCategory(event.target.value);
         }}>
           <option value='Any'>Any</option>

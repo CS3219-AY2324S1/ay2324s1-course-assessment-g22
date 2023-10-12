@@ -123,6 +123,24 @@ app.get("/api/users/:username", verifyToken, async (req, res) => {
   }
 });
 
+// GET /api/user - Retrieve username of user
+app.get("/api/user/", verifyToken, async (req, res) => {
+  const username = req.user;
+  try {
+    const query =
+      "SELECT user_id, username, email, firstname, lastname FROM userAccounts WHERE username = $1";
+    const result = await pool.query(query, [username]);
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: "User not found" });
+    } else {
+      res.json(result.rows[0]);
+    }
+  } catch (error) {
+    console.error("Error retrieving user:", error);
+    res.status(500).json({ error: "Fail to receive username." });
+  }
+});
+
 // POST /api/users - Create a new user
 app.post("/api/users", async (req, res) => {
   const { username, email, password, firstname, lastname } = req.body;
