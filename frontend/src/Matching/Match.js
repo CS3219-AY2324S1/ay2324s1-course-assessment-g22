@@ -13,6 +13,14 @@ export default function Match({socket}) {
   const [category, setCategory] = useState("Any");
   
   const matchUser = () => {
+    socket.on("matched", (arg) => {
+      console.log("Matched"); // world
+      console.log(arg); // world
+    });
+
+    socket.on("timeout", (arg) => {
+      console.log("AHHHHHHH"); // world
+    });
 
     socket.emit("matchUser", {user, difficulty, category});
 
