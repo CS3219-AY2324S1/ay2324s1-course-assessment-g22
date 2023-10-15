@@ -155,7 +155,7 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route path="/collab"
+        <Route path="/collab/:roomid"
         element={
           <RequireAuth loginPath="/login">
             <CollaborationPage />
