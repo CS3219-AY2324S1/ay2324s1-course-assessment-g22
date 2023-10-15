@@ -94,6 +94,14 @@ app.get(`${urlPrefix}`, verifyToken, async (req, res) => {
     .catch((err) => res.status(500).json({ error: err }));
 });
 
+// Get all question categories
+app.get(`${urlPrefix}/categories`, verifyToken, async (req, res) => {
+  await questionModel
+    .find({}, 'category')
+    .then((qns) => res.json({ questions: qns }))
+    .catch((err) => res.status(500).json({ error: err }));
+});
+
 // Update question into database
 app.put(`${urlPrefix}/:questionTitle`, verifyAdminToken, async (req, res) => {
   try {
