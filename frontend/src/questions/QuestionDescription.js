@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getQuestions } from "./utils/mongodb/questionApi";
 
-export const QuestionDescription = () => {
+export const QuestionDescription = ({ specificTitle }) => {
   const urlPathOnId = useParams();
   const questionTitle = urlPathOnId.title;
   const [question, setQuestion] = useState({});
@@ -11,16 +11,23 @@ export const QuestionDescription = () => {
     const getQns = async () => {
       try {
         const qns = await getQuestions();
-        const displayQuestion = qns.questions.find(
-          (qn) => qn.title === questionTitle
-        );
-        setQuestion(displayQuestion);
+        if (specificTitle === undefined) {
+          const displayQuestion = qns.questions.find(
+            (qn) => qn.title === questionTitle
+          );
+          setQuestion(displayQuestion);
+        } else {
+          const displayQuestion = qns.questions.find(
+            (qn) => qn.title === specificTitle
+          );
+          setQuestion(displayQuestion);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     getQns();
-  }, [questionTitle]);
+  }, [questionTitle, specificTitle]);
 
   if (question === undefined) {
     return (
