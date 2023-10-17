@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS matched (
+    username VARCHAR(50) PRIMARY KEY,
+    room_id VARCHAR(100) NOT NULL,
+    question VARCHAR(100) NOT NULL
+);
