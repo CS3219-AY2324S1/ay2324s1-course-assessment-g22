@@ -38,42 +38,88 @@ function notifyMatchedUsers(user1, user2, room_id) {
 
 function notifyRequestTimeout(user) {
   connectedSockets.get(user).emit("timeout");
+  console.log(`Request timed out for user: ${user}`);
 }
 
-async function updateDB(user1, user2, room_id, m_category, m_difficulty) {
-  const response = await axios.get(`http://localhost:4567/api/questions/find`, {
-    params: {
-      category: m_category,
-      complexity: m_difficulty
-    }
-  });
-  const questions = await response.data.questions;
-  const randomIndex = Math.floor(Math.random() * questions.length);
-  const randomQuestion = questions.length == 0 ? "Error Title" : questions[randomIndex]['title'];
+function notifyNotFound(user1, user2, room_id) {
+  connectedSockets.get(user1).emit("not_found");
+  connectedSockets.get(user2).emit("not_found");
+  console.log("No questions found");
+}
 
+function notifyActiveSession(user, room_id) {
+  connectedSockets.get(user).emit("already_matched", room_id);
+  console.log(`Notified ${user} that they have an active session`);
+}
+
+async function queryDB(user) {
+  try {
+    const query = "SELECT * FROM matched WHERE username = $1";
+    const result = await pool.query(query, [user]);
+    return result.rows;
+  } catch (error) {
+    console.error("Error querying Match DB:", error);
+    return [];
+  }
+}
+
+async function insertDB(user1, user2, room_id, question) {
   try {
     const query =
       "INSERT INTO matched (username, room_id, question) VALUES ($1, $2, $3) RETURNING *";
     const result = await pool.query(query, [
       user1,
       room_id,
-      randomQuestion,
+      question,
     ]);
     const result2 = await pool.query(query, [
       user2,
       room_id,
-      randomQuestion
+      question
     ])
-    console.log("1 matched pair added to DB");
+    notifyMatchedUsers(user1, user2, room_id);
   } catch (error) {
-    console.error("Error adding matched pair to DB:", error);
+    console.error("Error inserting into Match DB:", error);
   }
 }
 
-function handleMatching(request) {
+async function isUserMatched(user) {
+  const result = await queryDB(user);
+  if (result.length > 0) {
+    return true;
+  }
+  return false;
+}
+
+async function selectQuestion(m_category, m_difficulty) {
+  var response;
+  if (m_category == "Any") {
+    response = await axios.get(`http://localhost:4567/api/questions/find_any`, {
+      params: {
+        complexity: m_difficulty
+      }
+    });
+  } else {
+    response = await axios.get(`http://localhost:4567/api/questions/find`, {
+      params: {
+        category: m_category,
+        complexity: m_difficulty
+      }
+    });
+  }
+
+  const questions = await response.data.questions;
+  if (questions.length == 0) {
+    return "";
+  }
+
+  const randomIndex = Math.floor(Math.random() * questions.length);
+  return questions[randomIndex]['title'];
+}
+
+async function handleMatching(request) {
   const key = request.difficulty + request.category;
   const user = request.user;
-  console.log(`Handling match request: ${key} for user: ${user}`);
   const potentialMatch = matchingRequests.get(key);
 
   if (potentialMatch) {
@@ -82,28 +128,29 @@ function handleMatching(request) {
     matchingRequests.delete(key);
 
     const [sortedUser1, sortedUser2] = [user1, user2].sort();
-    const concatenatedString = sortedUser1 + sortedUser2;
     const hash = createHash('sha256');
-    hash.update(concatenatedString);
+    hash.update(sortedUser1 + sortedUser2);
     const room_id = hash.digest('hex');
 
-    updateDB(sortedUser1, sortedUser2, room_id, request.category, request.difficulty);
-    notifyMatchedUsers(user1, user2, room_id);
-    console.log(`Matched: ${user1} and ${user2}`);
+    randomQuestion = await selectQuestion(request.category, request.difficulty);
+    if (randomQuestion == "") {
+      notifyNotFound(user1, user2, room_id);
+      return;
+    }
+
+    await insertDB(sortedUser1, sortedUser2, room_id, randomQuestion);
   } else {
     // No match found yet, add this request to matchingRequests
     matchingRequests.set(key, { user, requestTime: Date.now() });
 
     // Set a timer to delete the request if no match is found
     setTimeout(() => {
-      console.log(`Checking if request timed out for user: ${user}`);
       var check_val = matchingRequests.get(key);
       if (check_val != undefined && check_val.user === user) {
         matchingRequests.delete(key);
 
         // Notify the user that their request timed out
         notifyRequestTimeout(user);
-        console.log(`Request timed out for user: ${user}`);
       }
     }, 30000); // 30 seconds timeout
   }
@@ -137,14 +184,17 @@ function setupRabbitMQ() {
 }
 
 io.on('connection', (socket) => {
-  socket.on("matchUser", (data) => {
+  socket.on("matchUser", async (data) =>{
     const { user, difficulty, category } = data;
     connectedSockets.set(user, socket);
-    console.log(`Registered user socket: ${user}`);
+
+    if (await isUserMatched(user)) {
+      notifyActiveSession(user);
+      return;
+    }
 
     const message = JSON.stringify({ user, difficulty, category });
     channel.sendToQueue(queue, Buffer.from(message));
-    console.log(`Received match request: ${message}`);
   })
 })
 
