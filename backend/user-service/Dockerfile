@@ -8,6 +8,9 @@ COPY package*.json ./
 
 RUN npm install
 
+ENV POSTGRES_HOST=user-postgresql
+ENV POSTGRES_JWT_SECRET=some_jwt_secret
+
 COPY . .
 
 EXPOSE 4000

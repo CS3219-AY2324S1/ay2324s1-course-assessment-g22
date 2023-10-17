@@ -1,0 +1,51 @@
+version: "3.8"
+ 
+services:
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - question-service
+      - user-service
+
+  question-service:
+    container_name: question-service
+    build: ./backend/question-service
+    ports:
+      - "4567:4567"
+    networks:
+      - question-network
+  
+  user-service:
+    container_name: user-service
+    build: ./backend/user-service
+    ports:
+      - "4000:4000"
+    networks:
+      - user-network
+
+  user-postgresql:
+    container_name: user-postgresql
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user-service
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./backend/user-service/sqlFiles/userAccountsSchema.sql:/docker-entrypoint-initdb.d/userAccountsSchema.sql
+      - postgresdatabase:/database/postgres/user-service
+    networks:
+      - user-network
+  
+volumes:
+  postgresdatabase:
+
+networks:
+  user-network:
+    driver: bridge
+  question-network:
+    driver: bridge

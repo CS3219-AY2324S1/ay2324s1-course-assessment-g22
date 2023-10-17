@@ -7,6 +7,6 @@ node_modules/
 .vscode/
 Postgres.session.sql
 backend/user-service/node_modules/
-backend/user-service/config.js
+backend/user-service/.env
 frontend/node_modules/
 
