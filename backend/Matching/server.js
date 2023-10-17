@@ -41,12 +41,23 @@ function notifyRequestTimeout(user) {
 }
 
 async function updateDB(user1, user2, room_id, m_category, m_difficulty) {
-  const response = await axios.get(`http://localhost:4567/api/questions/find`, {
-    params: {
-      category: m_category,
-      complexity: m_difficulty
-    }
-  });
+  var response;
+  if (m_category == "Any") {
+    response = await axios.get(`http://localhost:4567/api/questions/find_any`, {
+      params: {
+        complexity: m_difficulty
+      }
+    });
+
+  } else {
+    response = await axios.get(`http://localhost:4567/api/questions/find`, {
+      params: {
+        category: m_category,
+        complexity: m_difficulty
+      }
+    });
+
+  }
   const questions = await response.data.questions;
   const randomIndex = Math.floor(Math.random() * questions.length);
   const randomQuestion = questions.length == 0 ? "Error Title" : questions[randomIndex]['title'];

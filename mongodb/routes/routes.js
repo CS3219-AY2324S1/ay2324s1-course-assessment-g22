@@ -113,6 +113,16 @@ app.get(`${urlPrefix}/find`, async (req, res) => {
     .catch((err) => res.status(500).json({ error: err }));
 });
 
+// Get all questions of a specific complexity
+app.get(`${urlPrefix}/find_any`, async (req, res) => {
+  const complexity_to_find = req.query.complexity;
+
+  await questionModel
+    .find({complexity: complexity_to_find}, 'title')
+    .then((qns) => res.json({ questions: qns }))
+    .catch((err) => res.status(500).json({ error: err }));
+});
+
 // Update question into database
 app.put(`${urlPrefix}/:questionTitle`, verifyAdminToken, async (req, res) => {
   try {
