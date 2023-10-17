@@ -73,6 +73,21 @@ export default function Match({socket}) {
       type: "error", isLoading: false, autoClose: 3000, closeOnClick: true });
       setIsButtonDisabled(false);
     });
+
+    socket.on("already_matched", (arg) => {
+      toast.update(toastMessage, { render: "You already have an existing session! Please terminate the session before matching again.", 
+      type: "error", isLoading: false, closeOnClick: true });
+      
+      // Redirects the user to the collab page
+      const navigateToCollab = () => navigate(`/collab/${arg}`, { replace: true });
+      setTimeout(navigateToCollab, 1500);
+    });
+
+    socket.on("not_found", () => {
+      toast.update(toastMessage, { render: "Sorry we cannot find a question with your chosen category and difficulty. Please choose another combination!", 
+      type: "error", isLoading: false, autoClose: 3000, closeOnClick: true });
+      setIsButtonDisabled(false);
+    });
   }
 
   return (
