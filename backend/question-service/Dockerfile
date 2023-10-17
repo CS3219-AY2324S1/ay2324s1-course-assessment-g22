@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 4567
 
-CMD ["node", "index.js"]
+CMD ["node", "config/dbConnect.js"]
