@@ -1,11 +1,12 @@
 
-/mongodb/.env
-/mongodb/config/dbAdmin.js
+/backend/question-service/.env
+/backend/question-service/config/dbAdmin.js
+/backend/question-service/node_modules/
 node_modules/
 
 .vscode/
 Postgres.session.sql
-backend/node_modules/
-backend/config.js
+backend/user-service/node_modules/
+backend/user-service/config.js
 frontend/node_modules/
 
