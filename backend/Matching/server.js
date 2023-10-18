@@ -1,9 +1,9 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const { createHash } = require('node:crypto');
-const amqp = require('amqplib/callback_api');
-const axios = require('axios');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const { createHash } = require("node:crypto");
+const amqp = require("amqplib/callback_api");
+const axios = require("axios");
 const config = require("./config.js");
 const { Pool } = require("pg");
 
@@ -16,8 +16,8 @@ const connectedSockets = new Map();
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "DELETE"],
   },
 });
 
@@ -63,20 +63,23 @@ async function queryDB(user) {
   }
 }
 
+async function queryRoomId(room_id) {
+  try {
+    const query = "SELECT * FROM matched WHERE room_id = $1";
+    const result = await pool.query(query, [room_id]);
+    return result.rows;
+  } catch (error) {
+    console.error("Error querying Match DB:", error);
+    return [];
+  }
+}
+
 async function insertDB(user1, user2, room_id, question) {
   try {
     const query =
       "INSERT INTO matched (username, room_id, question) VALUES ($1, $2, $3) RETURNING *";
-    const result = await pool.query(query, [
-      user1,
-      room_id,
-      question,
-    ]);
-    const result2 = await pool.query(query, [
-      user2,
-      room_id,
-      question
-    ])
+    const result = await pool.query(query, [user1, room_id, question]);
+    const result2 = await pool.query(query, [user2, room_id, question]);
     notifyMatchedUsers(user1, user2, room_id);
   } catch (error) {
     console.error("Error inserting into Match DB:", error);
@@ -96,15 +99,15 @@ async function selectQuestion(m_category, m_difficulty) {
   if (m_category == "Any") {
     response = await axios.get(`http://localhost:4567/api/questions/find_any`, {
       params: {
-        complexity: m_difficulty
-      }
+        complexity: m_difficulty,
+      },
     });
   } else {
     response = await axios.get(`http://localhost:4567/api/questions/find`, {
       params: {
         category: m_category,
-        complexity: m_difficulty
-      }
+        complexity: m_difficulty,
+      },
     });
   }
 
@@ -114,7 +117,7 @@ async function selectQuestion(m_category, m_difficulty) {
   }
 
   const randomIndex = Math.floor(Math.random() * questions.length);
-  return questions[randomIndex]['title'];
+  return questions[randomIndex]["title"];
 }
 
 async function handleMatching(request) {
@@ -128,9 +131,9 @@ async function handleMatching(request) {
     matchingRequests.delete(key);
 
     const [sortedUser1, sortedUser2] = [user1, user2].sort();
-    const hash = createHash('sha256');
+    const hash = createHash("sha256");
     hash.update(sortedUser1 + sortedUser2);
-    const room_id = hash.digest('hex');
+    const room_id = hash.digest("hex");
 
     randomQuestion = await selectQuestion(request.category, request.difficulty);
     if (randomQuestion == "") {
@@ -157,7 +160,7 @@ async function handleMatching(request) {
 }
 
 function setupRabbitMQ() {
-  amqp.connect('amqp://localhost', function (error0, connection) {
+  amqp.connect("amqp://localhost", function (error0, connection) {
     if (error0) {
       throw error0;
     }
@@ -169,22 +172,26 @@ function setupRabbitMQ() {
 
       channel = ch;
       channel.assertQueue(queue, {
-        durable: false
+        durable: false,
       });
       console.log(" [*] Waiting for messages in %s.", queue);
 
-      channel.consume(queue, function (msg) {
-        const message = JSON.parse(msg.content.toString());
-        handleMatching(message);
-      }, {
-        noAck: true
-      });
+      channel.consume(
+        queue,
+        function (msg) {
+          const message = JSON.parse(msg.content.toString());
+          handleMatching(message);
+        },
+        {
+          noAck: true,
+        }
+      );
     });
   });
 }
 
-io.on('connection', (socket) => {
-  socket.on("matchUser", async (data) =>{
+io.on("connection", (socket) => {
+  socket.on("matchUser", async (data) => {
     const { user, difficulty, category } = data;
     connectedSockets.set(user, socket);
 
@@ -195,10 +202,21 @@ io.on('connection', (socket) => {
 
     const message = JSON.stringify({ user, difficulty, category });
     channel.sendToQueue(queue, Buffer.from(message));
-  })
-})
+  });
+
+  socket.on("queryRoomId", (room_id) => {
+    queryRoomId(room_id).then((result) => {
+      socket.emit("roominfo", result);
+    });
+  });
+
+  socket.on("deleteRoomId", (room_id) => {
+    const query = "DELETE FROM matched WHERE room_id = $1";
+    pool.query(query, [room_id]);
+  });
+});
 
 server.listen(5000, () => {
-  console.log('listening on port 5000');
+  console.log("listening on port 5000");
   setupRabbitMQ();
 });
