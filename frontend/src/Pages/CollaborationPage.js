@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
+import io from "socket.io-client";
 import { QuestionDescription } from "../questions/QuestionDescription";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
+import url from "./api/url";
 
 export default function CollaborationPage({ matchsocket }) {
   const auth = useAuthUser();
@@ -10,8 +12,38 @@ export default function CollaborationPage({ matchsocket }) {
   const urlPathOnId = useParams();
   const room_id = urlPathOnId.roomid;
   const editorRef = useRef(null);
+  const roomSocketRef = useRef(null);
   const [code, setCode] = useState("");
   const [questionTitle, setQuestionTitle] = useState(null);
+
+  useEffect(() => {
+    const roomSocket = io(url.roomUrl);
+    roomSocket.emit("join_room", room_id);
+
+    roomSocket.on("join_success", (roomId) => {
+      roomSocketRef.current = roomSocket;
+    });
+
+    roomSocket.on("full_room", () => {
+      console.log("Room is full");
+      //TODO Notify user that room is full
+    });
+
+    roomSocket.on("code", (code) => {
+      console.log("Code received: " + code);
+      setCode(code);
+    });
+
+    return () => {
+      roomSocket.disconnect();
+    };
+  }, [room_id]);
+
+  useEffect(() => {
+    if (roomSocketRef.current) {
+      roomSocketRef.current.emit("code", room_id, code);
+    }
+  }, [code, room_id]);
 
   const user = auth().username;
   const [otherUser, setOtherUser] = useState(null);
@@ -50,6 +82,7 @@ export default function CollaborationPage({ matchsocket }) {
             height="70vh"
             defaultLanguage="javascript"
             defaultValue={code}
+            value={code} //TODO: FIX THIS VALUE TO UPDATE WHEN CODE CHANGE
             onChange={handleEditorChange}
             onMount={(editor) => {
               editorRef.current = editor;
