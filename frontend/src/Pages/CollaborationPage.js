@@ -4,6 +4,7 @@ import io from "socket.io-client";
 import { QuestionDescription } from "../questions/QuestionDescription";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
+import lodashDebounce from "lodash.debounce";
 import url from "./api/url";
 
 export default function CollaborationPage({ matchsocket }) {
@@ -62,9 +63,11 @@ export default function CollaborationPage({ matchsocket }) {
     });
   }, [room_id, matchsocket, user]);
 
-  const handleEditorChange = (value) => {
+  const debounceHandleEditorChange = lodashDebounce((value) => {
+    // With debouncing to prevent stress on server
+    // Only when user stops typing for 300ms, then send code to server
     setCode(value);
-  };
+  }, 300);
 
   const handleLeave = () => {
     matchsocket.emit("deleteRoomId", room_id);
@@ -82,8 +85,8 @@ export default function CollaborationPage({ matchsocket }) {
             height="70vh"
             defaultLanguage="javascript"
             defaultValue={code}
-            value={code} //TODO: FIX THIS VALUE TO UPDATE WHEN CODE CHANGE
-            onChange={handleEditorChange}
+            value={code}
+            onChange={debounceHandleEditorChange}
             onMount={(editor) => {
               editorRef.current = editor;
             }}

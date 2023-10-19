@@ -1,5 +1,11 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/6BOvYMwN)
 
+# Setup as of 19/10/23
+
+- Follow setup as shown [below](#setup-for-assignment-3)
+- Follow setup as shown in `~/backend/README.md` for RabbitMQ and Matching database
+- Follow setup as shown in `~/backend/Room/README.md` for collaboration server
+
 # Setup for Assignment 3
 
 #### Use npm install on the following directories
