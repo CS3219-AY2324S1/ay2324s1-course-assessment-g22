@@ -23,7 +23,7 @@ export default function CollaborationPage({ matchsocket }) {
 
   useEffect(() => {
     const roomSocket = io(url.roomUrl);
-    roomSocket.emit("join_room", room_id, user);
+    roomSocket.emit("join_room", room_id);
 
     roomSocket.on("join_success", () => {
       roomSocketRef.current = roomSocket;
@@ -48,7 +48,7 @@ export default function CollaborationPage({ matchsocket }) {
     return () => {
       roomSocket.disconnect();
     };
-  }, [room_id, user]);
+  }, [room_id]);
 
   useEffect(() => {
     if (roomSocketRef.current) {
