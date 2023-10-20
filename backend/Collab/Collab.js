@@ -13,7 +13,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  // console.log("A user connected");
 
   socket.on("join_room", (roomId) => {
     const room = io.sockets.adapter.rooms.get(`${roomId}`);
@@ -21,7 +21,7 @@ io.on("connection", (socket) => {
     if (numClients < 2) {
       socket.join(`${roomId}`);
       socket.roomId = roomId;
-      socket.emit("join_success", roomId);
+      socket.emit("join_success");
     } else {
       socket.emit("full_room");
     }
@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     socket.to(socket.roomId).emit("leave_room");
-    console.log("A user disconnected");
+    // console.log("A user disconnected");
   });
 });
 

@@ -22,17 +22,17 @@ export default function CollaborationPage({ matchsocket }) {
   const [otherUser, setOtherUser] = useState(null);
 
   useEffect(() => {
-    toast.dismiss();
     const roomSocket = io(url.roomUrl);
-    roomSocket.emit("join_room", room_id);
+    roomSocket.emit("join_room", room_id, user);
 
-    roomSocket.on("join_success", (roomId) => {
+    roomSocket.on("join_success", () => {
       roomSocketRef.current = roomSocket;
     });
 
     roomSocket.on("full_room", () => {
-      console.log("Room is full");
-      //TODO Notify user that room is full
+      toast.dismiss();
+      toast.warn(`The room is full. Please try again later.`);
+      // TODO boot the user back to the landing page
     });
 
     roomSocket.on("code", (code) => {
@@ -41,13 +41,14 @@ export default function CollaborationPage({ matchsocket }) {
     });
 
     roomSocket.on("leave_room", () => {
+      toast.dismiss();
       toast.warn(`The other user has left the room.`);
     });
 
     return () => {
       roomSocket.disconnect();
     };
-  }, [room_id]);
+  }, [room_id, user]);
 
   useEffect(() => {
     if (roomSocketRef.current) {
