@@ -20,6 +20,7 @@ io.on("connection", (socket) => {
     const numClients = room ? room.size : 0;
     if (numClients < 2) {
       socket.join(`${roomId}`);
+      socket.roomId = roomId;
       socket.emit("join_success", roomId);
     } else {
       socket.emit("full_room");
@@ -29,15 +30,20 @@ io.on("connection", (socket) => {
   socket.on("code", (roomId, code) => {
     // Double code receive from both user code updates
     // to confirm updates
-    console.log(`Code received: ${code}`);
+    // console.log(`Code received: ${code}`);
     socket.to(`${roomId}`).emit("code", code);
   });
 
+  socket.on("leave_room", (roomId) => {
+    socket.to(`${roomId}`).emit("leave_room");
+  });
+
   socket.on("disconnect", () => {
+    socket.to(socket.roomId).emit("leave_room");
     console.log("A user disconnected");
   });
 });
 
 server.listen(5001, () => {
-  console.log("Room server listening on port 5001");
+  console.log("Collab service listening on port 5001");
 });

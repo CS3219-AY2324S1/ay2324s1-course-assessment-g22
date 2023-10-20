@@ -4,7 +4,7 @@
 
 - Follow setup as shown [below](#setup-for-assignment-3)
 - Follow setup as shown in `~/backend/README.md` for RabbitMQ and Matching database
-- Follow setup as shown in `~/backend/Room/README.md` for collaboration server
+- Follow setup as shown in `~/backend/Collab/README.md` for collaboration server
 
 # Setup for Assignment 3
 

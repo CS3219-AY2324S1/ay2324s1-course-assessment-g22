@@ -6,6 +6,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import lodashDebounce from "lodash.debounce";
 import url from "./api/url";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function CollaborationPage({ matchsocket }) {
   const auth = useAuthUser();
@@ -16,8 +18,11 @@ export default function CollaborationPage({ matchsocket }) {
   const roomSocketRef = useRef(null);
   const [code, setCode] = useState("");
   const [questionTitle, setQuestionTitle] = useState(null);
+  const user = auth().username;
+  const [otherUser, setOtherUser] = useState(null);
 
   useEffect(() => {
+    toast.dismiss();
     const roomSocket = io(url.roomUrl);
     roomSocket.emit("join_room", room_id);
 
@@ -35,6 +40,10 @@ export default function CollaborationPage({ matchsocket }) {
       setCode(code);
     });
 
+    roomSocket.on("leave_room", () => {
+      toast.warn(`The other user has left the room.`);
+    });
+
     return () => {
       roomSocket.disconnect();
     };
@@ -45,9 +54,6 @@ export default function CollaborationPage({ matchsocket }) {
       roomSocketRef.current.emit("code", room_id, code);
     }
   }, [code, room_id]);
-
-  const user = auth().username;
-  const [otherUser, setOtherUser] = useState(null);
 
   useEffect(() => {
     matchsocket.emit("queryRoomId", room_id);
@@ -76,6 +82,16 @@ export default function CollaborationPage({ matchsocket }) {
 
   return (
     <div className="flex flex-row h-screen">
+      <ToastContainer
+        position="top-center"
+        autoClose={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        theme="dark"
+      />
       <div className="flex-1 p-4">
         <div className="bg-white rounded-lg shadow-md">
           <div className="text-lg font-semibold p-3 border-b border-gray-300">
