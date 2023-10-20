@@ -86,9 +86,9 @@ async function insertDB(user1, user2, room_id, question) {
 async function isUserMatched(user) {
   const result = await queryDB(user);
   if (result.length > 0) {
-    return true;
+    return result[0].room_id;
   }
-  return false;
+  return null;
 }
 
 async function selectQuestion(m_category, m_difficulty) {
@@ -188,8 +188,9 @@ io.on('connection', (socket) => {
     const { user, difficulty, category } = data;
     connectedSockets.set(user, socket);
 
-    if (await isUserMatched(user)) {
-      notifyActiveSession(user);
+    room_id = await isUserMatched(user);
+    if (room_id != null) {
+      notifyActiveSession(user, room_id);
       return;
     }
 
