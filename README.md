@@ -3,7 +3,7 @@
 # Setup for Assignment 4
 
 - Add dbAdmin.js in ~/mongodb/config
-- For the jwtSecret, either the default one below can be used or your own custom jwt_secret
+- For the jwtSecret, either the default one below can be used or your own custom jwtSecret
 
 ```
 const username = "REDACTED";
@@ -21,7 +21,7 @@ module.exports = {
 };
 ```
 
-- If you wish to use your own jwt_secret, add the env variable `POSTGRES_JWT_SECRET` in a .env file under user-service 
+- If you wish to use your own jwtSecret, add the env variable `POSTGRES_JWT_SECRET` in a .env file under user-service 
 
 - Run `docker compose up --build` to build and start up the containers. If you wish to run the containers in the background, run `docker compose up --build -d` instead
 - To stop the containers, run `docker compose stop` or press `CTRL + C`
