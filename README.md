@@ -10,7 +10,7 @@ const username = "REDACTED";
 const password = "REDACTED";
 const clusterName = "REDACTED";
 const databaseName = "REDACTED";
-const jwtSecret = "jwt_secret";
+const jwtSecret = "jwt-secret";
 
 module.exports = {
   username,
