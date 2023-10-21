@@ -1,5 +1,33 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/6BOvYMwN)
 
+# Setup for Assignment 4
+
+- Add dbAdmin.js in ~/mongodb/config
+- For the jwtSecret, either the default one below can be used or your own custom jwt_secret
+
+```
+const username = "REDACTED";
+const password = "REDACTED";
+const clusterName = "REDACTED";
+const databaseName = "REDACTED";
+const jwtSecret = "jwt_secret";
+
+module.exports = {
+  username,
+  password,
+  clusterName,
+  databaseName,
+  jwtSecret,
+};
+```
+
+- If you wish to use your own jwt_secret, add the env variable `POSTGRES_JWT_SECRET` in a .env file under user-service 
+
+- Run `docker compose up --build` to build and start up the containers. If you wish to run the containers in the background, run `docker compose up --build -d` instead
+- To stop the containers, run `docker compose stop` or press `CTRL + C`
+- To stop and remove the containers, run `docker compose down`
+
+
 # Setup for Assignment 3
 
 #### Use npm install on the following directories
