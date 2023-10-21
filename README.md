@@ -31,10 +31,12 @@ POSTGRES_JWT_SECRET=puturownjwtsecrethere
 
 ### Test App
 
+- Launch Docker (Recommended: Docker Desktop)
 - Run `docker compose up --build` in the main directory to build and start up the containers. When the frontend container is up and running, access localhost:3000 in the browser to test the app.
 - If you wish to run the containers in the background, run `docker compose up --build -d` instead
 - To stop the containers, run `docker compose stop` or press `CTRL + C`
 - To stop and remove the containers, run `docker compose down`
+- Quick way to restart/clean user or matching database is to delete the respective containers before running
 
 # Setup for Assignment 4
 
