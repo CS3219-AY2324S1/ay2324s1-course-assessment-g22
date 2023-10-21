@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS userAccounts (
+    user_id serial PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    firstname VARCHAR(50) NOT NULL,
+    lastname VARCHAR(50) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT current_timestamp,
+    role VARCHAR(50) DEFAULT 'user' NOT NULL
+);
+
 INSERT INTO userAccounts (username, email, password, firstname, lastname) VALUES
 ('user1', 'user1@example.com', 'hashed_password_1', 'John', 'Doe'),
 ('user2', 'user2@example.com', 'hashed_password_2', 'Alice', 'Smith'),
