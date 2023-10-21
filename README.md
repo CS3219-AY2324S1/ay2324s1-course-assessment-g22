@@ -21,12 +21,15 @@ module.exports = {
 };
 ```
 
-- If you wish to use your own jwtSecret, add the env variable `POSTGRES_JWT_SECRET` in a .env file under user-service 
+- If you wish to use your own jwtSecret, add the env variable `POSTGRES_JWT_SECRET` in a .env file under user-service
+
+```
+POSTGRES_JWT_SECRET=puturownjwtsecrethere
+```
 
 - Run `docker compose up --build` to build and start up the containers. If you wish to run the containers in the background, run `docker compose up --build -d` instead
 - To stop the containers, run `docker compose stop` or press `CTRL + C`
 - To stop and remove the containers, run `docker compose down`
-
 
 # Setup for Assignment 3
 
