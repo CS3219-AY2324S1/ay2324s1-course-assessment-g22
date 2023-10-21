@@ -8,6 +8,7 @@ services:
     depends_on:
       - question-service
       - user-service
+      - matching-service
 
   question-service:
     build: ./backend/question-service
@@ -35,15 +36,56 @@ services:
       - "5432:5432"
     volumes:
       - ./backend/user-service/sqlFiles/userAccountsSchema.sql:/docker-entrypoint-initdb.d/userAccountsSchema.sql
-      - postgresdatabase:/database/postgres/user-service
+      - userdatabase:/database/postgres/user-service
     networks:
       - user-network
+
+  matching-service:
+    build: ./backend/matching-service
+    ports:
+      - "5000:5000"
+    networks:
+      - question-network
+      - matching-network
+    restart: on-failure
+    depends_on:
+      - matching-postgresql
+      - matching-rabbitmq
+
+  matching-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: matching-service
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./backend/matching-service/matchingSchema.sql:/docker-entrypoint-initdb.d/matchingSchema.sql
+      - matchingdatabase:/database/postgres/matching-service
+    networks:
+      - matching-network
+
+  matching-rabbitmq:
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - matching-network
   
 volumes:
-  postgresdatabase:
+  userdatabase:
+  matchingdatabase:
 
 networks:
   user-network:
     driver: bridge
   question-network:
+    driver: bridge
+  matching-network:
     driver: bridge

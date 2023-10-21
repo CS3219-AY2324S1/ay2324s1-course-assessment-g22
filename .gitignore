@@ -1,13 +1,15 @@
+backend/matching-service/.env
+backend/matching-service/node_modules/
 
 /backend/question-service/.env
 /backend/question-service/config/dbAdmin.js
 /backend/question-service/node_modules/
-node_modules/
 
-.vscode/
-Postgres.session.sql
 backend/user-service/node_modules/
 backend/user-service/.env
-frontend/node_modules/
-backend/Matching/config.js
 
+frontend/node_modules/
+
+node_modules/
+.vscode/
+Postgres.session.sql

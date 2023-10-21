@@ -94,13 +94,13 @@ async function isUserMatched(user) {
 async function selectQuestion(m_category, m_difficulty) {
   var response;
   if (m_category == "Any") {
-    response = await axios.get(`http://localhost:4567/api/questions/find_any`, {
+    response = await axios.get(`http://question-service:4567/api/questions/find_any`, {
       params: {
         complexity: m_difficulty
       }
     });
   } else {
-    response = await axios.get(`http://localhost:4567/api/questions/find`, {
+    response = await axios.get(`http://question-service:4567/api/questions/find`, {
       params: {
         category: m_category,
         complexity: m_difficulty
@@ -157,7 +157,7 @@ async function handleMatching(request) {
 }
 
 function setupRabbitMQ() {
-  amqp.connect('amqp://localhost', function (error0, connection) {
+  amqp.connect('amqp://matching-rabbitmq', function (error0, connection) {
     if (error0) {
       throw error0;
     }
