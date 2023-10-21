@@ -2,7 +2,6 @@ version: "3.8"
  
 services:
   frontend:
-    container_name: frontend
     build: ./frontend
     ports:
       - "3000:3000"
@@ -11,7 +10,6 @@ services:
       - user-service
 
   question-service:
-    container_name: question-service
     build: ./backend/question-service
     ports:
       - "4567:4567"
@@ -19,15 +17,15 @@ services:
       - question-network
   
   user-service:
-    container_name: user-service
     build: ./backend/user-service
     ports:
       - "4000:4000"
     networks:
       - user-network
+    depends_on:
+      - user-postgresql
 
   user-postgresql:
-    container_name: user-postgresql
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
