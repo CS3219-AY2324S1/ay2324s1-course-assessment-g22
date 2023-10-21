@@ -88,6 +88,14 @@ export default function Match({socket}) {
       type: "error", isLoading: false, autoClose: 3000, closeOnClick: true });
       setIsButtonDisabled(false);
     });
+
+    socket.on("already_requested", () => {
+      toast.update(toastMessage, { render: "You already have an active request! Please wait for the result of the request on this tab and close the other tabs.", 
+      type: "error", isLoading: false, autoClose: 3000, closeOnClick: true });
+
+      toast.update(toastMessage, { render: "Please wait for a moment while we try to match you with another user",
+      type: "info", isLoading: true, closeOnClick: false });
+    });
   }
 
   return (

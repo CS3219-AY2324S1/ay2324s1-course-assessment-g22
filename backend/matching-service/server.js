@@ -13,6 +13,7 @@ var channel;
 const queue = "match";
 const matchingRequests = new Map();
 const connectedSockets = new Map();
+const usersRequested = new Map();
 
 const io = new Server(server, {
   cors: {
@@ -30,26 +31,43 @@ const pool = new Pool({
   port: dbConfig.port,
 });
 
+function clearUserRequest(user) {
+  usersRequested.delete(user);
+}
+
 function notifyMatchedUsers(user1, user2, room_id) {
   connectedSockets.get(user1).emit("matched", room_id);
   connectedSockets.get(user2).emit("matched", room_id);
   console.log(`Notified ${user1} and ${user2} that they are matched`);
+
+  clearUserRequest(user1);
+  clearUserRequest(user2);
 }
 
 function notifyRequestTimeout(user) {
   connectedSockets.get(user).emit("timeout");
   console.log(`Request timed out for user: ${user}`);
+
+  clearUserRequest(user);
 }
 
 function notifyNotFound(user1, user2, room_id) {
   connectedSockets.get(user1).emit("not_found");
   connectedSockets.get(user2).emit("not_found");
   console.log("No questions found");
+
+  clearUserRequest(user1);
+  clearUserRequest(user2);
 }
 
 function notifyActiveSession(user, room_id) {
   connectedSockets.get(user).emit("already_matched", room_id);
   console.log(`Notified ${user} that they have an active session`);
+}
+
+function notifyActiveRequest(user) {
+  connectedSockets.get(user).emit("already_requested");
+  console.log(`Notified ${user} that they have an active request`);
 }
 
 async function queryDB(user) {
@@ -175,6 +193,14 @@ function setupRabbitMQ() {
 
       channel.consume(queue, function (msg) {
         const message = JSON.parse(msg.content.toString());
+
+        if (usersRequested.has(message.user)) {
+          notifyActiveRequest(message.user);
+          return;
+        } else {
+          usersRequested.set(message.user, true);
+        }
+
         handleMatching(message);
       }, {
         noAck: true
