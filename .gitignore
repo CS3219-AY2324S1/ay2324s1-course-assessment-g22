@@ -1,3 +1,5 @@
+backend/collab-service/.env
+
 backend/matching-service/.env
 backend/matching-service/node_modules/
 

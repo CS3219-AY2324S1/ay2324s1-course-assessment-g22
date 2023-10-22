@@ -1,5 +1,5 @@
 version: "3.8"
- 
+
 services:
   frontend:
     build: ./frontend
@@ -9,6 +9,7 @@ services:
       - question-service
       - user-service
       - matching-service
+      - collab-service
 
   question-service:
     build: ./backend/question-service
@@ -16,7 +17,7 @@ services:
       - "4567:4567"
     networks:
       - question-network
-  
+
   user-service:
     build: ./backend/user-service
     ports:
@@ -51,9 +52,8 @@ services:
     depends_on:
       matching-postgresql:
         condition: service_started
-      matching-rabbitmq: 
+      matching-rabbitmq:
         condition: service_healthy
-
 
   matching-postgresql:
     image: postgres:15
@@ -80,10 +80,36 @@ services:
       retries: 25
     networks:
       - matching-network
-  
+
+  collab-service:
+    build: ./backend/collab-service
+    ports:
+      - "5001:5001"
+    networks:
+      - collab-network
+    restart: on-failure
+    depends_on:
+      collab-postgresql:
+        condition: service_started
+
+  collab-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: collab-service
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./backend/collab-service/collabSchema.sql:/docker-entrypoint-initdb.d/collabSchema.sql
+      - collabdatabase:/database/postgres/collab-service
+    networks:
+      - collab-network
+
 volumes:
   userdatabase:
   matchingdatabase:
+  collabdatabase:
 
 networks:
   user-network:
@@ -91,4 +117,6 @@ networks:
   question-network:
     driver: bridge
   matching-network:
+    driver: bridge
+  collab-network:
     driver: bridge
