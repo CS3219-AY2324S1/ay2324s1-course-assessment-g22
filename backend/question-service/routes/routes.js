@@ -94,6 +94,35 @@ app.get(`${urlPrefix}`, verifyToken, async (req, res) => {
     .catch((err) => res.status(500).json({ error: err }));
 });
 
+// Get all question categories
+app.get(`${urlPrefix}/categories`, verifyToken, async (req, res) => {
+  await questionModel
+    .find({}, 'category')
+    .then((qns) => res.json({ questions: qns }))
+    .catch((err) => res.status(500).json({ error: err }));
+});
+
+// Get all questions of a specific category and complexity
+app.get(`${urlPrefix}/find`, async (req, res) => {
+  const category_to_find = req.query.category;
+  const complexity_to_find = req.query.complexity;
+
+  await questionModel
+    .find({$or: [{ category: new RegExp(category_to_find) }], complexity: complexity_to_find}, 'title')
+    .then((qns) => res.json({ questions: qns }))
+    .catch((err) => res.status(500).json({ error: err }));
+});
+
+// Get all questions of a specific complexity
+app.get(`${urlPrefix}/find_any`, async (req, res) => {
+  const complexity_to_find = req.query.complexity;
+
+  await questionModel
+    .find({complexity: complexity_to_find}, 'title')
+    .then((qns) => res.json({ questions: qns }))
+    .catch((err) => res.status(500).json({ error: err }));
+});
+
 // Update question into database
 app.put(`${urlPrefix}/:questionTitle`, verifyAdminToken, async (req, res) => {
   try {
