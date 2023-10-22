@@ -13,6 +13,7 @@ var channel;
 const queue = "match";
 const matchingRequests = new Map();
 const connectedSockets = new Map();
+const usersRequested = new Map();
 
 const io = new Server(server, {
   cors: {
@@ -30,26 +31,43 @@ const pool = new Pool({
   port: dbConfig.port,
 });
 
+function clearUserRequest(user) {
+  usersRequested.delete(user);
+}
+
 function notifyMatchedUsers(user1, user2, room_id) {
   connectedSockets.get(user1).emit("matched", room_id);
   connectedSockets.get(user2).emit("matched", room_id);
   console.log(`Notified ${user1} and ${user2} that they are matched`);
+
+  clearUserRequest(user1);
+  clearUserRequest(user2);
 }
 
 function notifyRequestTimeout(user) {
   connectedSockets.get(user).emit("timeout");
   console.log(`Request timed out for user: ${user}`);
+
+  clearUserRequest(user);
 }
 
 function notifyNotFound(user1, user2, room_id) {
   connectedSockets.get(user1).emit("not_found");
   connectedSockets.get(user2).emit("not_found");
   console.log("No questions found");
+
+  clearUserRequest(user1);
+  clearUserRequest(user2);
 }
 
 function notifyActiveSession(user, room_id) {
   connectedSockets.get(user).emit("already_matched", room_id);
   console.log(`Notified ${user} that they have an active session`);
+}
+
+function notifyActiveRequest(user) {
+  connectedSockets.get(user).emit("already_requested");
+  console.log(`Notified ${user} that they have an active request`);
 }
 
 async function queryDB(user) {
@@ -89,26 +107,32 @@ async function insertDB(user1, user2, room_id, question) {
 async function isUserMatched(user) {
   const result = await queryDB(user);
   if (result.length > 0) {
-    return true;
+    return result[0].room_id;
   }
-  return false;
+  return null;
 }
 
 async function selectQuestion(m_category, m_difficulty) {
   var response;
   if (m_category == "Any") {
-    response = await axios.get(`http://localhost:4567/api/questions/find_any`, {
-      params: {
-        complexity: m_difficulty,
-      },
-    });
+    response = await axios.get(
+      `http://question-service:4567/api/questions/find_any`,
+      {
+        params: {
+          complexity: m_difficulty,
+        },
+      }
+    );
   } else {
-    response = await axios.get(`http://localhost:4567/api/questions/find`, {
-      params: {
-        category: m_category,
-        complexity: m_difficulty,
-      },
-    });
+    response = await axios.get(
+      `http://question-service:4567/api/questions/find`,
+      {
+        params: {
+          category: m_category,
+          complexity: m_difficulty,
+        },
+      }
+    );
   }
 
   const questions = await response.data.questions;
@@ -160,7 +184,7 @@ async function handleMatching(request) {
 }
 
 function setupRabbitMQ() {
-  amqp.connect("amqp://localhost", function (error0, connection) {
+  amqp.connect("amqp://matching-rabbitmq", function (error0, connection) {
     if (error0) {
       throw error0;
     }
@@ -180,6 +204,14 @@ function setupRabbitMQ() {
         queue,
         function (msg) {
           const message = JSON.parse(msg.content.toString());
+
+          if (usersRequested.has(message.user)) {
+            notifyActiveRequest(message.user);
+            return;
+          } else {
+            usersRequested.set(message.user, true);
+          }
+
           handleMatching(message);
         },
         {
@@ -195,8 +227,9 @@ io.on("connection", (socket) => {
     const { user, difficulty, category } = data;
     connectedSockets.set(user, socket);
 
-    if (await isUserMatched(user)) {
-      notifyActiveSession(user);
+    room_id = await isUserMatched(user);
+    if (room_id != null) {
+      notifyActiveSession(user, room_id);
       return;
     }
 

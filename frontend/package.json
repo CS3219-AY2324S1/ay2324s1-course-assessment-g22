@@ -33,7 +33,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "concurrently \"react-scripts start\" \"cd .. && cd backend && node index.js\" \"cd ../mongodb/config && node dbConnect.js\" \"cd ../backend/Matching && node server.js\" ",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

@@ -1,0 +1,94 @@
+version: "3.8"
+ 
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - question-service
+      - user-service
+      - matching-service
+
+  question-service:
+    build: ./backend/question-service
+    ports:
+      - "4567:4567"
+    networks:
+      - question-network
+  
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - "4000:4000"
+    networks:
+      - user-network
+    depends_on:
+      - user-postgresql
+
+  user-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user-service
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./backend/user-service/sqlFiles/userAccountsSchema.sql:/docker-entrypoint-initdb.d/userAccountsSchema.sql
+      - userdatabase:/database/postgres/user-service
+    networks:
+      - user-network
+
+  matching-service:
+    build: ./backend/matching-service
+    ports:
+      - "5000:5000"
+    networks:
+      - question-network
+      - matching-network
+    restart: on-failure
+    depends_on:
+      matching-postgresql:
+        condition: service_started
+      matching-rabbitmq: 
+        condition: service_healthy
+
+
+  matching-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: matching-service
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./backend/matching-service/matchingSchema.sql:/docker-entrypoint-initdb.d/matchingSchema.sql
+      - matchingdatabase:/database/postgres/matching-service
+    networks:
+      - matching-network
+
+  matching-rabbitmq:
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 25
+    networks:
+      - matching-network
+  
+volumes:
+  userdatabase:
+  matchingdatabase:
+
+networks:
+  user-network:
+    driver: bridge
+  question-network:
+    driver: bridge
+  matching-network:
+    driver: bridge
