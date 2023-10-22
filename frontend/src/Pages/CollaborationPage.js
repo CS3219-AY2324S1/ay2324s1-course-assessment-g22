@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Cookies from "js-cookie";
 import Editor from "@monaco-editor/react";
 import io from "socket.io-client";
 import { QuestionDescription } from "../questions/QuestionDescription";
@@ -31,12 +32,6 @@ export default function CollaborationPage({ matchsocket }) {
       setCode(code);
     });
 
-    roomSocket.on("full_room", () => {
-      toast.dismiss();
-      toast.warn(`The room is full. Please try again later.`);
-      navigate("/");
-    });
-
     roomSocket.on("code", (code) => {
       console.log("Code received: " + code);
       setCode(code);
@@ -45,6 +40,18 @@ export default function CollaborationPage({ matchsocket }) {
     roomSocket.on("leave_room", () => {
       toast.dismiss();
       toast.warn(`The other user has left the room.`);
+    });
+
+    roomSocket.on("end_collab", () => {
+      setTimeout(() => {
+        toast.dismiss();
+      }, 3000);
+      toast.warn(
+        `The other user has ended the collab. Redirecting to home in 5 seconds.`
+      );
+      setTimeout(() => {
+        navigate("/");
+      }, 5000);
     });
 
     return () => {
@@ -59,7 +66,7 @@ export default function CollaborationPage({ matchsocket }) {
   }, [code, room_id]);
 
   useEffect(() => {
-    matchsocket.emit("queryRoomId", room_id);
+    matchsocket.emit("queryRoomId", room_id, Cookies.get("_auth"));
     matchsocket.on("roominfo", (result) => {
       if (result[0] !== undefined) {
         setQuestionTitle(result[0].question);
@@ -68,9 +75,11 @@ export default function CollaborationPage({ matchsocket }) {
         } else {
           setOtherUser(result[0].username);
         }
+      } else {
+        navigate("/");
       }
     });
-  }, [room_id, matchsocket, user]);
+  }, [room_id, matchsocket, user, navigate]);
 
   const debounceHandleEditorChange = lodashDebounce((value) => {
     // With debouncing to prevent stress on server
@@ -78,13 +87,16 @@ export default function CollaborationPage({ matchsocket }) {
     setCode(value);
   }, 300);
 
-  const handleLeave = () => {
+  const handleEnd = () => {
     matchsocket.emit("deleteRoomId", room_id);
+    roomSocketRef.current.emit("end_collab", room_id);
     navigate("/");
   };
 
   const handleSave = () => {
     roomSocketRef.current.emit("save_code", room_id, code);
+    toast.dismiss();
+    toast.success(`Code saved!`);
   };
 
   return (
@@ -115,19 +127,21 @@ export default function CollaborationPage({ matchsocket }) {
             }}
           />
         </div>
-        <button
-          onClick={handleLeave}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
-        >
-          Leave Collaboration
-        </button>
-        <div className="p-1"></div>
-        <button
-          onClick={handleSave}
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
-        >
-          Save
-        </button>
+        <div className="flex flex-row">
+          <button
+            onClick={handleSave}
+            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
+          >
+            Save
+          </button>
+          <div className="p-1"></div>
+          <button
+            onClick={handleEnd}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
+          >
+            End Collaboration
+          </button>
+        </div>
       </div>
       <div className="flex-1 p-4">
         <QuestionDescription specificTitle={questionTitle} />

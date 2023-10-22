@@ -6,6 +6,7 @@ const amqp = require("amqplib/callback_api");
 const axios = require("axios");
 const config = require("./config.js");
 const { Pool } = require("pg");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const server = http.createServer(app);
@@ -237,9 +238,26 @@ io.on("connection", (socket) => {
     channel.sendToQueue(queue, Buffer.from(message));
   });
 
-  socket.on("queryRoomId", (room_id) => {
+  socket.on("queryRoomId", (room_id, token) => {
     queryRoomId(room_id).then((result) => {
-      socket.emit("roominfo", result);
+      let isValid = false;
+      try {
+        const decoded = jwt.verify(token, config.jwtSecret);
+        const currentTimeInSeconds = Date.now();
+        // Check whether token is expired and if the user is one of the matched users
+        isValid =
+          decoded.exp &&
+          currentTimeInSeconds <= decoded.exp &&
+          (result[0].username === decoded.username ||
+            result[1].username === decoded.username);
+      } catch (error) {
+        console.error("Error verifying token:", error);
+      }
+      if (isValid) {
+        socket.emit("roominfo", result);
+      } else {
+        socket.emit("roominfo", []);
+      }
     });
   });
 

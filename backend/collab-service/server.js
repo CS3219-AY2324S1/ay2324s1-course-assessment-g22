@@ -43,6 +43,9 @@ async function queryRoomId(room_id) {
   try {
     const query = "SELECT code FROM collab WHERE room_id = $1";
     const result = await pool.query(query, [room_id]);
+    if (result.rows.length === 0) {
+      return { code: "" };
+    }
     return result.rows[0];
   } catch (error) {
     console.error("Error querying collab DB:", error);
@@ -50,21 +53,27 @@ async function queryRoomId(room_id) {
   }
 }
 
+async function deleteSavedCode(room_id) {
+  try {
+    const query = `
+      DELETE FROM collab WHERE room_id = $1
+    `;
+    const result = await pool.query(query, [room_id]);
+  } catch (error) {
+    console.error("Error deleting saved code:", error);
+  }
+}
+
 io.on("connection", (socket) => {
   // console.log("A user connected");
 
-  socket.on("join_room", async (roomId) => {
+  socket.on("join_room", async (roomId, token) => {
     const room = io.sockets.adapter.rooms.get(`${roomId}`);
-    const numClients = room ? room.size : 0;
-    if (numClients < 2) {
-      socket.join(`${roomId}`);
-      socket.roomId = roomId;
-      const result = await queryRoomId(roomId);
-      console.log(`Sending saved code: ${result.code}`);
-      socket.emit("join_success", result.code);
-    } else {
-      socket.emit("full_room");
-    }
+    socket.join(`${roomId}`);
+    socket.roomId = roomId;
+    const result = await queryRoomId(roomId);
+    console.log(`Sending saved code: ${result.code}`);
+    socket.emit("join_success", result.code);
   });
 
   socket.on("code", (roomId, code) => {
@@ -81,6 +90,11 @@ io.on("connection", (socket) => {
 
   socket.on("leave_room", (roomId) => {
     socket.to(`${roomId}`).emit("leave_room");
+  });
+
+  socket.on("end_collab", (roomId) => {
+    socket.to(`${roomId}`).emit("end_collab");
+    deleteSavedCode(roomId);
   });
 
   socket.on("disconnect", () => {
