@@ -25,14 +25,16 @@ export default function CollaborationPage({ matchsocket }) {
     const roomSocket = io(url.roomUrl);
     roomSocket.emit("join_room", room_id);
 
-    roomSocket.on("join_success", () => {
+    roomSocket.on("join_success", (code) => {
       roomSocketRef.current = roomSocket;
+      console.log("Saved Code received: " + code);
+      setCode(code);
     });
 
     roomSocket.on("full_room", () => {
       toast.dismiss();
       toast.warn(`The room is full. Please try again later.`);
-      // TODO boot the user back to the landing page
+      navigate("/");
     });
 
     roomSocket.on("code", (code) => {
@@ -48,7 +50,7 @@ export default function CollaborationPage({ matchsocket }) {
     return () => {
       roomSocket.disconnect();
     };
-  }, [room_id]);
+  }, [room_id, navigate]);
 
   useEffect(() => {
     if (roomSocketRef.current) {
@@ -79,6 +81,10 @@ export default function CollaborationPage({ matchsocket }) {
   const handleLeave = () => {
     matchsocket.emit("deleteRoomId", room_id);
     navigate("/");
+  };
+
+  const handleSave = () => {
+    roomSocketRef.current.emit("save_code", room_id, code);
   };
 
   return (
@@ -114,6 +120,13 @@ export default function CollaborationPage({ matchsocket }) {
           className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
         >
           Leave Collaboration
+        </button>
+        <div className="p-1"></div>
+        <button
+          onClick={handleSave}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
+        >
+          Save
         </button>
       </div>
       <div className="flex-1 p-4">
