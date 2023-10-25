@@ -9,6 +9,8 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Autocomplete from "@mui/material/Autocomplete";
 import { categories } from "./utils/QuestionCategories";
+import FormHelperText from '@mui/material/FormHelperText';
+import Tagging from "./tagging/Tagging";
 
 export default function CustomModal({
   open,
@@ -18,6 +20,11 @@ export default function CustomModal({
   handleInputChange,
   handleCategoryChange,
   handleSubmit,
+  tagName,
+  handleAddTag,
+  handleDeleteTag,
+  setTagName,
+  setTagType,
   isAdd,
 }) {
   return (
@@ -55,6 +62,7 @@ export default function CustomModal({
             rows={4}
             value={formData.title}
             onChange={handleInputChange}
+            helperText="Required"
           />
           <Autocomplete
             multiple
@@ -63,9 +71,16 @@ export default function CustomModal({
             value={category}
             onChange={handleCategoryChange}
             renderInput={(params) => (
-              <TextField {...params} label="Question Categories" />
+              <TextField helperText="Required" {...params} label="Question Categories" />
             )}
           />
+          <Tagging tagName={tagName}
+            handleAddTag={handleAddTag}
+            handleDeleteTag={handleDeleteTag}
+            formData={formData}
+            setTagName={setTagName}
+            setTagType={setTagType} />
+
           <FormControl fullWidth margin="normal">
             <InputLabel id="demo-simple-select-autowidth-label">
               Complexity
@@ -82,6 +97,7 @@ export default function CustomModal({
               <MenuItem value={"Medium"}>Medium</MenuItem>
               <MenuItem value={"Hard"}>Hard</MenuItem>
             </Select>
+            <FormHelperText>Required</FormHelperText>
           </FormControl>
           <TextField
             name="description"
@@ -93,6 +109,7 @@ export default function CustomModal({
             rows={10}
             value={formData.description}
             onChange={handleInputChange}
+            helperText="Required"
           />
           <div>
             <button
