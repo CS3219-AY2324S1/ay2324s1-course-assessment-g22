@@ -7,6 +7,8 @@ import {
   updateQuestion,
 } from "./utils/mongodb/questionApi";
 import { DataGrid } from "@mui/x-data-grid";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Chip, Button, Box } from "@mui/material";
 import QuestionModal from "./QuestionModal";
 import { Link } from "react-router-dom";
@@ -131,8 +133,9 @@ export default function QuestionBank() {
   };
 
   const handleAddTag = () => {
+    toast.dismiss();
     if (tagName === '') {
-      alert("Please enter a tag name");
+      toast.error("Please enter a tag name", { isLoading: false, autoClose: 3000 });
       return;
     }
     if (formData.tags === null) {
@@ -144,7 +147,7 @@ export default function QuestionBank() {
       })
     } else {
       if (formData.tags.some((tag) => tag.name === tagName)) {
-        alert("Tag already exists");
+        toast.error("Tag name already exists. Please choose another tag name", { isLoading: false, autoClose: 3000 });
         return;
       }
       const newTagList = [...formData.tags];
@@ -167,18 +170,19 @@ export default function QuestionBank() {
 
   // Function to handle form submission
   const handleSubmit = async () => {
+    toast.dismiss();
     if (
       formData.title.toLowerCase() !== editQuestionTitle.toLowerCase() &&
       hasDuplicateTitle(questions, formData.title.toLowerCase())
     ) {
-      alert("Duplicate title found. Please check your input.");
+      toast.error("Duplicate title found. Please check your input.", { isLoading: false, autoClose: 3000 });
     } else if (
       formData.title === "" ||
       formData.category === "" ||
       formData.complexity === "" ||
       formData.description === ""
     ) {
-      alert("Please fill out all required fields.");
+      toast.error("Please fill out all required fields.", { isLoading: false, autoClose: 3000 });
     } else {
       isAdd
         ? await addQuestion(formData)
@@ -196,8 +200,9 @@ export default function QuestionBank() {
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
   const handleDelete = async () => {
+    toast.dismiss();
     if (rowSelectionModel.length === 0) {
-      alert("Please select at least one question to delete.");
+      toast.error("Please select at least one question to delete.", { isLoading: false, autoClose: 3000 });
       return;
     }
     const questionsToDelete = questions.filter((question) => {
@@ -215,7 +220,7 @@ export default function QuestionBank() {
 
   const handleEdit = async () => {
     if (rowSelectionModel.length !== 1) {
-      alert("Please select only one question to edit.");
+      toast.error("Please select only one question to edit.", { isLoading: false, autoClose: 3000 });
       return;
     }
     const questionToEdit = questions.find(
