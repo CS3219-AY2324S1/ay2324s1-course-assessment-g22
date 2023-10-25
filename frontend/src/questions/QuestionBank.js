@@ -169,6 +169,7 @@ export default function QuestionBank() {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
 
   const handleSearch = () => {
+    toast.dismiss();
     if (searchQuery.trim() === "") {
       // Reset the search results if the search query is empty
       setFilteredQuestions(questions);
