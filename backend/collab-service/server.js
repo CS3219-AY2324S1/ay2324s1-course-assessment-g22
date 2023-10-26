@@ -168,7 +168,7 @@ io.on("connection", (socket) => {
     const numClients = clients ? clients.size : 0;
     if (numClients === 0) {
       await saveRedisToDB(socket.roomId);
-      await deleteSavedCode(socket.roomId); // TODO do not delete if accessing room after collab is needed
+      await deleteSavedCode(socket.roomId); // TODO delete if accessing room after collab is needed
     }
   });
 });
