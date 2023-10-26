@@ -7,14 +7,46 @@ import {
   updateQuestion,
 } from "./utils/mongodb/questionApi";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Chip, Button, Box } from "@mui/material";
 import QuestionModal from "./QuestionModal";
 import { Link } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
-  { field: "title", headerName: "Question Title", flex: 3 },
+  {
+    field: "title",
+    headerName: "Question Title",
+    flex: 3,
+    renderCell: (params) => {
+      const { title, tags } = params.row;
+
+      return (
+        <div>
+          <p>{title}</p>
+          <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'left',
+                flexWrap: 'wrap',
+                listStyle: 'none',
+                width: '100%',
+            }}
+        >
+            {tags != null && tags.slice(0,3).map((tag, index) => (
+              <li key={index} className="mr-2 my-1">
+                <Chip label={tag.name}
+                  color={tag.type === 'companyQuestion' ? 'warning' : tag.type === 'popularity' ? 'error' : 'success'}
+                />
+              </li>
+            ))}
+          </Box>
+        </div>
+      );
+    },
+  },
   { field: "category", headerName: "Question Category", flex: 4 },
   { field: "complexity", headerName: "Question Complexity", flex: 1.5 },
   {
@@ -41,6 +73,8 @@ export default function QuestionBank() {
   const [isAdd, setIsAdd] = useState(false);
   const [editQuestionTitle, setEditQuestionTitle] = useState("");
   const [category, setCategory] = useState([]);
+  const [tagName, setTagName] = useState('');
+  const [tagType, setTagType] = useState('companyQuestion');
 
   // State for storing form input values
   const [formData, setFormData] = useState({
@@ -48,6 +82,7 @@ export default function QuestionBank() {
     category: "",
     complexity: "",
     description: "",
+    tags: null,
   });
 
   function isMaintainer() {
@@ -62,9 +97,12 @@ export default function QuestionBank() {
         category: "",
         complexity: "",
         description: "",
+        tags: null,
       });
+      setCategory([]);
     }
     setIsAdd(isAdd);
+    setTagName('');
     setIsModalOpen(true);
   };
 
@@ -94,20 +132,57 @@ export default function QuestionBank() {
     });
   };
 
+  const handleAddTag = () => {
+    toast.dismiss();
+    if (tagName === '') {
+      toast.error("Please enter a tag name", { isLoading: false, autoClose: 3000 });
+      return;
+    }
+    if (formData.tags === null) {
+      const newTagList = [];
+      newTagList.push({ name: tagName, type: tagType });
+      setFormData({
+        ...formData,
+        tags: newTagList,
+      })
+    } else {
+      if (formData.tags.some((tag) => tag.name === tagName)) {
+        toast.error("Tag name already exists. Please choose another tag name", { isLoading: false, autoClose: 3000 });
+        return;
+      }
+      const newTagList = [...formData.tags];
+      newTagList.push({ name: tagName, type: tagType });
+      setFormData({
+        ...formData,
+        tags: newTagList,
+      });
+    }
+    setTagName('');
+  }
+
+  const handleDeleteTag = (tagname) => {
+    const newTagList = formData.tags.filter((item) => item.name !== tagname);
+    setFormData({
+      ...formData,
+      tags: newTagList,
+    });
+  }
+
   // Function to handle form submission
   const handleSubmit = async () => {
+    toast.dismiss();
     if (
       formData.title.toLowerCase() !== editQuestionTitle.toLowerCase() &&
       hasDuplicateTitle(questions, formData.title.toLowerCase())
     ) {
-      alert("Duplicate title found. Please check your input.");
+      toast.error("Duplicate title found. Please check your input.", { isLoading: false, autoClose: 3000 });
     } else if (
       formData.title === "" ||
       formData.category === "" ||
       formData.complexity === "" ||
       formData.description === ""
     ) {
-      alert("Please fill out all fields.");
+      toast.error("Please fill out all required fields.", { isLoading: false, autoClose: 3000 });
     } else {
       isAdd
         ? await addQuestion(formData)
@@ -125,8 +200,9 @@ export default function QuestionBank() {
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
   const handleDelete = async () => {
+    toast.dismiss();
     if (rowSelectionModel.length === 0) {
-      alert("Please select at least one question to delete.");
+      toast.error("Please select at least one question to delete.", { isLoading: false, autoClose: 3000 });
       return;
     }
     const questionsToDelete = questions.filter((question) => {
@@ -144,7 +220,7 @@ export default function QuestionBank() {
 
   const handleEdit = async () => {
     if (rowSelectionModel.length !== 1) {
-      alert("Please select only one question to edit.");
+      toast.error("Please select only one question to edit.", { isLoading: false, autoClose: 3000 });
       return;
     }
     const questionToEdit = questions.find(
@@ -158,6 +234,7 @@ export default function QuestionBank() {
       category: questionToEdit.category,
       complexity: questionToEdit.complexity,
       description: questionToEdit.description,
+      tags: questionToEdit.tags,
     });
     openModal(false);
   };
@@ -206,8 +283,12 @@ export default function QuestionBank() {
         </div>
       </div>
       <DataGrid
+        sx={{
+          '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': { py: '10px' },
+        }}
         rows={questions}
         columns={columns}
+        getRowHeight={() => 'auto'}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
@@ -229,6 +310,11 @@ export default function QuestionBank() {
         handleInputChange={handleInputChange}
         handleCategoryChange={handleCategoryChange}
         handleSubmit={handleSubmit}
+        tagName={tagName}
+        handleAddTag={handleAddTag}
+        handleDeleteTag={handleDeleteTag}
+        setTagName={setTagName}
+        setTagType={setTagType}
         isAdd={isAdd}
       />
     </div>

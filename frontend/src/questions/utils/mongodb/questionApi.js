@@ -6,7 +6,7 @@ const fieldsRequired = ["title", "category", "complexity", "description"];
 
 export const addQuestion = async (question) => {
   if (!fieldsRequired.every((field) => field in question)) {
-    console.error("Some fields for question are not present!");
+    console.error("Some required fields for question are not present!");
     return;
   }
   try {
@@ -18,6 +18,7 @@ export const addQuestion = async (question) => {
           category: question.category,
           complexity: question.complexity,
           description: question.description,
+          tags: question.tags,
         },
         {
           headers: {
@@ -51,7 +52,7 @@ export const getQuestions = async () => {
 
 export const updateQuestion = async (question, beforeTitle) => {
   if (!fieldsRequired.every((field) => field in question)) {
-    console.error("Some fields for question are not present!");
+    console.error("Some required fields for question are not present!");
     return;
   }
 
@@ -64,6 +65,7 @@ export const updateQuestion = async (question, beforeTitle) => {
           category: question.category,
           complexity: question.complexity,
           description: question.description,
+          tags: question.tags,
         },
         {
           headers: {
