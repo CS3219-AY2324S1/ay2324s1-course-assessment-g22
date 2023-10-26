@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Select from "react-select";
 import Cookies from "js-cookie";
 import Editor from "@monaco-editor/react";
 import io from "socket.io-client";
@@ -7,6 +8,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import lodashDebounce from "lodash.debounce";
 import url from "./api/url";
+import { languages } from "./ProgrammingLanguages";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -19,6 +21,7 @@ export default function CollaborationPage({ matchsocket }) {
   const roomSocketRef = useRef(null);
   const [code, setCode] = useState("");
   const [questionTitle, setQuestionTitle] = useState(null);
+  const [language, setLanguage] = useState(languages[0].value);
   const user = auth().username;
   const [otherUser, setOtherUser] = useState(null);
 
@@ -99,6 +102,10 @@ export default function CollaborationPage({ matchsocket }) {
     toast.success(`Code saved!`);
   };
 
+  const handleLanguageChange = (language) => {
+    setLanguage(language.value);
+  };
+
   return (
     <div className="flex flex-row h-screen">
       <ToastContainer
@@ -118,7 +125,8 @@ export default function CollaborationPage({ matchsocket }) {
           </div>
           <Editor
             height="70vh"
-            defaultLanguage="javascript"
+            defaultLanguage={language}
+            language={language}
             defaultValue={code}
             value={code}
             onChange={debounceHandleEditorChange}
@@ -128,6 +136,13 @@ export default function CollaborationPage({ matchsocket }) {
           />
         </div>
         <div className="flex flex-row">
+          <Select
+            placeholder={"Select Language"}
+            options={languages}
+            defaultValue={languages[0]}
+            onChange={handleLanguageChange}
+          />
+          <div className="p-1"></div>
           <button
             onClick={handleSave}
             className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
