@@ -13,6 +13,7 @@ import { Chip, Button, Box } from "@mui/material";
 import QuestionModal from "./QuestionModal";
 import { Link } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
+import "react-toastify/dist/ReactToastify.css";
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
@@ -73,6 +74,7 @@ export default function QuestionBank() {
   const [isAdd, setIsAdd] = useState(false);
   const [editQuestionTitle, setEditQuestionTitle] = useState("");
   const [category, setCategory] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [tagName, setTagName] = useState('');
   const [tagType, setTagType] = useState('companyQuestion');
 
@@ -240,6 +242,25 @@ export default function QuestionBank() {
   };
 
   const [questions, setQuestions] = useState([]);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
+
+  const handleSearch = () => {
+    toast.dismiss();
+    if (searchQuery.trim() === "") {
+      // Reset the search results if the search query is empty
+      setFilteredQuestions(questions);
+    } else {
+      const filtered = questions.filter((question) =>
+        question.title.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        toast.error("No results found", { isLoading: false, autoClose: 3000 });
+      }
+
+      setFilteredQuestions(filtered);
+    }
+  };
 
   useEffect(() => {
     let count = 1;
@@ -250,6 +271,7 @@ export default function QuestionBank() {
         qid: count++,
       }));
       setQuestions(displayQuestions);
+      setFilteredQuestions(displayQuestions);
     });
   }, []);
 
@@ -257,6 +279,26 @@ export default function QuestionBank() {
     <div className="p-10 bg-grey">
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Question Bank</h2>
+        <div className="flex items-center">
+          <input
+            type="text"
+            placeholder="Search by Title"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            className="px-3 py-2 border rounded-md outline-none focus:ring focus:ring-blue-300"
+          />
+          <button
+            onClick={handleSearch}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+          >
+            Search
+          </button>
+        </div>
         <div className="space-x-4">
           {isMaintainer() && (
             <>
@@ -286,7 +328,7 @@ export default function QuestionBank() {
         sx={{
           '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': { py: '10px' },
         }}
-        rows={questions}
+        rows={filteredQuestions}
         columns={columns}
         getRowHeight={() => 'auto'}
         initialState={{
