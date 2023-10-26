@@ -140,6 +140,7 @@ app.put(`${urlPrefix}/:questionTitle`, verifyAdminToken, async (req, res) => {
     questionToUpdate.category = newQuestion.category;
     questionToUpdate.complexity = newQuestion.complexity;
     questionToUpdate.description = newQuestion.description;
+    questionToUpdate.tags = newQuestion.tags;
 
     await questionToUpdate.save();
 

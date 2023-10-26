@@ -18,6 +18,10 @@ const questionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  tags: {
+    type: [Object],
+    required: false,
+  }
 });
 
 const questionModel = mongoose.model("questionmodels", questionSchema);
