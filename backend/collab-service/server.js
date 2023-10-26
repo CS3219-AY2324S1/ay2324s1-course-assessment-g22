@@ -74,7 +74,7 @@ async function saveRedisToDB(room_id) {
         RETURNING *
       `;
       const result = await pool.query(query, [room_id, code]);
-      // console.log("Inserted or updated from Redis to Collab DB:", result);
+      console.log("Inserted or updated from Redis to Collab DB");
     }
   } catch (error) {
     console.error(
@@ -123,7 +123,7 @@ async function deleteSavedCode(room_id) {
       DELETE FROM collab WHERE room_id = $1
     `;
     const result = await pool.query(query, [room_id]);
-    // console.log("Deleted from Collab DB:", result);
+    console.log("Deleted from Collab DB");
   } catch (error) {
     console.error("Error deleting saved code:", error);
   }
@@ -160,14 +160,16 @@ io.on("connection", (socket) => {
 
   socket.on("end_collab", async (roomId) => {
     socket.to(`${roomId}`).emit("end_collab");
-    console.log("before save");
-    await saveRedisToDB(socket.roomId);
-    console.log("in between save and delete");
-    await deleteSavedCode(roomId); // TODO do not delete if accessing room after collab is needed
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     socket.to(socket.roomId).emit("leave_room");
+    const clients = io.sockets.adapter.rooms.get(`${socket.roomId}`);
+    const numClients = clients ? clients.size : 0;
+    if (numClients === 0) {
+      await saveRedisToDB(socket.roomId);
+      await deleteSavedCode(socket.roomId); // TODO do not delete if accessing room after collab is needed
+    }
   });
 });
 
