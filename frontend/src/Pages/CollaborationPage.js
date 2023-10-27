@@ -32,6 +32,11 @@ export default function CollaborationPage({ matchsocket }) {
       setCode(code);
     });
 
+    roomSocket.on("join_room", () => {
+      toast.dismiss();
+      toast.success(`${otherUser} has joined the room!`);
+    });
+
     roomSocket.on("code", (code) => {
       console.log("Code received: " + code);
       setCode(code);
@@ -39,7 +44,7 @@ export default function CollaborationPage({ matchsocket }) {
 
     roomSocket.on("leave_room", () => {
       toast.dismiss();
-      toast.warn(`The other user has left the room.`);
+      toast.warn(`${otherUser} has left the room.`);
     });
 
     roomSocket.on("end_collab", () => {
@@ -57,7 +62,7 @@ export default function CollaborationPage({ matchsocket }) {
     return () => {
       roomSocket.disconnect();
     };
-  }, [room_id, navigate]);
+  }, [room_id, navigate, otherUser]);
 
   useEffect(() => {
     if (roomSocketRef.current) {

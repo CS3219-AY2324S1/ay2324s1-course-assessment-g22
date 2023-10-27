@@ -137,6 +137,7 @@ io.on("connection", (socket) => {
     socket.roomId = roomId;
     const result = await queryRoomId(roomId);
     console.log(`Sending saved code: ${result.code}`);
+    socket.to(`${roomId}`).emit("join_room");
     socket.emit("join_success", result.code);
   });
 
