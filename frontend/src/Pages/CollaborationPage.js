@@ -6,7 +6,7 @@ import { QuestionDescription } from "../questions/QuestionDescription";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import lodashDebounce from "lodash.debounce";
-import url from "./api/url";
+import { COLLAB_URL } from "../Constants";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -23,7 +23,7 @@ export default function CollaborationPage({ matchsocket }) {
   const [otherUser, setOtherUser] = useState(null);
 
   useEffect(() => {
-    const roomSocket = io(url.roomUrl);
+    const roomSocket = io(COLLAB_URL);
     roomSocket.emit("join_room", room_id);
 
     roomSocket.on("join_success", (code) => {

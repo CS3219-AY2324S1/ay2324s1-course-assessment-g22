@@ -18,7 +18,7 @@ const usersRequested = new Map();
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: config.services.frontend.URL,
     methods: ["GET", "POST", "DELETE"],
   },
 });
@@ -117,7 +117,7 @@ async function selectQuestion(m_category, m_difficulty) {
   var response;
   if (m_category == "Any") {
     response = await axios.get(
-      `http://question-service:4567/api/questions/find_any`,
+      `${config.services.question.URL}/api/questions/find_any`,
       {
         params: {
           complexity: m_difficulty,
@@ -126,7 +126,7 @@ async function selectQuestion(m_category, m_difficulty) {
     );
   } else {
     response = await axios.get(
-      `http://question-service:4567/api/questions/find`,
+      `${config.services.question.URL}/api/questions/find`,
       {
         params: {
           category: m_category,
@@ -185,7 +185,7 @@ async function handleMatching(request) {
 }
 
 function setupRabbitMQ() {
-  amqp.connect("amqp://matching-rabbitmq", function (error0, connection) {
+  amqp.connect(config.services.rabbitmq.URL, function (error0, connection) {
     if (error0) {
       throw error0;
     }

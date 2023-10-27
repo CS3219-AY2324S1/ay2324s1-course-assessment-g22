@@ -4,6 +4,7 @@ const router = require("../routes/routes");
 const dbAdmin = require("./dbAdmin");
 const cors = require("cors");
 
+const servicesUrl = require("./servicesUrl");
 const LISTEN_PORT_NUMBER = 4567;
 const username = dbAdmin.username;
 const password = dbAdmin.password;
@@ -14,7 +15,10 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:5000"],
+  origin: [
+    servicesUrl.services.frontend.URL,
+    servicesUrl.services.matching.URL,
+  ],
   methods: "POST, GET, PUT, DELETE",
 };
 app.use(cors(corsOptions));

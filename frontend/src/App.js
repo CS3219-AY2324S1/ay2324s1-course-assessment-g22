@@ -17,6 +17,7 @@ import { Register } from "./Register";
 import Profile from "./Profile";
 
 import { USERS_BASE_URL } from "./Constants";
+import { MATCHING_URL } from "./Constants";
 import { TOKEN_EXPIRE_TIME } from "./Constants";
 import { TOKEN_REFRESH_TIME } from "./Constants";
 import Match from "./Matching/Match";
@@ -28,7 +29,7 @@ function App() {
   const signOut = useSignOut();
   const isAuthenticated = useIsAuthenticated();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const socket = io("http://localhost:5000", { autoConnect: false });
+  const socket = io(MATCHING_URL, { autoConnect: false });
   socket.connect();
 
   const handleLogin = (username) => {

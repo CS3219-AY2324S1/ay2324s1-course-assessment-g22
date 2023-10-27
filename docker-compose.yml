@@ -87,7 +87,6 @@ services:
       - "5001:5001"
     networks:
       - collab-network
-    restart: on-failure
     depends_on:
       collab-postgresql:
         condition: service_started

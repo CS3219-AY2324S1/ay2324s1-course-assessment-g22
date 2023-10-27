@@ -9,4 +9,9 @@ module.exports = {
     port: process.env.PORT || 5432,
   },
   jwtSecret: process.env.POSTGRES_JWT_SECRET || "jwt-secret",
+  services: {
+    frontend: {
+      URL: process.env.FRONTEND_SERVICE_URL || "http://localhost:3000",
+    },
+  },
 };
