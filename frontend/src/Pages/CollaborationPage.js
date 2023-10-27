@@ -50,13 +50,13 @@ export default function CollaborationPage({ matchsocket }) {
     roomSocket.on("end_collab", () => {
       setTimeout(() => {
         toast.dismiss();
-      }, 3000);
-      toast.warn(
-        `The other user has ended the collab. Redirecting to home in 5 seconds.`
-      );
+        toast.warn(
+          `The other user has ended the collab. Redirecting to home in 5 seconds.`
+        );
+      }, 2000);
       setTimeout(() => {
         navigate("/");
-      }, 5000);
+      }, 7000);
     });
 
     return () => {

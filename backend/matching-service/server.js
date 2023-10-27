@@ -105,6 +105,15 @@ async function insertDB(user1, user2, room_id, question) {
   }
 }
 
+async function deleteDB(room_id) {
+  try {
+    const query = "DELETE FROM matched WHERE room_id = $1";
+    pool.query(query, [room_id]);
+  } catch (error) {
+    console.error("Error deleting from Match DB:", error);
+  }
+}
+
 async function isUserMatched(user) {
   const result = await queryDB(user);
   if (result.length > 0) {
@@ -262,8 +271,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("deleteRoomId", (room_id) => {
-    const query = "DELETE FROM matched WHERE room_id = $1";
-    pool.query(query, [room_id]);
+    deleteDB(room_id);
   });
 });
 
