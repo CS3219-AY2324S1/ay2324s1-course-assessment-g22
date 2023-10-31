@@ -4,7 +4,7 @@ module.exports = {
   database: {
     user: process.env.POSTGRES_USERNAME || "postgres",
     host: process.env.POSTGRES_HOST || "localhost",
-    database: process.env.DATABASE || "matching-service",
+    database: process.env.DATABASE || "collab-service",
     password: process.env.PASSWORD || "postgres",
     port: process.env.PORT || 5432,
   },
@@ -12,12 +12,6 @@ module.exports = {
   services: {
     frontend: {
       URL: process.env.FRONTEND_SERVICE_URL || "http://localhost:3000",
-    },
-    question: {
-      URL: process.env.QUESTION_SERVICE_URL || "http://question-service:4567",
-    },
-    rabbitmq: {
-      URL: process.env.RABBITMQ_URL || "amqp://matching-rabbitmq",
     },
   },
 };

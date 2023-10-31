@@ -7,7 +7,7 @@ import {
   RequireAuth,
   useIsAuthenticated,
 } from "react-auth-kit";
-import  io from "socket.io-client";
+import io from "socket.io-client";
 import QuestionBank from "./questions/QuestionBank";
 import QuestionDescription from "./questions/QuestionDescription";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
@@ -17,6 +17,7 @@ import { Register } from "./Register";
 import Profile from "./Profile";
 
 import { USERS_BASE_URL } from "./Constants";
+import { MATCHING_URL } from "./Constants";
 import { TOKEN_EXPIRE_TIME } from "./Constants";
 import { TOKEN_REFRESH_TIME } from "./Constants";
 import Match from "./Matching/Match";
@@ -28,8 +29,8 @@ function App() {
   const signOut = useSignOut();
   const isAuthenticated = useIsAuthenticated();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const socket = io('http://localhost:5000', {autoConnect:false});
-  socket.connect(); 
+  const socket = io(MATCHING_URL, { autoConnect: false });
+  socket.connect();
 
   const handleLogin = (username) => {
     // Placeholder for post login actions
@@ -132,7 +133,7 @@ function App() {
             <RequireAuth loginPath="/login">
               <QuestionBank />
               <UserProvider>
-                <Match socket={socket}/>
+                <Match socket={socket} />
               </UserProvider>
             </RequireAuth>
           }
@@ -155,12 +156,13 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route path="/collab/:roomid"
-        element={
-          <RequireAuth loginPath="/login">
-            <CollaborationPage />
-          </RequireAuth>
-        }
+        <Route
+          path="/collab/:roomid"
+          element={
+            <RequireAuth loginPath="/login">
+              <CollaborationPage matchsocket={socket} />
+            </RequireAuth>
+          }
         />
       </Routes>
     </Router>

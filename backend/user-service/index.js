@@ -12,7 +12,7 @@ const app = express();
 app.use(bodyParser.json());
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: config.services.frontend.URL,
 };
 app.use(cors(corsOptions)); // Use the cors middleware
 
