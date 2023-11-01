@@ -9,6 +9,7 @@ import lodashDebounce from "lodash.debounce";
 import { COLLAB_URL } from "../Constants";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Chat from "../Chat/Chat";
 
 export default function CollaborationPage({ matchsocket }) {
   const auth = useAuthUser();
@@ -21,6 +22,7 @@ export default function CollaborationPage({ matchsocket }) {
   const [questionTitle, setQuestionTitle] = useState(null);
   const user = auth().username;
   const [otherUser, setOtherUser] = useState(null);
+  const [isChatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const roomSocket = io(COLLAB_URL);
@@ -104,8 +106,18 @@ export default function CollaborationPage({ matchsocket }) {
     toast.success(`Code saved!`);
   };
 
+  const handleToggleChat = () => {
+    setChatOpen(!isChatOpen);
+  };
+
+  const handlePageClick = () => {
+    if (isChatOpen) {
+      setChatOpen(false);
+    }
+  };
+
   return (
-    <div className="flex flex-row h-screen">
+    <div className="flex flex-row h-screen" onClick={handlePageClick}>
       <ToastContainer
         position="top-center"
         autoClose={false}
@@ -146,11 +158,19 @@ export default function CollaborationPage({ matchsocket }) {
           >
             End Collaboration
           </button>
+          <div className="p-1"></div>
+          <button
+            onClick={handleToggleChat}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
+          >
+            Chat
+          </button>
         </div>
       </div>
       <div className="flex-1 p-4">
         <QuestionDescription specificTitle={questionTitle} />
       </div>
+      {isChatOpen && <Chat user={user} otherUser={otherUser} />}
     </div>
   );
 }
