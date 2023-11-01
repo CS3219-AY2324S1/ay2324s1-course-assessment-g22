@@ -136,12 +136,14 @@ export default function CollaborationPage({ matchsocket }) {
           />
         </div>
         <div className="flex flex-row">
-          <Select
-            placeholder={"Select Language"}
-            options={languages}
-            defaultValue={languages[0]}
-            onChange={handleLanguageChange}
-          />
+          <div className="py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline">
+            <Select
+              placeholder={"Select Language"}
+              options={languages}
+              defaultValue={languages[0]}
+              onChange={handleLanguageChange}
+            />
+          </div>
           <div className="p-1"></div>
           <button
             onClick={handleSave}
