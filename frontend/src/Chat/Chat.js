@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import Cookies from "js-cookie";
+import { useParams } from "react-router-dom";
 
 /**
 1. Press Chat button to bring up Chat Window
@@ -8,18 +10,26 @@ import React, { useState, useEffect, useRef } from "react";
 5. Auto-scrolls to bottom on new message sent/received
  */
 
-export default function Chat({ user, otherUser }) {
+export default function Chat({ user, otherUser, socket }) {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
-    { user: otherUser, text: "Hello" },
-    { user, text: "World!" },
-  ]);
+  const [messages, setMessages] = useState([]);
+
+  const urlPathOnId = useParams();
+  const room_id = urlPathOnId.roomid;
 
   const messageContainerRef = useRef(null);
 
   const handleSendMessage = () => {
     if (message.trim() !== "") {
-      setMessages([...messages, { user, text: message }]);
+      socket.emit(
+        "new_message",
+        otherUser,
+        room_id,
+        user,
+        message,
+        Cookies.get("_auth")
+      );
+      setMessages([...messages, { user: user, text: message }]);
       setMessage("");
     }
   };
@@ -37,6 +47,18 @@ export default function Chat({ user, otherUser }) {
         messageContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    socket.emit("get_chat", user, room_id, Cookies.get("_auth"));
+  }, [socket, room_id, user]);
+
+  socket.on("get_chat", (chat_history) => {
+    setMessages(chat_history);
+  });
+
+  socket.on("new_message", (message) => {
+    setMessages([...messages, message]);
+  });
 
   return (
     <div

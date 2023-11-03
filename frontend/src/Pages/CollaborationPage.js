@@ -6,7 +6,7 @@ import { QuestionDescription } from "../questions/QuestionDescription";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import lodashDebounce from "lodash.debounce";
-import { COLLAB_URL } from "../Constants";
+import { COLLAB_URL, CHAT_URL } from "../Constants";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Chat from "../Chat/Chat";
@@ -18,6 +18,7 @@ export default function CollaborationPage({ matchsocket }) {
   const room_id = urlPathOnId.roomid;
   const editorRef = useRef(null);
   const roomSocketRef = useRef(null);
+  const chatSocketRef = useRef(null);
   const [code, setCode] = useState("");
   const [questionTitle, setQuestionTitle] = useState(null);
   const user = auth().username;
@@ -26,6 +27,8 @@ export default function CollaborationPage({ matchsocket }) {
 
   useEffect(() => {
     const roomSocket = io(COLLAB_URL);
+    const chatSocket = io(CHAT_URL);
+    chatSocketRef.current = chatSocket;
     roomSocket.emit("join_room", room_id);
 
     roomSocket.on("join_success", (code) => {
@@ -97,6 +100,7 @@ export default function CollaborationPage({ matchsocket }) {
   const handleEnd = () => {
     matchsocket.emit("deleteRoomId", room_id);
     roomSocketRef.current.emit("end_collab", room_id);
+    chatSocketRef.current.emit("end_collab", room_id);
     navigate("/");
   };
 
@@ -170,7 +174,13 @@ export default function CollaborationPage({ matchsocket }) {
       <div className="flex-1 p-4">
         <QuestionDescription specificTitle={questionTitle} />
       </div>
-      {isChatOpen && <Chat user={user} otherUser={otherUser} />}
+      {isChatOpen && (
+        <Chat
+          user={user}
+          otherUser={otherUser}
+          socket={chatSocketRef.current}
+        />
+      )}
     </div>
   );
 }
