@@ -213,6 +213,7 @@ app.delete("/api/users/:username", verifyToken, async (req, res) => {
   }
 });
 
+// Testing route
 app.get("/", (req, res) => {
   res.send("Successful response.");
 });
