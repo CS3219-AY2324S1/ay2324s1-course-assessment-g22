@@ -23,7 +23,9 @@ export default function CollaborationPage({ matchsocket }) {
   const [otherUser, setOtherUser] = useState(null);
 
   useEffect(() => {
-    const roomSocket = io(COLLAB_URL);
+    const roomSocket = io(COLLAB_URL, {
+      path: "/collab-service/",
+    });
     roomSocket.emit("join_room", room_id);
 
     roomSocket.on("join_success", (code) => {
