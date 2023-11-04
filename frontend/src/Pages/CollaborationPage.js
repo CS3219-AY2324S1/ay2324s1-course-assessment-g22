@@ -108,7 +108,7 @@ export default function CollaborationPage({ matchsocket }) {
     <div className="flex flex-row h-screen">
       <ToastContainer
         position="top-center"
-        autoClose={false}
+        autoClose={5000}
         newestOnTop={false}
         closeOnClick
         rtl={false}
