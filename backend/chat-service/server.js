@@ -85,9 +85,11 @@ ioServer.on("connection", (socket) => {
     console.log("Received new_message:", otherUser, room_id, user, message);
     if (verifyJWT(user, token)) {
       addChat(room_id, user, message);
-      connectedSockets
-        .get(otherUser)
-        .emit("new_message", { user: user, text: message });
+      if (connectedSockets.has(otherUser)) {
+        connectedSockets
+          .get(otherUser)
+          .emit("new_message", { user: user, text: message });
+      }
     }
   });
 
