@@ -107,7 +107,8 @@ async function queryRoomId(room_id) {
   }
 }
 
-//Remove entry from Redis and DB
+// Remove entry from Redis and DB
+// Currently unused
 async function deleteSavedCode(room_id) {
   try {
     if (client.status === "ready") {
@@ -129,12 +130,9 @@ async function deleteSavedCode(room_id) {
 }
 
 io.on("connection", (socket) => {
-  // console.log("A user connected");
-
-  socket.on("join_room", async (roomId, token) => {
+  socket.on("join_room", async (roomId) => {
     const room = io.sockets.adapter.rooms.get(`${roomId}`);
     socket.join(`${roomId}`);
-    socket.roomId = roomId;
     const result = await queryRoomId(roomId);
     console.log(`Sending saved code: ${result.code}`);
     socket.to(`${roomId}`).emit("join_room");
@@ -144,7 +142,6 @@ io.on("connection", (socket) => {
   socket.on("code", async (roomId, code) => {
     // Double code receive from both user code updates
     // to confirm updates
-    // console.log(`Code received: ${code}`);
     await saveCodeInterval(roomId, code);
     socket.to(`${roomId}`).emit("code", code);
   });
@@ -160,16 +157,11 @@ io.on("connection", (socket) => {
 
   socket.on("end_collab", async (roomId) => {
     socket.to(`${roomId}`).emit("end_collab");
+    await saveRedisToDB(roomId);
   });
 
   socket.on("disconnect", async () => {
     socket.to(socket.roomId).emit("leave_room");
-    const clients = io.sockets.adapter.rooms.get(`${socket.roomId}`);
-    const numClients = clients ? clients.size : 0;
-    if (numClients === 0) {
-      await saveRedisToDB(socket.roomId);
-      await deleteSavedCode(socket.roomId); // TODO delete if accessing room after collab is needed
-    }
   });
 });
 
