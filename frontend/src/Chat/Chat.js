@@ -2,14 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import Cookies from "js-cookie";
 import { useParams } from "react-router-dom";
 
-/**
-1. Press Chat button to bring up Chat Window
-2. Press Chat button or click outside of Chat Window to minimise Chat Window
-3. Press Send or Enter to send messages
-4. Text-wrapping
-5. Auto-scrolls to bottom on new message sent/received
- */
-
 export default function Chat({ user, otherUser, socket }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
