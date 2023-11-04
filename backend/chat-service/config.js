@@ -13,8 +13,5 @@ module.exports = {
     frontend: {
       URL: process.env.FRONTEND_SERVICE_URL || "http://localhost:3000",
     },
-    collab: {
-      URL: process.env.COLLAB_SERVICE_URL || "http://collab-service:5001",
-    },
   },
 };
