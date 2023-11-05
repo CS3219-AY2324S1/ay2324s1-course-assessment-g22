@@ -4,14 +4,25 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
-    networks:
-      - frontend-network
+      - 3000:3000
     depends_on:
       - question-service
       - user-service
+      - user-postgresql
       - matching-service
+      - matching-postgresql
+      - matching-rabbitmq
       - collab-service
+      - collab-postgresql
+      - collab-redis
+    restart: always
+    networks:
+      - question-network
+      - user-network
+      - matching-network
+      - collab-network
+    environment:
+      NODE_ENV: production
 
   question-service:
     build: ./backend/question-service
@@ -117,39 +128,12 @@ services:
     networks:
       - collab-network
 
-  nginx:
-    build: ./nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - frontend
-      - question-service
-      - user-service
-      - user-postgresql
-      - matching-service
-      - matching-postgresql
-      - matching-rabbitmq
-      - collab-service
-      - collab-postgresql
-      - collab-redis
-    ports:
-      - 80:80
-    restart: always
-    networks:
-      - frontend-network
-      - question-network
-      - user-network
-      - matching-network
-      - collab-network
-
 volumes:
   userdatabase:
   matchingdatabase:
   collabdatabase:
 
 networks:
-  frontend-network:
-    driver: bridge
   user-network:
     driver: bridge
   question-network:
