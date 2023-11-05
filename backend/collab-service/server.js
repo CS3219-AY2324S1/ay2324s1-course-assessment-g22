@@ -2,7 +2,8 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const config = require("./config.js");
-const { Pool } = require("pg");
+const axios = require("axios");
+// const { Pool } = require("pg");
 const Redis = require("ioredis");
 
 const app = express();
@@ -15,31 +16,20 @@ const io = new Server(server, {
 });
 
 // Instantiate Redis service with environmental variables
-const client = new Redis(6379, "collab-redis");
+const client = new Redis(6379, config.services.redis.host);
 // Key: room:${room_id}, Value: code
 
-const dbConfig = config.database;
-const pool = new Pool({
-  user: dbConfig.user,
-  host: dbConfig.host,
-  database: dbConfig.database,
-  password: dbConfig.password,
-  port: dbConfig.port,
-});
 
 async function saveCodePersistent(room_id, code) {
   try {
     if (client.status === "ready") {
       client.set(`room:${room_id}`, code);
     }
-    const query = `
-      INSERT INTO collab (room_id, code)
-      VALUES ($1, $2)
-      ON CONFLICT (room_id)
-      DO UPDATE SET code = $2
-      RETURNING *
-    `;
-    const result = await pool.query(query, [room_id, code]);
+    const historyData = {
+      roomid: room_id,
+      code: code
+    }
+    await axios.put(`${config.services.history.URL}/api/history`, historyData);
     // console.log("Inserted or Updated in Collab DB:", result);
   } catch (error) {
     console.error("Error inserting or updating Redis and/or Collab DB:", error);
@@ -65,41 +55,46 @@ async function saveRedisToDB(room_id) {
         console.log("Code is null from Redis");
       }
 
-      const query = `
-        INSERT INTO collab (room_id, code)
-        VALUES ($1, $2)
-        ON CONFLICT (room_id)
-        DO UPDATE SET code = $2
-        RETURNING *
-      `;
-      const result = await pool.query(query, [room_id, code]);
-      console.log("Inserted or updated from Redis to Collab DB");
+      const historyData = {
+        roomid: room_id,
+        code: code
+      }
+      await axios.put(`${config.services.history.URL}/api/history`, historyData);
+      console.log("Saved from Redis to Collab DB");
     }
   } catch (error) {
     console.error(
-      "Error inserting or updating from Redis to Collab DB:",
+      "Error saving from Redis to Collab DB:",
       error
     );
   }
 }
 
+async function saveEndTime(roomId) {
+  try {
+    await axios.put(`${config.services.history.URL}/api/history/endtime`, { roomid: roomId });
+    console.log("Successfully updated end time of collab");
+  } catch (error) {
+    console.error("Error saving end time of collab:", error);
+  }
+}
+
 // Try to get from Redis first, if not found, query from DB and update Redis
 async function queryRoomId(room_id) {
-  const query = "SELECT code FROM collab WHERE room_id = $1";
   try {
     const result =
       client.status === "ready" ? await client.get(`room:${room_id}`) : null;
     if (result) {
       return { code: result };
     } else {
-      const result = await pool.query(query, [room_id]);
-      if (result.rows.length === 0) {
+      const result = await axios.get(`${config.services.history.URL}/api/history/${room_id}`);
+      if (result.data.length === 0) {
         return { code: "" };
       }
       if (client.status === "ready") {
-        client.set(`room:${room_id}`, result.rows[0].code);
+        client.set(`room:${room_id}`, result.data[0].code);
       }
-      return result.rows[0];
+      return result.data[0];
     }
   } catch (error) {
     console.error("Error querying for code for room:", error);
@@ -107,31 +102,22 @@ async function queryRoomId(room_id) {
   }
 }
 
-//Remove entry from Redis and DB
-async function deleteSavedCode(room_id) {
-  try {
-    if (client.status === "ready") {
-      client.del(`room:${room_id}`, (err, result) => {
-        if (err) {
-          console.error("Error deleting saved code from Redis:", err);
-        }
-      });
-    }
+// Remove entry from Redis
+async function deleteRedis(room_id) {
 
-    const query = `
-      DELETE FROM collab WHERE room_id = $1
-    `;
-    const result = await pool.query(query, [room_id]);
-    console.log("Deleted from Collab DB");
-  } catch (error) {
-    console.error("Error deleting saved code:", error);
+  if (client.status === "ready") {
+    client.del(`room:${room_id}`, (err) => {
+      if (err) {
+        console.error("Error deleting saved code from Redis:", err);
+      }
+    });
   }
 }
 
 io.on("connection", (socket) => {
   // console.log("A user connected");
 
-  socket.on("join_room", async (roomId, token) => {
+  socket.on("join_room", async (roomId) => {
     const room = io.sockets.adapter.rooms.get(`${roomId}`);
     socket.join(`${roomId}`);
     socket.roomId = roomId;
@@ -160,16 +146,19 @@ io.on("connection", (socket) => {
 
   socket.on("end_collab", async (roomId) => {
     socket.to(`${roomId}`).emit("end_collab");
+    await saveRedisToDB(roomId);
+    await saveEndTime(roomId);
+    await deleteRedis(roomId);
   });
 
   socket.on("disconnect", async () => {
     socket.to(socket.roomId).emit("leave_room");
-    const clients = io.sockets.adapter.rooms.get(`${socket.roomId}`);
-    const numClients = clients ? clients.size : 0;
-    if (numClients === 0) {
-      await saveRedisToDB(socket.roomId);
-      await deleteSavedCode(socket.roomId); // TODO delete if accessing room after collab is needed
-    }
+    // const clients = io.sockets.adapter.rooms.get(`${socket.roomId}`);
+    // const numClients = clients ? clients.size : 0;
+    // if (numClients === 0) {
+    //   await saveRedisToDB(socket.roomId);
+    //   await deleteSavedCode(socket.roomId); // TODO delete if accessing room after collab is needed
+    // }
   });
 });
 

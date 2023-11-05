@@ -9,6 +9,8 @@ COPY package*.json ./
 RUN npm install
 
 ENV POSTGRES_HOST=collab-postgresql
+ENV HISTORY_SERVICE_URL=http://history-service:5003
+ENV REDIS_HOST=collab-redis
 
 COPY . .
 
