@@ -11,6 +11,7 @@ services:
       - matching-service
       - collab-service
       - history-service
+      - chat-service
 
   question-service:
     build: ./backend/question-service
@@ -126,11 +127,37 @@ services:
     networks:
       - history-network
 
+  chat-service:
+    build: ./backend/chat-service
+    ports:
+      - "5002:5002"
+    networks:
+      - chat-network
+    restart: on-failure
+    depends_on:
+      chat-postgresql:
+        condition: service_started
+
+  chat-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chat-service
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./backend/chat-service/chatSchema.sql:/docker-entrypoint-initdb.d/chatSchema.sql
+      - chatdatabase:/database/postgres/chat-service
+    networks:
+      - chat-network
+
 volumes:
   userdatabase:
   matchingdatabase:
   collabdatabase:
   historydatabase:
+  chatdatabase:
 
 networks:
   user-network:
@@ -142,4 +169,6 @@ networks:
   collab-network:
     driver: bridge
   history-network:
+    driver: bridge
+  chat-network:
     driver: bridge

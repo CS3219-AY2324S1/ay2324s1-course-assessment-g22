@@ -6,9 +6,10 @@ import { QuestionDescription } from "../questions/QuestionDescription";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import lodashDebounce from "lodash.debounce";
-import { COLLAB_URL } from "../Constants";
+import { COLLAB_URL, CHAT_URL } from "../Constants";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Chat from "../Chat/Chat";
 
 export default function CollaborationPage({ matchsocket }) {
   const auth = useAuthUser();
@@ -17,13 +18,17 @@ export default function CollaborationPage({ matchsocket }) {
   const room_id = urlPathOnId.roomid;
   const editorRef = useRef(null);
   const roomSocketRef = useRef(null);
+  const chatSocketRef = useRef(null);
   const [code, setCode] = useState("");
   const [questionTitle, setQuestionTitle] = useState(null);
   const user = auth().username;
   const [otherUser, setOtherUser] = useState(null);
+  const [isChatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const roomSocket = io(COLLAB_URL);
+    const chatSocket = io(CHAT_URL);
+    chatSocketRef.current = chatSocket;
     roomSocket.emit("join_room", room_id);
 
     roomSocket.on("join_success", (code) => {
@@ -95,6 +100,7 @@ export default function CollaborationPage({ matchsocket }) {
   const handleEnd = () => {
     matchsocket.emit("deleteRoomId", room_id);
     roomSocketRef.current.emit("end_collab", room_id);
+    chatSocketRef.current.emit("end_collab", room_id);
     navigate("/");
   };
 
@@ -104,11 +110,21 @@ export default function CollaborationPage({ matchsocket }) {
     toast.success(`Code saved!`);
   };
 
+  const handleToggleChat = () => {
+    setChatOpen(!isChatOpen);
+  };
+
+  const handlePageClick = () => {
+    if (isChatOpen) {
+      setChatOpen(false);
+    }
+  };
+
   return (
-    <div className="flex flex-row h-screen">
+    <div className="flex flex-row h-screen" onClick={handlePageClick}>
       <ToastContainer
         position="top-center"
-        autoClose={false}
+        autoClose={5000}
         newestOnTop={false}
         closeOnClick
         rtl={false}
@@ -146,11 +162,25 @@ export default function CollaborationPage({ matchsocket }) {
           >
             End Collaboration
           </button>
+          <div className="p-1"></div>
+          <button
+            onClick={handleToggleChat}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
+          >
+            Chat
+          </button>
         </div>
       </div>
       <div className="flex-1 p-4">
         <QuestionDescription specificTitle={questionTitle} />
       </div>
+      {isChatOpen && (
+        <Chat
+          user={user}
+          otherUser={otherUser}
+          socket={chatSocketRef.current}
+        />
+      )}
     </div>
   );
 }

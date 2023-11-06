@@ -3,7 +3,6 @@ const http = require("http");
 const { Server } = require("socket.io");
 const config = require("./config.js");
 const axios = require("axios");
-// const { Pool } = require("pg");
 const Redis = require("ioredis");
 
 const app = express();
@@ -104,7 +103,7 @@ async function queryRoomId(room_id) {
 
 // Remove entry from Redis
 async function deleteRedis(room_id) {
-
+  
   if (client.status === "ready") {
     client.del(`room:${room_id}`, (err) => {
       if (err) {
@@ -115,8 +114,6 @@ async function deleteRedis(room_id) {
 }
 
 io.on("connection", (socket) => {
-  // console.log("A user connected");
-
   socket.on("join_room", async (roomId) => {
     const room = io.sockets.adapter.rooms.get(`${roomId}`);
     socket.join(`${roomId}`);
@@ -130,7 +127,6 @@ io.on("connection", (socket) => {
   socket.on("code", async (roomId, code) => {
     // Double code receive from both user code updates
     // to confirm updates
-    // console.log(`Code received: ${code}`);
     await saveCodeInterval(roomId, code);
     socket.to(`${roomId}`).emit("code", code);
   });
@@ -153,12 +149,6 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", async () => {
     socket.to(socket.roomId).emit("leave_room");
-    // const clients = io.sockets.adapter.rooms.get(`${socket.roomId}`);
-    // const numClients = clients ? clients.size : 0;
-    // if (numClients === 0) {
-    //   await saveRedisToDB(socket.roomId);
-    //   await deleteSavedCode(socket.roomId); // TODO delete if accessing room after collab is needed
-    // }
   });
 });
 
