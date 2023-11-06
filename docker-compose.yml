@@ -120,7 +120,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: history-service
     ports:
-      - "5435:5432"
+      - "5436:5432"
     volumes:
       - ./backend/history-service/historySchema.sql:/docker-entrypoint-initdb.d/historySchema.sql
       - historydatabase:/database/postgres/history-service
