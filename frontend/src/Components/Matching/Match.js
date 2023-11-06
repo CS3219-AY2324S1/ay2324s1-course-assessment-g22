@@ -64,16 +64,28 @@ export default function Match({ socket }) {
     setIsButtonDisabled(true);
     socket.emit("matchUser", { user, difficulty, category });
 
+    let timer = 0;
+
     const toastMessage = toast(
       "Please wait for a moment while we try to match you with another user",
       {
         type: "info",
         isLoading: true,
         closeOnClick: false,
+        render: `Please wait for a moment while we try to match you with another user (0s)`, // Initial message
       }
     );
 
+    const updateToastMessage = () => {
+      timer++; // Increment the timer
+      toast.update(toastMessage, {
+        render: `Please wait for a moment while we try to match you with another user (${timer}s)`,
+      });
+    };
+    const timerInterval = setInterval(updateToastMessage, 1000);
+
     socket.on("matched", (arg) => {
+      clearInterval(timerInterval);
       toast.update(toastMessage, {
         render: "You have been successfully matched with another user!",
         type: "success",
@@ -88,6 +100,7 @@ export default function Match({ socket }) {
     });
 
     socket.on("timeout", () => {
+      clearInterval(timerInterval);
       toast.update(toastMessage, {
         render:
           "Sorry we are unable to match you with a user. Please retry matching again!",
@@ -100,6 +113,7 @@ export default function Match({ socket }) {
     });
 
     socket.on("already_matched", (arg) => {
+      clearInterval(timerInterval);
       toast.update(toastMessage, {
         render:
           "You already have an existing session! Please terminate the session before matching again.",
@@ -115,6 +129,7 @@ export default function Match({ socket }) {
     });
 
     socket.on("not_found", () => {
+      clearInterval(timerInterval);
       toast.update(toastMessage, {
         render:
           "Sorry we cannot find a question with your chosen category and difficulty. Please choose another combination!",
@@ -127,6 +142,7 @@ export default function Match({ socket }) {
     });
 
     socket.on("already_requested", () => {
+      clearInterval(timerInterval);
       toast.update(toastMessage, {
         render:
           "You already have an active request! Please wait for the result of the request on this tab and close the other tabs.",
