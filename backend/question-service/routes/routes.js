@@ -94,10 +94,10 @@ app.get(`${urlPrefix}`, verifyToken, async (req, res) => {
     .catch((err) => res.status(500).json({ error: err }));
 });
 
-// Get all question categories
+// Get all question categories and tags
 app.get(`${urlPrefix}/categories`, verifyToken, async (req, res) => {
   await questionModel
-    .find({}, 'category')
+    .find({}, "category tags")
     .then((qns) => res.json({ questions: qns }))
     .catch((err) => res.status(500).json({ error: err }));
 });
@@ -108,7 +108,13 @@ app.get(`${urlPrefix}/find`, async (req, res) => {
   const complexity_to_find = req.query.complexity;
 
   await questionModel
-    .find({$or: [{ category: new RegExp(category_to_find) }], complexity: complexity_to_find}, 'title')
+    .find(
+      {
+        $or: [{ category: new RegExp(category_to_find) }],
+        complexity: complexity_to_find,
+      },
+      "title"
+    )
     .then((qns) => res.json({ questions: qns }))
     .catch((err) => res.status(500).json({ error: err }));
 });
@@ -118,7 +124,7 @@ app.get(`${urlPrefix}/find_any`, async (req, res) => {
   const complexity_to_find = req.query.complexity;
 
   await questionModel
-    .find({complexity: complexity_to_find}, 'title')
+    .find({ complexity: complexity_to_find }, "title")
     .then((qns) => res.json({ questions: qns }))
     .catch((err) => res.status(500).json({ error: err }));
 });
