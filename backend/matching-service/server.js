@@ -126,9 +126,9 @@ async function createHistory(user1, user2, room_id, question, difficulty) {
       time_ended: null,
       question: question,
       difficulty: difficulty,
-      language_used: 'Javascript',
-      code: ''
-    }
+      language_used: "Javascript",
+      code: "",
+    };
     await axios.post(config.services.history.URL + "/api/history", historyData);
   } catch (error) {
     console.error("Error creating history of collab", error);
@@ -143,28 +143,17 @@ async function isUserMatched(user) {
   return null;
 }
 
-async function selectQuestion(m_category, m_difficulty) {
-  var response;
-  if (m_category == "Any") {
-    response = await axios.get(
-      `${config.services.question.URL}/api/questions/find_any`,
-      {
-        params: {
-          complexity: m_difficulty,
-        },
-      }
-    );
-  } else {
-    response = await axios.get(
-      `${config.services.question.URL}/api/questions/find`,
-      {
-        params: {
-          category: m_category,
-          complexity: m_difficulty,
-        },
-      }
-    );
-  }
+async function selectQuestion(m_category, m_difficulty, m_tag) {
+  const response = await axios.get(
+    `${config.services.question.URL}/api/questions/find`,
+    {
+      params: {
+        category: m_category,
+        complexity: m_difficulty,
+        tag: m_tag,
+      },
+    }
+  );
 
   const questions = await response.data.questions;
   if (questions.length == 0) {
@@ -176,7 +165,7 @@ async function selectQuestion(m_category, m_difficulty) {
 }
 
 async function handleMatching(request) {
-  const key = request.difficulty + request.category;
+  const key = request.difficulty + request.category + request.tag;
   const user = request.user;
   const potentialMatch = matchingRequests.get(key);
 
@@ -190,13 +179,23 @@ async function handleMatching(request) {
     hash.update(sortedUser1 + sortedUser2);
     const room_id = hash.digest("hex");
 
-    randomQuestion = await selectQuestion(request.category, request.difficulty);
+    randomQuestion = await selectQuestion(
+      request.category,
+      request.difficulty,
+      request.tag
+    );
     if (randomQuestion == "") {
       notifyNotFound(user1, user2, room_id);
       return;
     }
 
-    await insertDB(sortedUser1, sortedUser2, room_id, randomQuestion, request.difficulty);
+    await insertDB(
+      sortedUser1,
+      sortedUser2,
+      room_id,
+      randomQuestion,
+      request.difficulty
+    );
   } else {
     // No match found yet, add this request to matchingRequests
     matchingRequests.set(key, { user, requestTime: Date.now() });
@@ -255,7 +254,7 @@ function setupRabbitMQ() {
 
 io.on("connection", (socket) => {
   socket.on("matchUser", async (data) => {
-    const { user, difficulty, category } = data;
+    const { user, difficulty, category, tag } = data;
     connectedSockets.set(user, socket);
 
     room_id = await isUserMatched(user);
@@ -264,7 +263,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const message = JSON.stringify({ user, difficulty, category });
+    const message = JSON.stringify({ user, difficulty, category, tag });
     channel.sendToQueue(queue, Buffer.from(message));
   });
 

@@ -36,7 +36,7 @@ export default function Match({ socket }) {
           categoryList.forEach((cat) => categories.add(cat));
 
           const tagList = question["tags"];
-          tagList.forEach((tag) => tags.add(tag));
+          tagList.forEach((tag) => tags.add(tag.name));
         }
         setCategoryList([...categories]);
         setTagList([...tags]);
@@ -62,7 +62,7 @@ export default function Match({ socket }) {
     }
 
     setIsButtonDisabled(true);
-    socket.emit("matchUser", { user, difficulty, category });
+    socket.emit("matchUser", { user, difficulty, category, tag });
 
     let timer = 0;
 
