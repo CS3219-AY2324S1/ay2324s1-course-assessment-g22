@@ -77,7 +77,7 @@ export default function HomePage({ socket }) {
 
                 const findDate = (date) => dateList.find((item) => item.date === date);
 
-                historyData.map(history => {
+                for (const history of historyData) {
                     if (history.difficulty === 'Easy') {
                         difficultyList[0].value += 1;
                     } else if (history.difficulty === 'Medium') {
@@ -88,9 +88,9 @@ export default function HomePage({ socket }) {
                     const date = new Date(history.time_started).toLocaleDateString('en-US');
                     const existingDate = findDate(date);
                     if (existingDate) {
-                        existingDate.count += 1;   
+                        existingDate.count += 1;
                     }
-                });
+                }
                 setDifficulties(difficultyList);
                 setDates(dateList);
                 setNumQuestionsAttempted(historyData.length);
@@ -164,7 +164,7 @@ export default function HomePage({ socket }) {
                 }}>
                     <div className='font-medium text-2xl mb-7'>
                         {numQuestionsAttempted === 1 ? `1 Question attempted in ${new Date().getFullYear()}` :
-                        `${numQuestionsAttempted} Questions attempted in ${new Date().getFullYear()}`}</div>
+                            `${numQuestionsAttempted} Questions attempted in ${new Date().getFullYear()}`}</div>
                     <CalendarHeatmap
                         startDate={new Date(new Date().getFullYear(), 0, 0)}
                         endDate={new Date(new Date().getFullYear(), 11, 31)}
@@ -181,15 +181,15 @@ export default function HomePage({ socket }) {
                         tooltipDataAttrs={value => {
                             if (value.count === 1) {
                                 return {
-                                    'data-tooltip-content': 
-                                    `1 question attempted on ${value.date}`,
+                                    'data-tooltip-content':
+                                        `1 question attempted on ${value.date}`,
                                     'data-tooltip-id': 'calendar-tooltip'
-                                }; 
+                                };
                             }
                             console.log(value.count);
                             return {
-                                'data-tooltip-content': 
-                                `${value.count} questions attempted on ${value.date}`,
+                                'data-tooltip-content':
+                                    `${value.count} questions attempted on ${value.date}`,
                                 'data-tooltip-id': 'calendar-tooltip'
                             };
                         }}
