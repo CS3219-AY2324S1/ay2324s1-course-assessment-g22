@@ -52,6 +52,7 @@ async function saveRedisToDB(room_id) {
       const code = await client.get(`room:${room_id}`);
       if (code === null) {
         console.log("Code is null from Redis");
+        return;
       }
 
       const historyData = {
