@@ -18,7 +18,6 @@ const io = new Server(server, {
 const client = new Redis(6379, config.services.redis.host);
 // Key: room:${room_id}, Value: code
 
-
 async function saveCodePersistent(room_id, code) {
   try {
     if (client.status === "ready") {
@@ -26,8 +25,8 @@ async function saveCodePersistent(room_id, code) {
     }
     const historyData = {
       roomid: room_id,
-      code: code
-    }
+      code: code,
+    };
     await axios.put(`${config.services.history.URL}/api/history`, historyData);
     // console.log("Inserted or Updated in Collab DB:", result);
   } catch (error) {
@@ -57,22 +56,24 @@ async function saveRedisToDB(room_id) {
 
       const historyData = {
         roomid: room_id,
-        code: code
-      }
-      await axios.put(`${config.services.history.URL}/api/history`, historyData);
+        code: code,
+      };
+      await axios.put(
+        `${config.services.history.URL}/api/history`,
+        historyData
+      );
       console.log("Saved from Redis to Collab DB");
     }
   } catch (error) {
-    console.error(
-      "Error saving from Redis to Collab DB:",
-      error
-    );
+    console.error("Error saving from Redis to Collab DB:", error);
   }
 }
 
 async function saveEndTime(roomId) {
   try {
-    await axios.put(`${config.services.history.URL}/api/history/endtime`, { roomid: roomId });
+    await axios.put(`${config.services.history.URL}/api/history/endtime`, {
+      roomid: roomId,
+    });
     console.log("Successfully updated end time of collab");
   } catch (error) {
     console.error("Error saving end time of collab:", error);
@@ -87,7 +88,9 @@ async function queryRoomId(room_id) {
     if (result) {
       return { code: result };
     } else {
-      const result = await axios.get(`${config.services.history.URL}/api/history/${room_id}`);
+      const result = await axios.get(
+        `${config.services.history.URL}/api/history/${room_id}`
+      );
       if (result.data.length === 0) {
         return { code: "" };
       }
@@ -104,7 +107,6 @@ async function queryRoomId(room_id) {
 
 // Remove entry from Redis
 async function deleteRedis(room_id) {
-  
   if (client.status === "ready") {
     client.del(`room:${room_id}`, (err) => {
       if (err) {
@@ -123,6 +125,10 @@ io.on("connection", (socket) => {
     console.log(`Sending saved code: ${result.code}`);
     socket.to(`${roomId}`).emit("join_room");
     socket.emit("join_success", result.code);
+  });
+
+  socket.on("change_language", (roomId, lang) => {
+    socket.to(`${roomId}`).emit("change_language", lang);
   });
 
   socket.on("code", async (roomId, code) => {

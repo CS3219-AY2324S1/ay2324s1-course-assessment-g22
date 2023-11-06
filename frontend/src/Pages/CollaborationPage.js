@@ -7,7 +7,6 @@ import { QuestionDescription } from "../questions/QuestionDescription";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import lodashDebounce from "lodash.debounce";
-import url from "./api/url";
 import { languages } from "./ProgrammingLanguages";
 import { COLLAB_URL, CHAT_URL } from "../Constants";
 import { ToastContainer, toast } from "react-toastify";
@@ -24,7 +23,7 @@ export default function CollaborationPage({ matchsocket }) {
   const chatSocketRef = useRef(null);
   const [code, setCode] = useState("");
   const [questionTitle, setQuestionTitle] = useState(null);
-  const [language, setLanguage] = useState(languages[0].value);
+  const [language, setLanguage] = useState(languages[1]);
   const user = auth().username;
   const [otherUser, setOtherUser] = useState(null);
   const [isChatOpen, setChatOpen] = useState(false);
@@ -49,6 +48,12 @@ export default function CollaborationPage({ matchsocket }) {
     roomSocket.on("code", (code) => {
       console.log("Code received: " + code);
       setCode(code);
+    });
+
+    roomSocket.on("change_language", (lang) => {
+      console.log("Language changed to: " + lang.name);
+      setLanguage(lang);
+      toast.success(`${otherUser} changed language to ${lang.name}`);
     });
 
     roomSocket.on("leave_room", () => {
@@ -114,8 +119,9 @@ export default function CollaborationPage({ matchsocket }) {
     toast.success(`Code saved!`);
   };
 
-  const handleLanguageChange = (language) => {
-    setLanguage(language.value);
+  const handleLanguageChange = (lang) => {
+    roomSocketRef.current.emit("change_language", room_id, lang);
+    setLanguage(lang);
   };
 
   const handleToggleChat = () => {
@@ -147,8 +153,8 @@ export default function CollaborationPage({ matchsocket }) {
           </div>
           <Editor
             height="70vh"
-            defaultLanguage={language}
-            language={language}
+            defaultLanguage={language.value}
+            language={language.value}
             defaultValue={code}
             value={code}
             onChange={debounceHandleEditorChange}
@@ -158,14 +164,6 @@ export default function CollaborationPage({ matchsocket }) {
           />
         </div>
         <div className="flex flex-row">
-          <div className="py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline">
-            <Select
-              placeholder={"Select Language"}
-              options={languages}
-              defaultValue={languages[0]}
-              onChange={handleLanguageChange}
-            />
-          </div>
           <div className="p-1"></div>
           <button
             onClick={handleSave}
@@ -187,6 +185,14 @@ export default function CollaborationPage({ matchsocket }) {
           >
             Chat
           </button>
+          <div className="py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline">
+            <Select
+              placeholder={"Select Language"}
+              options={languages}
+              onChange={handleLanguageChange}
+              value={language}
+            />
+          </div>
         </div>
       </div>
       <div className="flex-1 p-4">
