@@ -10,6 +10,7 @@ services:
       - user-service
       - matching-service
       - collab-service
+      - history-service
       - chat-service
 
   question-service:
@@ -49,6 +50,7 @@ services:
     networks:
       - question-network
       - matching-network
+      - history-network
     restart: on-failure
     depends_on:
       matching-postgresql:
@@ -87,26 +89,11 @@ services:
     ports:
       - "5001:5001"
     networks:
+      - history-network
       - collab-network
     depends_on:
-      collab-postgresql:
-        condition: service_started
       collab-redis:
         condition: service_started
-
-  collab-postgresql:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: collab-service
-    ports:
-      - "5434:5432"
-    volumes:
-      - ./backend/collab-service/collabSchema.sql:/docker-entrypoint-initdb.d/collabSchema.sql
-      - collabdatabase:/database/postgres/collab-service
-    networks:
-      - collab-network
 
   collab-redis:
     image: redis
@@ -115,6 +102,30 @@ services:
     restart: on-failure
     networks:
       - collab-network
+
+  history-service:
+    build: ./backend/history-service
+    ports:
+      - "5003:5003"
+    networks:
+      - history-network
+    depends_on:
+      history-postgresql:
+        condition: service_started
+
+  history-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: history-service
+    ports:
+      - "5436:5432"
+    volumes:
+      - ./backend/history-service/historySchema.sql:/docker-entrypoint-initdb.d/historySchema.sql
+      - historydatabase:/database/postgres/history-service
+    networks:
+      - history-network
 
   chat-service:
     build: ./backend/chat-service
@@ -145,6 +156,7 @@ volumes:
   userdatabase:
   matchingdatabase:
   collabdatabase:
+  historydatabase:
   chatdatabase:
 
 networks:
@@ -155,6 +167,8 @@ networks:
   matching-network:
     driver: bridge
   collab-network:
+    driver: bridge
+  history-network:
     driver: bridge
   chat-network:
     driver: bridge

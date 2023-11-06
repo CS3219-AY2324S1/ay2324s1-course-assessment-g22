@@ -1,3 +1,6 @@
+backend/history-service/.env
+backend/history-service/node_modules/
+
 backend/chat-service/.env
 backend/chat-service/node_modules/
 

@@ -6,8 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToggleButtonGroup, ToggleButton} from '@mui/material';
 import axios from "axios";
 import Cookies from "js-cookie";
-import { UserContext } from '../Context/UserContext';
-import { QUESTIONS_URL } from '../Constants';
+import { UserContext } from '../../Context/UserContext';
+import { QUESTIONS_URL } from '../../Constants';
 
 export default function Match({socket}) {
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ export default function Match({socket}) {
   }
 
   return (
-    <div className="m-auto shadow-[0_1px_2px_0px_rgba(0,0,0,0.5)] mb-5 border-transparent rounded w-6/12 p-2 flex flex-col items-center gap-4">
+    <div className="shadow-[0_1px_2px_0px_rgba(0,0,0,0.5)] mb-5 border-transparent rounded w-6/12 p-2 flex flex-col items-center gap-4">
         <ToastContainer position='top-center' theme='colored' hideProgressBar={true} draggable={false} 
         closeButton={false} />
         <div>Please select a category</div>
