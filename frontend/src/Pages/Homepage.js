@@ -8,12 +8,12 @@ import { useDrawingArea } from '@mui/x-charts/hooks';
 import { styled } from '@mui/material/styles';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
+import { Tooltip } from 'react-tooltip'
 import { Button } from '@mui/material';
 import Match from '../Components/Matching/Match';
 import Card from '@mui/material/Card';
 
 export default function HomePage({ socket }) {
-    // Will remove module.css later
     const [difficulties, setDifficulties] = useState([{
         value: 1
     }]);
@@ -53,6 +53,15 @@ export default function HomePage({ socket }) {
 
 
     useEffect(() => {
+        // Initialised dates outside in case of axios failure
+        const dateList = [];
+        const startDate = new Date(new Date().getFullYear(), 0, 0);
+        const endDate = new Date(new Date().getFullYear(), 11, 31);
+        for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+            dateList.push({ date: date.toLocaleDateString('en-US'), count: 0 });
+        }
+        setDates(dateList);
+
         const getHistory = async () => {
             try {
                 const response = await axios.get(`${HISTORY_URL}/stats`, {
@@ -65,7 +74,7 @@ export default function HomePage({ socket }) {
                     value: 0, label: 'Easy'
                 },
                 { value: 0, label: 'Medium' }, { value: 0, label: 'Hard' }];
-                const dateList = [];
+
                 const findDate = (date) => dateList.find((item) => item.date === date);
 
                 historyData.map(history => {
@@ -77,11 +86,9 @@ export default function HomePage({ socket }) {
                         difficultyList[2].value += 1;
                     }
                     const date = new Date(history.time_started).toLocaleDateString('en-US');
-                    const existingDate = findDate(new Date(history.time_started).toLocaleDateString('en-US'));
+                    const existingDate = findDate(date);
                     if (existingDate) {
-                        existingDate.count += 1;
-                    } else {
-                        dateList.push({ date: date, count: 1 });
+                        existingDate.count += 1;   
                     }
                 });
                 setDifficulties(difficultyList);
@@ -155,13 +162,15 @@ export default function HomePage({ socket }) {
                     marginRight: 2,
                     marginBottom: 2
                 }}>
-                    <div className='font-medium text-2xl mb-7'>{numQuestionsAttempted} Questions attempted in {new Date().getFullYear()}</div>
+                    <div className='font-medium text-2xl mb-7'>
+                        {numQuestionsAttempted === 1 ? `1 Question attempted in ${new Date().getFullYear()}` :
+                        `${numQuestionsAttempted} Questions attempted in ${new Date().getFullYear()}`}</div>
                     <CalendarHeatmap
-                        startDate={new Date(new Date().getFullYear(), 0, 1)}
+                        startDate={new Date(new Date().getFullYear(), 0, 0)}
                         endDate={new Date(new Date().getFullYear(), 11, 31)}
                         values={dates}
                         classForValue={(value) => {
-                            if (!value) {
+                            if (!value || value.count === 0) {
                                 return 'color-empty';
                             }
                             if (value.count > 8) {
@@ -169,7 +178,23 @@ export default function HomePage({ socket }) {
                             }
                             return `color-scale-${value.count}`;
                         }}
+                        tooltipDataAttrs={value => {
+                            if (value.count === 1) {
+                                return {
+                                    'data-tooltip-content': 
+                                    `1 question attempted on ${value.date}`,
+                                    'data-tooltip-id': 'calendar-tooltip'
+                                }; 
+                            }
+                            console.log(value.count);
+                            return {
+                                'data-tooltip-content': 
+                                `${value.count} questions attempted on ${value.date}`,
+                                'data-tooltip-id': 'calendar-tooltip'
+                            };
+                        }}
                     />
+                    <Tooltip id='calendar-tooltip' />
                 </Card>
                 <Card variant="outlined" sx={{
                     width: '65%',
