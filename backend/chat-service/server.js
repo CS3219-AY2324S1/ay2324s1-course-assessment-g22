@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const server = http.createServer(app);
 const ioServer = new Server(server, {
+  path: "/api/chat/socket.io",
   cors: {
     origin: `${config.services.frontend.URL}`,
     methods: ["GET", "POST", "DELETE", "PUT"],

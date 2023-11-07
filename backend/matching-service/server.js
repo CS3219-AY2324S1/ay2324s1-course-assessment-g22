@@ -17,6 +17,7 @@ const connectedSockets = new Map();
 const usersRequested = new Map();
 
 const io = new Server(server, {
+  path: "/api/match/socket.io",
   cors: {
     origin: config.services.frontend.URL,
     methods: ["GET", "POST", "DELETE"],

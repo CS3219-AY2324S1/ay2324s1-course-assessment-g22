@@ -26,8 +26,12 @@ export default function CollaborationPage({ matchsocket }) {
   const [isChatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
-    const roomSocket = io(COLLAB_URL);
-    const chatSocket = io(CHAT_URL);
+    const roomSocket = io(COLLAB_URL, {
+      path: "/api/collab/socket.io",
+    });
+    const chatSocket = io(CHAT_URL, {
+      path: "/api/chat/socket.io",
+    });
     chatSocketRef.current = chatSocket;
     roomSocket.emit("join_room", room_id);
 
