@@ -97,6 +97,33 @@ app.put(`${historyUrlPrefix}`, async (req, res) => {
     }
 });
 
+// Update language used of collab
+app.put(`${historyUrlPrefix}`, async (req, res) => {
+    try {
+        const { roomid, lang } = req.body;
+        const query = `UPDATE history
+        SET lang = $2
+        WHERE roomid = $1
+        AND time_started IN (
+            SELECT time_started
+            FROM history
+            WHERE roomid = $1
+            ORDER BY time_started DESC
+            LIMIT 2
+        ) RETURNING *` ;
+        const result = await pool.query(query, [roomid, lang]);
+        if (result.rows.length === 0) {
+            res.status(404).json({ error: "No history of collaboration found" })
+        }
+        else {
+            res.status(201).json({ Message: "Successfully updated history of collaboration" });
+        }
+    } catch (error) {
+        console.error("Error updating history of collaboration:", error);
+        res.status(500).json({ error: "Error updating history of collaboration" });
+    }
+});
+
 // Update time ended of collab
 app.put(`${historyUrlPrefix}/endtime`, async (req, res) => {
     try {
@@ -173,6 +200,21 @@ app.get(`${historyUrlPrefix}/:roomid`, async (req, res) => {
     } catch (error) {
         console.error("Error getting code of collaboration:", error);
         res.status(500).json({ error: "Error getting code of collaboration" });
+    }
+});
+
+// Get language used for latest collab
+app.get(`${historyUrlPrefix}/:roomid`, async (req, res) => {
+    try {
+        const roomid = req.params.roomid;
+        const query = `SELECT language_used FROM history WHERE roomid = $1 
+        ORDER BY time_started DESC LIMIT 1`;
+        const result = await pool.query(query, [roomid]);
+        res.json(result.rows);
+        console.log("Successfully retrieved language used of collaboration");
+    } catch (error) {
+        console.error("Error getting language used of collaboration:", error);
+        res.status(500).json({ error: "Error getting language used of collaboration" });
     }
 });
 
