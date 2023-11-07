@@ -8,7 +8,7 @@ const Redis = require("ioredis");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  path: "/collab-service/",
+  path: "/api/collab/socket.io",
   cors: {
     origin: `${config.services.frontend.URL}`,
     methods: ["GET", "POST", "DELETE", "PUT"],
