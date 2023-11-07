@@ -174,6 +174,10 @@ async function handleMatching(request) {
     // Match found
     const [user1, user2] = [potentialMatch.user, user];
     matchingRequests.delete(key);
+    console.log(
+      "Removed from Queue | Successful Match | Matching Queue:",
+      matchingRequests
+    );
 
     const [sortedUser1, sortedUser2] = [user1, user2].sort();
     const hash = createHash("sha256");
@@ -200,12 +204,20 @@ async function handleMatching(request) {
   } else {
     // No match found yet, add this request to matchingRequests
     matchingRequests.set(key, { user, requestTime: Date.now() });
+    console.log(
+      "Added to Queue | No Match Available in Queue | Matching Queue:",
+      matchingRequests
+    );
 
     // Set a timer to delete the request if no match is found
     setTimeout(() => {
       var check_val = matchingRequests.get(key);
       if (check_val != undefined && check_val.user === user) {
         matchingRequests.delete(key);
+        console.log(
+          "Removed from Queue | Timeout | Matching Queue:",
+          matchingRequests
+        );
 
         // Notify the user that their request timed out
         notifyRequestTimeout(user);
@@ -230,6 +242,7 @@ function setupRabbitMQ() {
         durable: false,
       });
       console.log(" [*] Waiting for messages in %s.", queue);
+      console.log("Queue Created | Matching Queue:", matchingRequests);
 
       channel.consume(
         queue,
