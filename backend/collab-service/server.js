@@ -81,7 +81,7 @@ async function saveEndTime(roomId) {
 }
 
 // Try to get from Redis first, if not found, query from DB and update Redis
-async function queryRoomId(room_id) {
+async function getCode(room_id) {
   try {
     const result =
       client.status === "ready" ? await client.get(`room:${room_id}`) : null;
@@ -105,6 +105,37 @@ async function queryRoomId(room_id) {
   }
 }
 
+async function getLanguage(room_id) {
+  try {
+    const result = await axios.get(
+      `${config.services.history.URL}/api/history/language/${room_id}`
+    );
+    if (result.data.length === 0) {
+      return { language: "" };
+    }
+    return result.data[0];
+  } catch (error) {
+    console.error("Error querying for language for room:", error);
+    return [];
+  }
+}
+
+async function saveLanguage(room_id, language) {
+  try {
+    const historyData = {
+      roomid: room_id,
+      language_used: language,
+    };
+    await axios.put(
+      `${config.services.history.URL}/api/history/language`,
+      historyData
+    );
+    console.log("Successfully updated language of collab");
+  } catch (error) {
+    console.error("Error updating language of collab:", error);
+  }
+}
+
 // Remove entry from Redis
 async function deleteRedis(room_id) {
   if (client.status === "ready") {
@@ -121,13 +152,16 @@ io.on("connection", (socket) => {
     const room = io.sockets.adapter.rooms.get(`${roomId}`);
     socket.join(`${roomId}`);
     socket.roomId = roomId;
-    const result = await queryRoomId(roomId);
+    const result = await getCode(roomId);
+    const result2 = await getLanguage(roomId);
     console.log(`Sending saved code: ${result.code}`);
+    console.log(`Sending saved language: ${result2.language_used}`);
     socket.to(`${roomId}`).emit("join_room");
-    socket.emit("join_success", result.code);
+    socket.emit("join_success", result.code, result2.language_used);
   });
 
   socket.on("change_language", (roomId, lang) => {
+    saveLanguage(roomId, lang.name);
     socket.to(`${roomId}`).emit("change_language", lang);
   });
 

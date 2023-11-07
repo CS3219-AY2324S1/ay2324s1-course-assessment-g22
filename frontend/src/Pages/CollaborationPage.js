@@ -34,10 +34,12 @@ export default function CollaborationPage({ matchsocket }) {
     chatSocketRef.current = chatSocket;
     roomSocket.emit("join_room", room_id);
 
-    roomSocket.on("join_success", (code) => {
+    roomSocket.on("join_success", (code, lang) => {
       roomSocketRef.current = roomSocket;
       console.log("Saved Code received: " + code);
       setCode(code);
+      console.log("Language received: " + lang);
+      setLanguage(languages.find((l) => l.name === lang));
     });
 
     roomSocket.on("join_room", () => {
@@ -153,8 +155,10 @@ export default function CollaborationPage({ matchsocket }) {
           </div>
           <Editor
             height="70vh"
-            defaultLanguage={language.value}
-            language={language.value}
+            defaultLanguage={languages[1].value}
+            language={
+              language === undefined ? languages[1].value : language.value
+            }
             defaultValue={code}
             value={code}
             onChange={debounceHandleEditorChange}

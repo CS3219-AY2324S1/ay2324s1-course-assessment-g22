@@ -126,9 +126,9 @@ async function createHistory(user1, user2, room_id, question, difficulty) {
       time_ended: null,
       question: question,
       difficulty: difficulty,
-      language_used: 'Javascript',
-      code: ''
-    }
+      language_used: "JavaScript (Node.js 12.14.0)",
+      code: "",
+    };
     await axios.post(config.services.history.URL + "/api/history", historyData);
   } catch (error) {
     console.error("Error creating history of collab", error);
@@ -196,7 +196,13 @@ async function handleMatching(request) {
       return;
     }
 
-    await insertDB(sortedUser1, sortedUser2, room_id, randomQuestion, request.difficulty);
+    await insertDB(
+      sortedUser1,
+      sortedUser2,
+      room_id,
+      randomQuestion,
+      request.difficulty
+    );
   } else {
     // No match found yet, add this request to matchingRequests
     matchingRequests.set(key, { user, requestTime: Date.now() });

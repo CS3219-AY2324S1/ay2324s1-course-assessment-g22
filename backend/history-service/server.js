@@ -98,11 +98,11 @@ app.put(`${historyUrlPrefix}`, async (req, res) => {
 });
 
 // Update language used of collab
-app.put(`${historyUrlPrefix}`, async (req, res) => {
+app.put(`${historyUrlPrefix}/language`, async (req, res) => {
     try {
-        const { roomid, lang } = req.body;
+        const { roomid, language_used } = req.body;
         const query = `UPDATE history
-        SET lang = $2
+        SET language_used = $2
         WHERE roomid = $1
         AND time_started IN (
             SELECT time_started
@@ -111,7 +111,7 @@ app.put(`${historyUrlPrefix}`, async (req, res) => {
             ORDER BY time_started DESC
             LIMIT 2
         ) RETURNING *` ;
-        const result = await pool.query(query, [roomid, lang]);
+        const result = await pool.query(query, [roomid, language_used]);
         if (result.rows.length === 0) {
             res.status(404).json({ error: "No history of collaboration found" })
         }
@@ -204,7 +204,7 @@ app.get(`${historyUrlPrefix}/:roomid`, async (req, res) => {
 });
 
 // Get language used for latest collab
-app.get(`${historyUrlPrefix}/:roomid`, async (req, res) => {
+app.get(`${historyUrlPrefix}/language/:roomid`, async (req, res) => {
     try {
         const roomid = req.params.roomid;
         const query = `SELECT language_used FROM history WHERE roomid = $1 
