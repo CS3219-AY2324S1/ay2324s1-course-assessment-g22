@@ -13,7 +13,6 @@ services:
       - matching-postgresql
       - matching-rabbitmq
       - collab-service
-      - collab-postgresql
       - collab-redis
       - history-service
       - chat-service
@@ -23,9 +22,10 @@ services:
       - user-network
       - matching-network
       - collab-network
+      - history-network
+      - chat-network
     environment:
       NODE_ENV: production
-      
 
   question-service:
     build: ./backend/question-service
