@@ -190,4 +190,9 @@ app.delete(
   }
 );
 
+// Testing route
+app.get("/", (req, res) => {
+  res.send("Successful response.");
+});
+
 module.exports = app;

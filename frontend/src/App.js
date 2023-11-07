@@ -30,7 +30,9 @@ function App() {
   const signOut = useSignOut();
   const isAuthenticated = useIsAuthenticated();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const socket = io(MATCHING_URL, { autoConnect: false });
+  const socket = io(MATCHING_URL, { autoConnect: false,
+    path: "/api/match/socket.io",
+  });
   socket.connect();
 
   const handleLogin = (username) => {
