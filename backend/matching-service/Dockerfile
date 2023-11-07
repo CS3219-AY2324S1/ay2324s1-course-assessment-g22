@@ -9,6 +9,9 @@ COPY package*.json ./
 RUN npm install
 
 ENV POSTGRES_HOST=matching-postgresql
+ENV HISTORY_SERVICE_URL=http://history-service:5003
+ENV RABBITMQ_URL=amqp://matching-rabbitmq
+ENV QUESTION_SERVICE_URL=http://question-service:4567
 
 COPY . .
 

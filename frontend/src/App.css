@@ -40,3 +40,12 @@
     transform: rotate(360deg);
   }
 }
+
+.react-calendar-heatmap .color-scale-1 { fill: #d6e685; }
+.react-calendar-heatmap .color-scale-2 { fill: #8cc665; }
+.react-calendar-heatmap .color-scale-3 { fill: #44a340; }
+.react-calendar-heatmap .color-scale-4 { fill: #1e6823; }
+.react-calendar-heatmap .color-scale-5 { fill: #144718; }
+.react-calendar-heatmap .color-scale-6 { fill: #0c2d0f; }
+.react-calendar-heatmap .color-scale-7 { fill: #09200b; }
+.react-calendar-heatmap .color-scale-8 { fill: #051206; }
