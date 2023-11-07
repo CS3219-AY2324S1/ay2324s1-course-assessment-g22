@@ -80,7 +80,7 @@ export default function HistoryPage() {
                     id: index,
                     ...history,
                     date_started: new Date(history.time_started).toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' }),
-                    time_started: new Date(history.time_ended).toLocaleTimeString(),
+                    time_started: new Date(history.time_started).toLocaleTimeString(),
                     time_taken: formatTime(history.time_started, history.time_ended)
                 }));
                 setHistory(historyDisplay);
