@@ -161,6 +161,7 @@ export default function CollaborationPage({ matchsocket }) {
             }
             defaultValue={code}
             value={code}
+            options={{ formatOnType: true, formatOnPaste: true }}
             onChange={debounceHandleEditorChange}
             onMount={(editor) => {
               editorRef.current = editor;
