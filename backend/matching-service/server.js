@@ -94,15 +94,16 @@ async function queryRoomId(room_id) {
   }
 }
 
-async function insertDB(user1, user2, room_id, question) {
+async function insertDB(user1, user2, room_id, question, difficulty) {
   try {
     const query =
       "INSERT INTO matched (username, room_id, question) VALUES ($1, $2, $3) RETURNING *";
     const result = await pool.query(query, [user1, room_id, question]);
     const result2 = await pool.query(query, [user2, room_id, question]);
+    await createHistory(user1, user2, room_id, question, difficulty);
     notifyMatchedUsers(user1, user2, room_id);
   } catch (error) {
-    console.error("Error inserting into Match DB:", error);
+    console.error("Error inserting into Match DB and/or History DB:", error);
   }
 }
 
@@ -112,6 +113,26 @@ async function deleteDB(room_id) {
     pool.query(query, [room_id]);
   } catch (error) {
     console.error("Error deleting from Match DB:", error);
+  }
+}
+
+async function createHistory(user1, user2, room_id, question, difficulty) {
+  try {
+    const currentDateTime = new Date(Date.now()).toISOString();
+    const historyData = {
+      current_username: user1,
+      other_username: user2,
+      roomid: room_id,
+      time_started: currentDateTime,
+      time_ended: null,
+      question: question,
+      difficulty: difficulty,
+      language_used: 'Javascript',
+      code: ''
+    }
+    await axios.post(config.services.history.URL + "/api/history", historyData);
+  } catch (error) {
+    console.error("Error creating history of collab", error);
   }
 }
 
@@ -176,7 +197,7 @@ async function handleMatching(request) {
       return;
     }
 
-    await insertDB(sortedUser1, sortedUser2, room_id, randomQuestion);
+    await insertDB(sortedUser1, sortedUser2, room_id, randomQuestion, request.difficulty);
   } else {
     // No match found yet, add this request to matchingRequests
     matchingRequests.set(key, { user, requestTime: Date.now() });

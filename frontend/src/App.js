@@ -20,9 +20,10 @@ import { USERS_BASE_URL } from "./Constants";
 import { MATCHING_URL } from "./Constants";
 import { TOKEN_EXPIRE_TIME } from "./Constants";
 import { TOKEN_REFRESH_TIME } from "./Constants";
-import Match from "./Matching/Match";
 import { UserProvider } from "./Context/UserContext";
 import CollaborationPage from "./Pages/CollaborationPage";
+import HistoryPage from "./Pages/HistoryPage";
+import HomePage from "./Pages/HomePage";
 
 function App() {
   const signIn = useSignIn();
@@ -133,9 +134,8 @@ function App() {
           path="/"
           element={
             <RequireAuth loginPath="/login">
-              <QuestionBank />
               <UserProvider>
-                <Match socket={socket} />
+                <HomePage socket={socket} />
               </UserProvider>
             </RequireAuth>
           }
@@ -146,6 +146,14 @@ function App() {
           element={
             <RequireAuth loginPath="/login">
               <QuestionDescription />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/question/"
+          element={
+            <RequireAuth loginPath="/login">
+              <QuestionBank />
             </RequireAuth>
           }
         />
@@ -163,6 +171,14 @@ function App() {
           element={
             <RequireAuth loginPath="/login">
               <CollaborationPage matchsocket={socket} />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <RequireAuth loginPath="/login">
+              <HistoryPage />
             </RequireAuth>
           }
         />
