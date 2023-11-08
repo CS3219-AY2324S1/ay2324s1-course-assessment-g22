@@ -213,9 +213,6 @@ const Profile = () => {
           onRequestClose={handleEditModalClose}
           contentLabel="Edit User Data"
         >
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Username</label>
-          </div>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-600 font-medium">
