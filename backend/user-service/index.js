@@ -124,7 +124,7 @@ app.get("/api/users/:username", verifyToken, async (req, res) => {
 });
 
 // GET /api/user - Retrieve username of user
-app.get("/api/user/", verifyToken, async (req, res) => {
+app.get("/api/user", verifyToken, async (req, res) => {
   const username = req.user;
   try {
     const query =
@@ -163,7 +163,7 @@ app.post("/api/users", async (req, res) => {
   }
 });
 
-// PUT /api/users/ - Update user details
+// PUT /api/users - Update user details
 app.put("/api/users", verifyToken, async (req, res) => {
   const { username, email, password, firstname, lastname } = req.body;
 
@@ -213,6 +213,7 @@ app.delete("/api/users/:username", verifyToken, async (req, res) => {
   }
 });
 
+// Testing route
 app.get("/", (req, res) => {
   res.send("Successful response.");
 });

@@ -4,14 +4,28 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - question-service
       - user-service
+      - user-postgresql
       - matching-service
+      - matching-postgresql
+      - matching-rabbitmq
       - collab-service
+      - collab-redis
       - history-service
       - chat-service
+    restart: always
+    networks:
+      - question-network
+      - user-network
+      - matching-network
+      - collab-network
+      - history-network
+      - chat-network
+    environment:
+      NODE_ENV: production
 
   question-service:
     build: ./backend/question-service
