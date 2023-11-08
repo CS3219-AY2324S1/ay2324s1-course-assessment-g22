@@ -42,7 +42,7 @@ function verifyToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
     const currentTimeInSeconds = Date.now();
-    if (decoded.exp && currentTimeInSeconds > decoded.exp) {
+    if (!decoded.exp || currentTimeInSeconds > decoded.exp) {
       return res.status(401).json({ error: "Token has expired." });
     }
     req.user = decoded.username;
@@ -145,6 +145,38 @@ app.get("/api/user", verifyToken, async (req, res) => {
 app.post("/api/users", async (req, res) => {
   const { username, email, password, firstname, lastname } = req.body;
   try {
+    // Password strength Check
+    if (password.length < 8) {
+      res.status(400).json({
+        error: "Password is too short. Minimum length is 8 characters.",
+      });
+      return;
+    }
+    if (!password.match(/[a-z]/g)) {
+      res.status(400).json({
+        error: "Password must contain at least one lowercase letter.",
+      });
+      return;
+    }
+    if (!password.match(/[A-Z]/g)) {
+      res.status(400).json({
+        error: "Password must contain at least one uppercase letter.",
+      });
+      return;
+    }
+    if (!password.match(/[0-9]/g)) {
+      res.status(400).json({
+        error: "Password must contain at least one number.",
+      });
+      return;
+    }
+    if (!password.match(/[^a-zA-Z\d]/g)) {
+      res.status(400).json({
+        error: "Password must contain at least one special character.",
+      });
+      return;
+    }
+
     const query =
       "INSERT INTO userAccounts (username, email, password, firstname, lastname) VALUES ($1, $2, $3, $4, $5) RETURNING *";
     const result = await pool.query(query, [
