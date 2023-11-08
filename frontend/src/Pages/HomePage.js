@@ -136,7 +136,7 @@ export default function HomePage({ socket }) {
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col">
       {isLoading ? (
         <LoadingPage /> // Render the loading page when isLoading is true
       ) : (
