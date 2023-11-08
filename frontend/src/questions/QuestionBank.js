@@ -14,6 +14,7 @@ import QuestionModal from "./QuestionModal";
 import { Link } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import "react-toastify/dist/ReactToastify.css";
+import TagFilter from "./tagging/TagFilter";
 
 const columns = [
   { field: "qid", headerName: "Question Id", flex: 1 },
@@ -29,14 +30,14 @@ const columns = [
           <p>{title}</p>
           <Box
             sx={{
-                display: 'flex',
-                justifyContent: 'left',
-                flexWrap: 'wrap',
-                listStyle: 'none',
-                width: '100%',
+              display: 'flex',
+              justifyContent: 'left',
+              flexWrap: 'wrap',
+              listStyle: 'none',
+              width: '100%',
             }}
-        >
-            {tags != null && tags.slice(0,3).map((tag, index) => (
+          >
+            {tags != null && tags.slice(0, 3).map((tag, index) => (
               <li key={index} className="mr-2 my-1">
                 <Chip label={tag.name}
                   color={tag.type === 'companyQuestion' ? 'warning' : tag.type === 'popularity' ? 'error' : 'success'}
@@ -243,14 +244,43 @@ export default function QuestionBank() {
 
   const [questions, setQuestions] = useState([]);
   const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const [taggedQuestions, setTaggedQuestions] = useState([]);
+  const [tags, setTags] = useState([]);
+
+  const handleTagChange = (values, action) => {
+    if (action.action === "select-option" || action.action === "remove-value"
+      || action.action === "pop-value") {
+      const filterTags = questions.filter((question) => {
+        if (values.length === 0) {
+          return true;
+        }
+
+        for (const value of values) {
+          const hasTag = question.tags.some(tag => tag.name === value.value);
+          if (!hasTag) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+      )
+      setTaggedQuestions(filterTags);
+      setFilteredQuestions(filterTags)
+    }
+    else if (action.action === "clear") {
+      setTaggedQuestions(questions);
+      setFilteredQuestions(questions);
+    }
+  }
 
   const handleSearch = () => {
     toast.dismiss();
     if (searchQuery.trim() === "") {
       // Reset the search results if the search query is empty
-      setFilteredQuestions(questions);
+      setFilteredQuestions(taggedQuestions);
     } else {
-      const filtered = questions.filter((question) =>
+      const filtered = taggedQuestions.filter((question) =>
         question.title.toLowerCase().includes(searchQuery.trim().toLowerCase())
       );
 
@@ -270,7 +300,16 @@ export default function QuestionBank() {
         id: q._id,
         qid: count++,
       }));
+
+      const tagList = new Set();
+      for (const question of data.questions) {
+        const tags = question["tags"];
+        tags.forEach((tag) => tagList.add(tag.name));
+      }
+
+      setTags([...tagList]);
       setQuestions(displayQuestions);
+      setTaggedQuestions(displayQuestions);
       setFilteredQuestions(displayQuestions);
     });
   }, []);
@@ -279,6 +318,9 @@ export default function QuestionBank() {
     <div className="p-10 bg-grey">
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Question Bank</h2>
+        <div className="w-1/4">
+          <TagFilter tags={tags} handleTagChange={handleTagChange} />
+        </div>
         <div className="flex items-center">
           <input
             type="text"
