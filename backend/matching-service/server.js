@@ -53,13 +53,9 @@ function notifyRequestTimeout(user) {
   clearUserRequest(user);
 }
 
-function notifyNotFound(user1, user2, room_id) {
-  connectedSockets.get(user1).emit("not_found");
-  connectedSockets.get(user2).emit("not_found");
+function notifyNotFound(user) {
+  connectedSockets.get(user).emit("not_found");
   console.log("No questions found");
-
-  clearUserRequest(user1);
-  clearUserRequest(user2);
 }
 
 function notifyActiveSession(user, room_id) {
@@ -165,6 +161,22 @@ async function selectQuestion(m_category, m_difficulty, m_tag) {
   return questions[randomIndex]["title"];
 }
 
+async function checkQuestion(m_category, m_difficulty, m_tag) {
+  const response = await axios.get(
+    `${config.services.question.URL}/api/questions/find`,
+    {
+      params: {
+        category: m_category,
+        complexity: m_difficulty,
+        tag: m_tag,
+      },
+    }
+  );
+
+  const questions = await response.data.questions;
+  return questions.length > 0;
+}
+
 async function handleMatching(request) {
   const key = request.difficulty + request.category + request.tag;
   const user = request.user;
@@ -189,10 +201,6 @@ async function handleMatching(request) {
       request.difficulty,
       request.tag
     );
-    if (randomQuestion == "") {
-      notifyNotFound(user1, user2, room_id);
-      return;
-    }
 
     await insertDB(
       sortedUser1,
@@ -274,6 +282,11 @@ io.on("connection", (socket) => {
     room_id = await isUserMatched(user);
     if (room_id != null) {
       notifyActiveSession(user, room_id);
+      return;
+    }
+
+    if (!(await checkQuestion(category, difficulty, tag))) {
+      notifyNotFound(user);
       return;
     }
 
