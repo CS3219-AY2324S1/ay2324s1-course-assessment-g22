@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { ToastContainer, toast } from "react-toastify";
@@ -18,6 +18,7 @@ export default function Match({ socket }) {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [categoryList, setCategoryList] = useState(null);
   const [tagList, setTagList] = useState(null);
+  const pendingToast = useRef({});
 
   useEffect(() => {
     const getCategoriesAndTags = async () => {
@@ -47,7 +48,38 @@ export default function Match({ socket }) {
     };
 
     getCategoriesAndTags();
+
+    const handleVisibilityChange = () => {
+      if (isPageVisible()) {
+        if (Object.keys(pendingToast.current).length !== 0) {
+          let temp = pendingToast.current;
+          pendingToast.current = {};
+          // The page has become visible, and there is a pending toast message
+          updateToast(temp.id, temp.options);
+        }
+      }
+    };
+
+    // Add an event listener for visibility change
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
+
+  const isPageVisible = () => {
+    return !document.hidden;
+  };
+
+  const updateToast = (id, options) => {
+    if (isPageVisible()) {
+      toast.update(id, options);
+    } else {
+      pendingToast.current = { id: id, options: options };
+    }
+  };
 
   const matchUser = () => {
     // Remove all existing toasts to prevent toasts from stacking up
@@ -78,7 +110,7 @@ export default function Match({ socket }) {
 
     const updateToastMessage = () => {
       timer++; // Increment the timer
-      toast.update(toastMessage, {
+      updateToast(toastMessage, {
         render: `Please wait for a moment while we try to match you with another user (${timer}s)`,
       });
     };
@@ -86,7 +118,7 @@ export default function Match({ socket }) {
 
     socket.on("matched", (arg) => {
       clearInterval(timerInterval);
-      toast.update(toastMessage, {
+      updateToast(toastMessage, {
         render: "You have been successfully matched with another user!",
         type: "success",
         isLoading: false,
@@ -101,7 +133,7 @@ export default function Match({ socket }) {
 
     socket.on("timeout", () => {
       clearInterval(timerInterval);
-      toast.update(toastMessage, {
+      updateToast(toastMessage, {
         render:
           "Sorry we are unable to match you with a user. Please retry matching again!",
         type: "error",
@@ -114,7 +146,7 @@ export default function Match({ socket }) {
 
     socket.on("already_matched", (arg) => {
       clearInterval(timerInterval);
-      toast.update(toastMessage, {
+      updateToast(toastMessage, {
         render:
           "You already have an existing session! Please terminate the session before matching again.",
         type: "error",
@@ -130,7 +162,7 @@ export default function Match({ socket }) {
 
     socket.on("not_found", () => {
       clearInterval(timerInterval);
-      toast.update(toastMessage, {
+      updateToast(toastMessage, {
         render:
           "Sorry we cannot find a question with your chosen category and difficulty. Please choose another combination!",
         type: "error",
@@ -143,7 +175,7 @@ export default function Match({ socket }) {
 
     socket.on("already_requested", () => {
       clearInterval(timerInterval);
-      toast.update(toastMessage, {
+      updateToast(toastMessage, {
         render:
           "You already have an active request! Please wait for the result of the request on this tab and close the other tabs.",
         type: "error",
@@ -151,7 +183,7 @@ export default function Match({ socket }) {
         closeOnClick: false,
       });
       const nextUpdate = () =>
-        toast.update(toastMessage, {
+        updateToast(toastMessage, {
           render:
             "Please wait for a moment while we try to match you with another user",
           type: "info",
