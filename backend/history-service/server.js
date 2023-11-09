@@ -51,7 +51,7 @@ function verifyToken(req, res, next) {
 // Create history of collab
 app.post(`${historyUrlPrefix}`, async (req, res) => {
     try {
-        const { current_username, other_username, roomid, time_started, time_ended, question, language_used, code, 
+        const { current_username, other_username, roomid, time_started, time_ended, question, language_used, code,
             difficulty } = req.body;
         const query = `INSERT INTO history 
         (current_username, other_username, roomid, time_started, time_ended, question, language_used, code, difficulty) 
@@ -83,7 +83,7 @@ app.put(`${historyUrlPrefix}`, async (req, res) => {
             WHERE roomid = $1
             ORDER BY time_started DESC
             LIMIT 2
-        ) RETURNING *` ;
+        ) AND time_ended IS NULL RETURNING *` ;
         const result = await pool.query(query, [roomid, code]);
         if (result.rows.length === 0) {
             res.status(404).json({ error: "No history of collaboration found" })
@@ -111,7 +111,7 @@ app.put(`${historyUrlPrefix}/endtime`, async (req, res) => {
             WHERE roomid = $1
             ORDER BY time_started DESC
             LIMIT 2
-        ) RETURNING *` ;
+        ) AND time_ended IS NULL RETURNING *` ;
         const result = await pool.query(query, [roomid, time_ended]);
         if (result.rows.length === 0) {
             res.status(404).json({ error: "No history of collaboration found" })
@@ -173,6 +173,19 @@ app.get(`${historyUrlPrefix}/:roomid`, async (req, res) => {
     } catch (error) {
         console.error("Error getting code of collaboration:", error);
         res.status(500).json({ error: "Error getting code of collaboration" });
+    }
+});
+
+// Delete the history of the user
+app.delete(`${historyUrlPrefix}/:username`, verifyToken, async (req, res) => {
+    try {
+        const username = req.params.username;
+        const query = "DELETE FROM history WHERE username = $1";
+        await pool.query(query, [username]);
+        console.log(`Successfully deleted user: ${username} from history`);
+    } catch (error) {
+        console.error("Error in deleting the user from history");
+        res.status(500).json({ error: "Error deleting the user from history" });
     }
 });
 

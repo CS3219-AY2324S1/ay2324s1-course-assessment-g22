@@ -4,7 +4,7 @@ import axios from "axios";
 import Modal from "react-modal";
 import Cookies from "js-cookie";
 import { useSignOut, useAuthUser } from "react-auth-kit";
-import { USERS_BASE_URL } from "./Constants";
+import { HISTORY_URL, USERS_BASE_URL } from "./Constants";
 
 const Profile = () => {
   const auth = useAuthUser();
@@ -105,8 +105,17 @@ const Profile = () => {
   };
 
   const handleDelete = () => {
-    // Send a DELETE request to delete the user's account
+    // Send a DELETE request to delete the user's account and history
     try {
+      axios.delete(`${HISTORY_URL}/${auth().username}`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("_auth")}`,
+        },
+      })
+      .then((response) => {
+        console.log("User history is deleted", response.data);
+      })
+
       axios
         .delete(`${USERS_BASE_URL}/api/users/${auth().username}`, {
           headers: {
