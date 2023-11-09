@@ -7,8 +7,8 @@ import {
   updateQuestion,
 } from "./utils/mongodb/questionApi";
 import { DataGrid } from "@mui/x-data-grid";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Chip, Button, Box } from "@mui/material";
 import QuestionModal from "./QuestionModal";
 import { Link } from "react-router-dom";
@@ -29,20 +29,28 @@ const columns = [
           <p>{title}</p>
           <Box
             sx={{
-                display: 'flex',
-                justifyContent: 'left',
-                flexWrap: 'wrap',
-                listStyle: 'none',
-                width: '100%',
+              display: "flex",
+              justifyContent: "left",
+              flexWrap: "wrap",
+              listStyle: "none",
+              width: "100%",
             }}
-        >
-            {tags != null && tags.slice(0,3).map((tag, index) => (
-              <li key={index} className="mr-2 my-1">
-                <Chip label={tag.name}
-                  color={tag.type === 'companyQuestion' ? 'warning' : tag.type === 'popularity' ? 'error' : 'success'}
-                />
-              </li>
-            ))}
+          >
+            {tags != null &&
+              tags.slice(0, 3).map((tag, index) => (
+                <li key={index} className="mr-2 my-1">
+                  <Chip
+                    label={tag.name}
+                    color={
+                      tag.type === "companyQuestion"
+                        ? "warning"
+                        : tag.type === "popularity"
+                        ? "error"
+                        : "success"
+                    }
+                  />
+                </li>
+              ))}
           </Box>
         </div>
       );
@@ -75,8 +83,8 @@ export default function QuestionBank() {
   const [editQuestionTitle, setEditQuestionTitle] = useState("");
   const [category, setCategory] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [tagName, setTagName] = useState('');
-  const [tagType, setTagType] = useState('companyQuestion');
+  const [tagName, setTagName] = useState("");
+  const [tagType, setTagType] = useState("companyQuestion");
 
   // State for storing form input values
   const [formData, setFormData] = useState({
@@ -104,7 +112,7 @@ export default function QuestionBank() {
       setCategory([]);
     }
     setIsAdd(isAdd);
-    setTagName('');
+    setTagName("");
     setIsModalOpen(true);
   };
 
@@ -136,8 +144,11 @@ export default function QuestionBank() {
 
   const handleAddTag = () => {
     toast.dismiss();
-    if (tagName === '') {
-      toast.error("Please enter a tag name", { isLoading: false, autoClose: 3000 });
+    if (tagName === "") {
+      toast.error("Please enter a tag name", {
+        isLoading: false,
+        autoClose: 3000,
+      });
       return;
     }
     if (formData.tags === null) {
@@ -146,10 +157,13 @@ export default function QuestionBank() {
       setFormData({
         ...formData,
         tags: newTagList,
-      })
+      });
     } else {
       if (formData.tags.some((tag) => tag.name === tagName)) {
-        toast.error("Tag name already exists. Please choose another tag name", { isLoading: false, autoClose: 3000 });
+        toast.error("Tag name already exists. Please choose another tag name", {
+          isLoading: false,
+          autoClose: 3000,
+        });
         return;
       }
       const newTagList = [...formData.tags];
@@ -159,8 +173,8 @@ export default function QuestionBank() {
         tags: newTagList,
       });
     }
-    setTagName('');
-  }
+    setTagName("");
+  };
 
   const handleDeleteTag = (tagname) => {
     const newTagList = formData.tags.filter((item) => item.name !== tagname);
@@ -168,7 +182,7 @@ export default function QuestionBank() {
       ...formData,
       tags: newTagList,
     });
-  }
+  };
 
   // Function to handle form submission
   const handleSubmit = async () => {
@@ -177,14 +191,20 @@ export default function QuestionBank() {
       formData.title.toLowerCase() !== editQuestionTitle.toLowerCase() &&
       hasDuplicateTitle(questions, formData.title.toLowerCase())
     ) {
-      toast.error("Duplicate title found. Please check your input.", { isLoading: false, autoClose: 3000 });
+      toast.error("Duplicate title found. Please check your input.", {
+        isLoading: false,
+        autoClose: 3000,
+      });
     } else if (
       formData.title === "" ||
       formData.category === "" ||
       formData.complexity === "" ||
       formData.description === ""
     ) {
-      toast.error("Please fill out all required fields.", { isLoading: false, autoClose: 3000 });
+      toast.error("Please fill out all required fields.", {
+        isLoading: false,
+        autoClose: 3000,
+      });
     } else {
       isAdd
         ? await addQuestion(formData)
@@ -204,7 +224,10 @@ export default function QuestionBank() {
   const handleDelete = async () => {
     toast.dismiss();
     if (rowSelectionModel.length === 0) {
-      toast.error("Please select at least one question to delete.", { isLoading: false, autoClose: 3000 });
+      toast.error("Please select at least one question to delete.", {
+        isLoading: false,
+        autoClose: 3000,
+      });
       return;
     }
     const questionsToDelete = questions.filter((question) => {
@@ -222,7 +245,10 @@ export default function QuestionBank() {
 
   const handleEdit = async () => {
     if (rowSelectionModel.length !== 1) {
-      toast.error("Please select only one question to edit.", { isLoading: false, autoClose: 3000 });
+      toast.error("Please select only one question to edit.", {
+        isLoading: false,
+        autoClose: 3000,
+      });
       return;
     }
     const questionToEdit = questions.find(
@@ -263,16 +289,21 @@ export default function QuestionBank() {
   };
 
   useEffect(() => {
-    let count = 1;
-    getQuestions().then((data) => {
-      const displayQuestions = data.questions.map((q) => ({
-        ...q,
-        id: q._id,
-        qid: count++,
-      }));
-      setQuestions(displayQuestions);
-      setFilteredQuestions(displayQuestions);
-    });
+    try {
+      let count = 1;
+
+      getQuestions().then((data) => {
+        const displayQuestions = data.questions.map((q) => ({
+          ...q,
+          id: q._id,
+          qid: count++,
+        }));
+        setQuestions(displayQuestions);
+        setFilteredQuestions(displayQuestions);
+      });
+    } catch (error) {
+      console.log("Error getting questions from mongodb: ", error);
+    }
   }, []);
 
   return (
@@ -326,11 +357,13 @@ export default function QuestionBank() {
       </div>
       <DataGrid
         sx={{
-          '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': { py: '10px' },
+          "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
+            py: "10px",
+          },
         }}
         rows={filteredQuestions}
         columns={columns}
-        getRowHeight={() => 'auto'}
+        getRowHeight={() => "auto"}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },

@@ -63,10 +63,14 @@ export const Login = ({ onLogin }) => {
         console.log("Token expiry time (GMT +8):", formattedExp);
 
         // Delay needed for token to be set in cookie
-        setTimeout(() => {
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, 1000); // Adjust the delay as needed
+        }).then(() => {
           navigate("/");
           onLogin(username);
-        }, 20);
+        });
       })
       .catch((error) => {
         console.error("Login failed:", error.response);
