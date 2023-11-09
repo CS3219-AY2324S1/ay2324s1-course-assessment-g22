@@ -123,7 +123,7 @@ async function createHistory(user1, user2, room_id, question, difficulty) {
       time_ended: null,
       question: question,
       difficulty: difficulty,
-      language_used: "Javascript",
+      language_used: "JavaScript (Node.js 12.14.0)",
       code: "",
     };
     await axios.post(config.services.history.URL + "/api/history", historyData);
