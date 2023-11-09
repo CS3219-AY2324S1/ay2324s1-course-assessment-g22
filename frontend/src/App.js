@@ -30,7 +30,8 @@ function App() {
   const signOut = useSignOut();
   const isAuthenticated = useIsAuthenticated();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const socket = io(MATCHING_URL, { autoConnect: false,
+  const socket = io(MATCHING_URL, {
+    autoConnect: false,
     path: "/api/match/socket.io",
   });
   socket.connect();
@@ -45,8 +46,11 @@ function App() {
   };
 
   useEffect(() => {
+    console.log("AUTH: " + Cookies.get("_auth"));
     const refreshToken = () => {
+      console.log("B4 REFRESH AUTH: " + Cookies.get("_auth"));
       if (isRefreshing || Cookies.get("_auth") === undefined) {
+        console.log("REFRESH FAILED");
         return;
       }
       setIsRefreshing(true);
@@ -86,6 +90,7 @@ function App() {
           console.log("Token expiry time (GMT +8):", formattedExp);
 
           setTimeout(refreshToken, TOKEN_REFRESH_TIME);
+          console.log("AF REFRESH AUTH: " + Cookies.get("_auth"));
         })
         .catch((error) => {
           console.error("Token refresh failed:", error);

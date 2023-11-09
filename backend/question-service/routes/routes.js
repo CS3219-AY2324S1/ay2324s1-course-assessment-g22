@@ -94,37 +94,43 @@ app.get(`${urlPrefix}`, verifyToken, async (req, res) => {
     .catch((err) => res.status(500).json({ error: err }));
 });
 
-// Get all question categories
+// Get all categories and tags
 app.get(`${urlPrefix}/categories`, verifyToken, async (req, res) => {
   await questionModel
-    .find({}, "category")
+    .find({}, "category tags")
     .then((qns) => res.json({ questions: qns }))
     .catch((err) => res.status(500).json({ error: err }));
 });
 
-// Get all questions of a specific category and complexity
+// Get all questions that match the given criteria
 app.get(`${urlPrefix}/find`, async (req, res) => {
   const category_to_find = req.query.category;
   const complexity_to_find = req.query.complexity;
+  const tag_to_find = req.query.tag;
+
+  var filter;
+  if (category_to_find === "Any" && tag_to_find === "Any") {
+    filter = { complexity: complexity_to_find };
+  } else if (category_to_find === "Any" && tag_to_find !== "Any") {
+    filter = {
+      complexity: complexity_to_find,
+      tags: { $elemMatch: { name: tag_to_find } },
+    };
+  } else if (category_to_find !== "Any" && tag_to_find === "Any") {
+    filter = {
+      category: new RegExp(category_to_find),
+      complexity: complexity_to_find,
+    };
+  } else {
+    filter = {
+      category: new RegExp(category_to_find),
+      complexity: complexity_to_find,
+      tags: { $elemMatch: { name: tag_to_find } },
+    };
+  }
 
   await questionModel
-    .find(
-      {
-        $or: [{ category: new RegExp(category_to_find) }],
-        complexity: complexity_to_find,
-      },
-      "title"
-    )
-    .then((qns) => res.json({ questions: qns }))
-    .catch((err) => res.status(500).json({ error: err }));
-});
-
-// Get all questions of a specific complexity
-app.get(`${urlPrefix}/find_any`, async (req, res) => {
-  const complexity_to_find = req.query.complexity;
-
-  await questionModel
-    .find({ complexity: complexity_to_find }, "title")
+    .find(filter, "title")
     .then((qns) => res.json({ questions: qns }))
     .catch((err) => res.status(500).json({ error: err }));
 });
