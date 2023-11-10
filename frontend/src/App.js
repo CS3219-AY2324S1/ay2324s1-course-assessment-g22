@@ -19,6 +19,7 @@ import Profile from "./Profile";
 import { USERS_BASE_URL } from "./Constants";
 import { TOKEN_EXPIRE_TIME } from "./Constants";
 import { TOKEN_REFRESH_TIME } from "./Constants";
+import LoadingPage from "./Pages/LoadingPage";
 
 function App() {
   const signIn = useSignIn();
@@ -147,6 +148,7 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route path="/loading" element={<LoadingPage />} />
       </Routes>
     </Router>
   );
