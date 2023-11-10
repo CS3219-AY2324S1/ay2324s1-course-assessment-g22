@@ -20,7 +20,7 @@ INSERT INTO userAccounts (username, email, password, firstname, lastname) VALUES
 ('3', 'user8@example.com', '3', 'ShortUsername3', 'Account3');
 
 INSERT INTO userAccounts (username, email, password, firstname, lastname, role) VALUES
-('maintainer', 'maintainer1@example.com', 'password_1', 'Joe', 'The Maintainer', 'maintainer'),
+('maintainer', 'maintainer1@example.com', 'hashed_password_1', 'Joe', 'The Maintainer', 'maintainer'),
 ('admin', 'maintainer2@example.com', 'a', 'Martin', 'The Maintainer', 'maintainer'),
 ('m', 'maintainer3@example.com', 'm', 'Steve', 'The Maintainer', 'maintainer'),
 ('m2', 'maintainer4@example.com', 'm2', 'ShortUsername', 'MaintainerAccount', 'maintainer'),
