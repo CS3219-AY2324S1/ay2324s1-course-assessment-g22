@@ -104,31 +104,30 @@ const Profile = () => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     // Send a DELETE request to delete the user's account and history
     try {
-      axios.delete(`${HISTORY_URL}/${auth().username}`, {
+      const historyresponse = await axios.delete(`${HISTORY_URL}/${auth().username}`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("_auth")}`,
         },
       })
-      .then((response) => {
-        console.log("User history is deleted", response.data);
-      })
 
-      axios
+      console.log("User history is deleted", historyresponse.data);
+
+      const userresponse = await axios
         .delete(`${USERS_BASE_URL}/api/users/${auth().username}`, {
           headers: {
             Authorization: `Bearer ${Cookies.get("_auth")}`,
           },
-        })
-        .then((response) => {
-          console.log("User deleted:", response.data);
-          alert("User deleted");
-          signOut();
         });
+
+      console.log("User deleted:", userresponse.data);
+      alert("User deleted");
+      signOut();
+
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error deleting user and/or user history:", error);
       alert(`Error deleting user! ${error.response.data.error}`);
     }
   };
