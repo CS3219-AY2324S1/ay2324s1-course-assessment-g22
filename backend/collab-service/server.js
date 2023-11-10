@@ -19,7 +19,6 @@ const io = new Server(server, {
 const client = new Redis(6379, config.services.redis.host);
 // Key: room:${room_id}, Value: code
 
-
 async function saveCodePersistent(room_id, code) {
   try {
     if (client.status === "ready") {
@@ -27,8 +26,8 @@ async function saveCodePersistent(room_id, code) {
     }
     const historyData = {
       roomid: room_id,
-      code: code
-    }
+      code: code,
+    };
     await axios.put(`${config.services.history.URL}/api/history`, historyData);
     // console.log("Inserted or Updated in Collab DB:", result);
   } catch (error) {
@@ -58,22 +57,24 @@ async function saveRedisToDB(room_id) {
 
       const historyData = {
         roomid: room_id,
-        code: code
-      }
-      await axios.put(`${config.services.history.URL}/api/history`, historyData);
+        code: code,
+      };
+      await axios.put(
+        `${config.services.history.URL}/api/history`,
+        historyData
+      );
       console.log("Saved from Redis to Collab DB");
     }
   } catch (error) {
-    console.error(
-      "Error saving from Redis to Collab DB:",
-      error
-    );
+    console.error("Error saving from Redis to Collab DB:", error);
   }
 }
 
 async function saveEndTime(roomId) {
   try {
-    await axios.put(`${config.services.history.URL}/api/history/endtime`, { roomid: roomId });
+    await axios.put(`${config.services.history.URL}/api/history/endtime`, {
+      roomid: roomId,
+    });
     console.log("Successfully updated end time of collab");
   } catch (error) {
     console.error("Error saving end time of collab:", error);
@@ -81,14 +82,16 @@ async function saveEndTime(roomId) {
 }
 
 // Try to get from Redis first, if not found, query from DB and update Redis
-async function queryRoomId(room_id) {
+async function getCode(room_id) {
   try {
     const result =
       client.status === "ready" ? await client.get(`room:${room_id}`) : null;
     if (result) {
       return { code: result };
     } else {
-      const result = await axios.get(`${config.services.history.URL}/api/history/${room_id}`);
+      const result = await axios.get(
+        `${config.services.history.URL}/api/history/${room_id}`
+      );
       if (result.data.length === 0) {
         return { code: "" };
       }
@@ -103,9 +106,39 @@ async function queryRoomId(room_id) {
   }
 }
 
+async function getLanguage(room_id) {
+  try {
+    const result = await axios.get(
+      `${config.services.history.URL}/api/history/language/${room_id}`
+    );
+    if (result.data.length === 0) {
+      return { language: "" };
+    }
+    return result.data[0];
+  } catch (error) {
+    console.error("Error querying for language for room:", error);
+    return [];
+  }
+}
+
+async function saveLanguage(room_id, language) {
+  try {
+    const historyData = {
+      roomid: room_id,
+      language_used: language,
+    };
+    await axios.put(
+      `${config.services.history.URL}/api/history/language`,
+      historyData
+    );
+    console.log("Successfully updated language of collab");
+  } catch (error) {
+    console.error("Error updating language of collab:", error);
+  }
+}
+
 // Remove entry from Redis
 async function deleteRedis(room_id) {
-  
   if (client.status === "ready") {
     client.del(`room:${room_id}`, (err) => {
       if (err) {
@@ -120,10 +153,17 @@ io.on("connection", (socket) => {
     const room = io.sockets.adapter.rooms.get(`${roomId}`);
     socket.join(`${roomId}`);
     socket.roomId = roomId;
-    const result = await queryRoomId(roomId);
+    const result = await getCode(roomId);
+    const result2 = await getLanguage(roomId);
     console.log(`Sending saved code: ${result.code}`);
+    console.log(`Sending saved language: ${result2.language_used}`);
     socket.to(`${roomId}`).emit("join_room");
-    socket.emit("join_success", result.code);
+    socket.emit("join_success", result.code, result2.language_used);
+  });
+
+  socket.on("change_language", (roomId, lang) => {
+    saveLanguage(roomId, lang.name);
+    socket.to(`${roomId}`).emit("change_language", lang);
   });
 
   socket.on("code", async (roomId, code) => {

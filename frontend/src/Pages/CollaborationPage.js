@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Select from "react-select";
 import Cookies from "js-cookie";
 import Editor from "@monaco-editor/react";
 import io from "socket.io-client";
@@ -6,6 +7,7 @@ import { QuestionDescription } from "../questions/QuestionDescription";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import lodashDebounce from "lodash.debounce";
+import { languages } from "./ProgrammingLanguages";
 import { COLLAB_URL, CHAT_URL } from "../Constants";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,6 +23,7 @@ export default function CollaborationPage({ matchsocket }) {
   const chatSocketRef = useRef(null);
   const [code, setCode] = useState("");
   const [questionTitle, setQuestionTitle] = useState(null);
+  const [language, setLanguage] = useState(languages[1]);
   const user = auth().username;
   const [otherUser, setOtherUser] = useState(null);
   const [isChatOpen, setChatOpen] = useState(false);
@@ -35,10 +38,12 @@ export default function CollaborationPage({ matchsocket }) {
     chatSocketRef.current = chatSocket;
     roomSocket.emit("join_room", room_id);
 
-    roomSocket.on("join_success", (code) => {
+    roomSocket.on("join_success", (code, lang) => {
       roomSocketRef.current = roomSocket;
       console.log("Saved Code received: " + code);
       setCode(code);
+      console.log("Language received: " + lang);
+      setLanguage(languages.find((l) => l.name === lang));
     });
 
     roomSocket.on("join_room", () => {
@@ -49,6 +54,12 @@ export default function CollaborationPage({ matchsocket }) {
     roomSocket.on("code", (code) => {
       console.log("Code received: " + code);
       setCode(code);
+    });
+
+    roomSocket.on("change_language", (lang) => {
+      console.log("Language changed to: " + lang.name);
+      setLanguage(lang);
+      toast.success(`${otherUser} changed language to ${lang.name}`);
     });
 
     roomSocket.on("leave_room", () => {
@@ -114,6 +125,11 @@ export default function CollaborationPage({ matchsocket }) {
     toast.success(`Code saved!`);
   };
 
+  const handleLanguageChange = (lang) => {
+    roomSocketRef.current.emit("change_language", room_id, lang);
+    setLanguage(lang);
+  };
+
   const handleToggleChat = () => {
     setChatOpen(!isChatOpen);
   };
@@ -143,9 +159,13 @@ export default function CollaborationPage({ matchsocket }) {
           </div>
           <Editor
             height="70vh"
-            defaultLanguage="javascript"
+            defaultLanguage={languages[1].value}
+            language={
+              language === undefined ? languages[1].value : language.value
+            }
             defaultValue={code}
             value={code}
+            options={{ formatOnType: true, formatOnPaste: true }}
             onChange={debounceHandleEditorChange}
             onMount={(editor) => {
               editorRef.current = editor;
@@ -153,6 +173,7 @@ export default function CollaborationPage({ matchsocket }) {
           />
         </div>
         <div className="flex flex-row">
+          <div className="p-1"></div>
           <button
             onClick={handleSave}
             className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
@@ -173,6 +194,14 @@ export default function CollaborationPage({ matchsocket }) {
           >
             Chat
           </button>
+          <div className="py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline">
+            <Select
+              placeholder={"Select Language"}
+              options={languages}
+              onChange={handleLanguageChange}
+              value={language}
+            />
+          </div>
         </div>
       </div>
       <div className="flex-1 p-4">

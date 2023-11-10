@@ -248,7 +248,6 @@ export default function HomePage({ socket }) {
                       "data-tooltip-id": "calendar-tooltip",
                     };
                   }
-                  //console.log(value.count);
                   return {
                     "data-tooltip-content": `${value.count} questions attempted on ${value.date}`,
                     "data-tooltip-id": "calendar-tooltip",
