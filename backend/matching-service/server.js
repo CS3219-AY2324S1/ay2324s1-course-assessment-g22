@@ -1,9 +1,9 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const { createHash } = require('node:crypto');
-const amqp = require('amqplib/callback_api');
-const axios = require('axios');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const { createHash } = require("node:crypto");
+const amqp = require("amqplib/callback_api");
+const axios = require("axios");
 const config = require("./config.js");
 const { Pool } = require("pg");
 
@@ -17,8 +17,8 @@ const usersRequested = new Map();
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
   },
 });
 
@@ -51,13 +51,9 @@ function notifyRequestTimeout(user) {
   clearUserRequest(user);
 }
 
-function notifyNotFound(user1, user2, room_id) {
-  connectedSockets.get(user1).emit("not_found");
-  connectedSockets.get(user2).emit("not_found");
+function notifyNotFound(user) {
+  connectedSockets.get(user).emit("not_found");
   console.log("No questions found");
-
-  clearUserRequest(user1);
-  clearUserRequest(user2);
 }
 
 function notifyActiveSession(user, room_id) {
@@ -85,16 +81,8 @@ async function insertDB(user1, user2, room_id, question) {
   try {
     const query =
       "INSERT INTO matched (username, room_id, question) VALUES ($1, $2, $3) RETURNING *";
-    const result = await pool.query(query, [
-      user1,
-      room_id,
-      question,
-    ]);
-    const result2 = await pool.query(query, [
-      user2,
-      room_id,
-      question
-    ])
+    const result = await pool.query(query, [user1, room_id, question]);
+    const result2 = await pool.query(query, [user2, room_id, question]);
     notifyMatchedUsers(user1, user2, room_id);
   } catch (error) {
     console.error("Error inserting into Match DB:", error);
@@ -112,18 +100,24 @@ async function isUserMatched(user) {
 async function selectQuestion(m_category, m_difficulty) {
   var response;
   if (m_category == "Any") {
-    response = await axios.get(`http://question-service:4567/api/questions/find_any`, {
-      params: {
-        complexity: m_difficulty
+    response = await axios.get(
+      `http://question-service:4567/api/questions/find_any`,
+      {
+        params: {
+          complexity: m_difficulty,
+        },
       }
-    });
+    );
   } else {
-    response = await axios.get(`http://question-service:4567/api/questions/find`, {
-      params: {
-        category: m_category,
-        complexity: m_difficulty
+    response = await axios.get(
+      `http://question-service:4567/api/questions/find`,
+      {
+        params: {
+          category: m_category,
+          complexity: m_difficulty,
+        },
       }
-    });
+    );
   }
 
   const questions = await response.data.questions;
@@ -132,7 +126,34 @@ async function selectQuestion(m_category, m_difficulty) {
   }
 
   const randomIndex = Math.floor(Math.random() * questions.length);
-  return questions[randomIndex]['title'];
+  return questions[randomIndex]["title"];
+}
+
+async function checkQuestion(m_category, m_difficulty) {
+  var response;
+  if (m_category == "Any") {
+    response = await axios.get(
+      `http://question-service:4567/api/questions/find_any`,
+      {
+        params: {
+          complexity: m_difficulty,
+        },
+      }
+    );
+  } else {
+    response = await axios.get(
+      `http://question-service:4567/api/questions/find`,
+      {
+        params: {
+          category: m_category,
+          complexity: m_difficulty,
+        },
+      }
+    );
+  }
+
+  const questions = await response.data.questions;
+  return questions.length > 0;
 }
 
 async function handleMatching(request) {
@@ -144,28 +165,36 @@ async function handleMatching(request) {
     // Match found
     const [user1, user2] = [potentialMatch.user, user];
     matchingRequests.delete(key);
+    console.log(
+      "Removed from Queue | Successful Match | Matching Queue:",
+      matchingRequests
+    );
 
     const [sortedUser1, sortedUser2] = [user1, user2].sort();
-    const hash = createHash('sha256');
+    const hash = createHash("sha256");
     hash.update(sortedUser1 + sortedUser2);
-    const room_id = hash.digest('hex');
+    const room_id = hash.digest("hex");
 
     randomQuestion = await selectQuestion(request.category, request.difficulty);
-    if (randomQuestion == "") {
-      notifyNotFound(user1, user2, room_id);
-      return;
-    }
 
     await insertDB(sortedUser1, sortedUser2, room_id, randomQuestion);
   } else {
     // No match found yet, add this request to matchingRequests
     matchingRequests.set(key, { user, requestTime: Date.now() });
+    console.log(
+      "Added to Queue | No Match Available in Queue | Matching Queue:",
+      matchingRequests
+    );
 
     // Set a timer to delete the request if no match is found
     setTimeout(() => {
       var check_val = matchingRequests.get(key);
       if (check_val != undefined && check_val.user === user) {
         matchingRequests.delete(key);
+        console.log(
+          "Removed from Queue | Timeout | Matching Queue:",
+          matchingRequests
+        );
 
         // Notify the user that their request timed out
         notifyRequestTimeout(user);
@@ -175,7 +204,7 @@ async function handleMatching(request) {
 }
 
 function setupRabbitMQ() {
-  amqp.connect('amqp://matching-rabbitmq', function (error0, connection) {
+  amqp.connect("amqp://matching-rabbitmq", function (error0, connection) {
     if (error0) {
       throw error0;
     }
@@ -187,30 +216,35 @@ function setupRabbitMQ() {
 
       channel = ch;
       channel.assertQueue(queue, {
-        durable: false
+        durable: false,
       });
       console.log(" [*] Waiting for messages in %s.", queue);
+      console.log("Queue Created | Matching Queue:", matchingRequests);
 
-      channel.consume(queue, function (msg) {
-        const message = JSON.parse(msg.content.toString());
+      channel.consume(
+        queue,
+        function (msg) {
+          const message = JSON.parse(msg.content.toString());
 
-        if (usersRequested.has(message.user)) {
-          notifyActiveRequest(message.user);
-          return;
-        } else {
-          usersRequested.set(message.user, true);
+          if (usersRequested.has(message.user)) {
+            notifyActiveRequest(message.user);
+            return;
+          } else {
+            usersRequested.set(message.user, true);
+          }
+
+          handleMatching(message);
+        },
+        {
+          noAck: true,
         }
-
-        handleMatching(message);
-      }, {
-        noAck: true
-      });
+      );
     });
   });
 }
 
-io.on('connection', (socket) => {
-  socket.on("matchUser", async (data) =>{
+io.on("connection", (socket) => {
+  socket.on("matchUser", async (data) => {
     const { user, difficulty, category } = data;
     connectedSockets.set(user, socket);
 
@@ -220,12 +254,17 @@ io.on('connection', (socket) => {
       return;
     }
 
+    if (!(await checkQuestion(category, difficulty))) {
+      notifyNotFound(user);
+      return;
+    }
+
     const message = JSON.stringify({ user, difficulty, category });
     channel.sendToQueue(queue, Buffer.from(message));
-  })
-})
+  });
+});
 
 server.listen(5000, () => {
-  console.log('listening on port 5000');
+  console.log("listening on port 5000");
   setupRabbitMQ();
 });
