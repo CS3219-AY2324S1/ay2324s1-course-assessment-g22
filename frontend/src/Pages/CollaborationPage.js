@@ -116,7 +116,8 @@ export default function CollaborationPage({ matchsocket }) {
     matchsocket.emit("deleteRoomId", room_id);
     roomSocketRef.current.emit("end_collab", room_id);
     chatSocketRef.current.emit("end_collab", room_id);
-    navigate("/");
+    // To give some time for history to update
+    setTimeout(() => navigate("/"), 100);
   };
 
   const handleSave = () => {

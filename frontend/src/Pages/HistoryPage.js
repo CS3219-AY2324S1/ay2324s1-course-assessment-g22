@@ -25,19 +25,19 @@ export default function HistoryPage() {
 
 
     const columns = [
-        { field: "other_username", headerName: "Collaborator", flex: 2 },
-        { field: "question", headerName: "Question", flex: 2, },
-        { field: "date_started", headerName: "Start Date", flex: 2 },
-        { field: "time_started", headerName: "Start Time", flex: 2 },
-        { field: "time_taken", headerName: "Time Taken", flex: 2 },
-        { field: "language_used", headerName: "Language", flex: 2, },
-        { field: "code", headerName: "Code", flex: 2, renderCell: (params) => {
+        { field: "other_username", headerName: "Collaborator", flex: 1 },
+        { field: "question", headerName: "Question", flex: 1, },
+        { field: "date_started", headerName: "Start Date", flex: 1 },
+        { field: "time_started", headerName: "Start Time", flex: 1 },
+        { field: "time_taken", headerName: "Time Taken", flex: 1 },
+        { field: "language_used", headerName: "Language", flex: 1, },
+        { field: "code", headerName: "Code", flex: 1, renderCell: (params) => {
             const code = params.row.code;
             const language = params.row.language_used;
             return <Button variant="contained" sx={{
                 fontWeight: 500,
                 textTransform: 'Capitalize'
-            }} onClick={() => onHandleClick(code, language)}>View Code</Button>
+            }} onClick={() => onHandleClick(code, language)}>Code</Button>
         }}
     ];
 

@@ -111,7 +111,7 @@ const Profile = () => {
         headers: {
           Authorization: `Bearer ${Cookies.get("_auth")}`,
         },
-      })
+      });
 
       console.log("User history is deleted", historyresponse.data);
 
