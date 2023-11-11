@@ -42,7 +42,7 @@ function verifyToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
     const currentTimeInSeconds = Date.now();
-    if (decoded.exp && currentTimeInSeconds > decoded.exp) {
+    if (!decoded.exp || currentTimeInSeconds > decoded.exp) {
       return res.status(401).json({ error: "Token has expired." });
     }
     req.user = decoded.username;
@@ -145,6 +145,36 @@ app.get("/api/user", verifyToken, async (req, res) => {
 app.post("/api/users", async (req, res) => {
   const { username, email, password, firstname, lastname } = req.body;
   try {
+    // Password strength Check
+    let isStrongPassword = true;
+    let passwordError = "";
+    if (password.length < 8) {
+      isStrongPassword = false;
+      passwordError += "\nPassword must be at least 8 characters long.";
+    }
+    if (!password.match(/[a-z]/g)) {
+      isStrongPassword = false;
+      passwordError += "\nPassword must contain at least one lowercase letter.";
+    }
+    if (!password.match(/[A-Z]/g)) {
+      isStrongPassword = false;
+      passwordError += "\nPassword must contain at least one uppercase letter.";
+    }
+    if (!password.match(/[0-9]/g)) {
+      isStrongPassword = false;
+      passwordError += "\nPassword must contain at least one number.";
+    }
+    if (!password.match(/[^a-zA-Z\d]/g)) {
+      isStrongPassword = false;
+      passwordError +=
+        "\nPassword must contain at least one special character.";
+    }
+
+    if (!isStrongPassword) {
+      res.status(400).json({ error: passwordError });
+      return;
+    }
+
     const query =
       "INSERT INTO userAccounts (username, email, password, firstname, lastname) VALUES ($1, $2, $3, $4, $5) RETURNING *";
     const result = await pool.query(query, [
@@ -156,10 +186,21 @@ app.post("/api/users", async (req, res) => {
     ]);
     res.status(201).json({ Message: "Successfully Created User" });
   } catch (error) {
-    console.error("Error creating user:", error);
-    res
-      .status(500)
-      .json({ error: "A user with this username or email already exists." });
+    if (error.code === "23505") {
+      if (error.constraint === "useraccounts_username_key") {
+        console.error("Error creating user: Username already exists.");
+        res.status(409).json({ error: "Username already exists." });
+      } else if (error.constraint === "useraccounts_email_key") {
+        console.error("Error creating user: Email already exists.");
+        res.status(409).json({ error: "Email already exists." });
+      } else {
+        console.error("Error creating user:", error);
+        res.status(409).json({ error: "Duplicate entry error." });
+      }
+    } else {
+      console.error("Error creating user:", error);
+      res.status(400).json({ error: "An unexpected error occurred." });
+    }
   }
 });
 
