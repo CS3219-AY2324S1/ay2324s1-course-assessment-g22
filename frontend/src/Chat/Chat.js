@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import Cookies from "js-cookie";
 import { useParams } from "react-router-dom";
+import { USERS_BASE_URL } from "../Constants";
 
 export default function Chat({ user, otherUser, socket }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [otherUserName, setOtherUserName] = useState("Partner");
 
   const urlPathOnId = useParams();
   const room_id = urlPathOnId.roomid;
@@ -32,6 +35,23 @@ export default function Chat({ user, otherUser, socket }) {
       handleSendMessage();
     }
   };
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await axios.get(
+          `${USERS_BASE_URL}/api/users/${otherUser}`,
+          {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("_auth")}`,
+            },
+          }
+        );
+        setOtherUserName(response.data.firstname);
+      } catch (error) {}
+    };
+    getUser();
+  }, []);
 
   useEffect(() => {
     if (messageContainerRef.current) {
@@ -71,7 +91,11 @@ export default function Chat({ user, otherUser, socket }) {
                 maxWidth: "30vw",
               }}
             >
-              <div className="break-words">{msg.text}</div>
+              <div className="break-words">
+                {msg.user === user
+                  ? `You: ${msg.text}`
+                  : `${otherUserName}: ${msg.text}`}
+              </div>
             </div>
           </div>
         ))}
