@@ -72,10 +72,15 @@ function verifyJWT(user, token) {
 }
 
 ioServer.on("connection", (socket) => {
+  socket.on("join_room", (user, token) => {
+    if (verifyJWT(user, token)) {
+      connectedSockets.set(user, socket);
+    }
+  });
+
   socket.on("get_chat", async (user, room_id, token) => {
     console.log("Received get_chat:", user, room_id);
     if (verifyJWT(user, token)) {
-      connectedSockets.set(user, socket);
       const chat = await getChat(room_id);
       socket.emit("get_chat", chat);
       console.log("Sent get_chat:", chat);
@@ -90,6 +95,7 @@ ioServer.on("connection", (socket) => {
         connectedSockets
           .get(otherUser)
           .emit("new_message", { user: user, text: message });
+        connectedSockets.get(otherUser).emit("notify");
       }
     }
   });

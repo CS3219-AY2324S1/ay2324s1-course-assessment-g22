@@ -27,6 +27,12 @@ export default function CollaborationPage({ matchsocket }) {
   const user = auth().username;
   const [otherUser, setOtherUser] = useState(null);
   const [isChatOpen, setChatOpen] = useState(false);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+
+  const updateUnreadMessages = () => {
+    setUnreadMessagesCount((count) => count + 1);
+    console.log("Incrementing unread messages " + unreadMessagesCount);
+  };
 
   useEffect(() => {
     const roomSocket = io(COLLAB_URL, {
@@ -37,6 +43,7 @@ export default function CollaborationPage({ matchsocket }) {
     });
     chatSocketRef.current = chatSocket;
     roomSocket.emit("join_room", room_id);
+    chatSocket.emit("join_room", user, Cookies.get("_auth"));
 
     roomSocket.on("join_success", (code, lang) => {
       roomSocketRef.current = roomSocket;
@@ -77,6 +84,10 @@ export default function CollaborationPage({ matchsocket }) {
       setTimeout(() => {
         navigate("/");
       }, 7000);
+    });
+
+    chatSocketRef.current.on("notify", () => {
+      updateUnreadMessages();
     });
 
     return () => {
@@ -131,6 +142,8 @@ export default function CollaborationPage({ matchsocket }) {
   };
 
   const handleToggleChat = () => {
+    console.log("Resetting unread messages");
+    setUnreadMessagesCount(0);
     setChatOpen(!isChatOpen);
   };
 
@@ -190,9 +203,15 @@ export default function CollaborationPage({ matchsocket }) {
           <div className="p-1"></div>
           <button
             onClick={handleToggleChat}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline relative"
           >
             Chat
+            {unreadMessagesCount > 0 &&
+              !isChatOpen && ( // Step 2: Display the red circle if there are unread messages
+                <div className="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white text-xs font-bold flex items-center justify-center rounded-full">
+                  {unreadMessagesCount}
+                </div>
+              )}
           </button>
           <div className="py-2 px-4 rounded mt-4 p-10 focus:outline-none focus:shadow-outline">
             <Select
