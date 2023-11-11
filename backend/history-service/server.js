@@ -37,7 +37,7 @@ function verifyToken(req, res, next) {
     try {
         const decoded = jwt.verify(token, config.jwtSecret);
         const currentTimeInSeconds = Date.now();
-        if (decoded.exp && currentTimeInSeconds > decoded.exp) {
+        if (!decoded.exp || currentTimeInSeconds > decoded.exp) {
             return res.status(401).json({ error: "Token has expired." });
         }
         req.user = decoded.username; // Store the decoded user information in the request object
