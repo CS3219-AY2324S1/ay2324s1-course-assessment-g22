@@ -51,7 +51,7 @@ function verifyToken(req, res, next) {
 // Create history of collab
 app.post(`${historyUrlPrefix}`, async (req, res) => {
     try {
-        const { current_username, other_username, roomid, time_started, time_ended, question, language_used, code, 
+        const { current_username, other_username, roomid, time_started, time_ended, question, language_used, code,
             difficulty } = req.body;
         const query = `INSERT INTO history 
         (current_username, other_username, roomid, time_started, time_ended, question, language_used, code, difficulty) 
@@ -63,6 +63,7 @@ app.post(`${historyUrlPrefix}`, async (req, res) => {
         // Inserting the second user into history
         await pool.query(query, [other_username, current_username, roomid,
             time_started, time_ended, question, language_used, code, difficulty]);
+        console.log(`Successfully created history of collaboration between ${current_username} and ${other_username}`);
         res.status(201).json({ Message: "Successfully created history of collaboration between users" });
     } catch (error) {
         console.error("Error in inserting history data", error);
@@ -83,12 +84,14 @@ app.put(`${historyUrlPrefix}`, async (req, res) => {
             WHERE roomid = $1
             ORDER BY time_started DESC
             LIMIT 2
-        ) RETURNING *` ;
+        ) AND time_ended IS NULL RETURNING *` ;
         const result = await pool.query(query, [roomid, code]);
         if (result.rows.length === 0) {
-            res.status(404).json({ error: "No history of collaboration found" })
+            console.log("No history of collaboration found");
+            res.status(404).json({ error: "No history of collaboration found" });
         }
         else {
+            console.log("Successfully updated history of collaboration");
             res.status(201).json({ Message: "Successfully updated history of collaboration" });
         }
     } catch (error) {
@@ -110,13 +113,15 @@ app.put(`${historyUrlPrefix}/language`, async (req, res) => {
             WHERE roomid = $1
             ORDER BY time_started DESC
             LIMIT 2
-        ) RETURNING *` ;
+        )  AND time_ended IS NULL RETURNING *` ;
         const result = await pool.query(query, [roomid, language_used]);
         if (result.rows.length === 0) {
-            res.status(404).json({ error: "No history of collaboration found" })
+            console.log("No history of collaboration found");
+            res.status(404).json({ error: "No history of collaboration found" });
         }
         else {
-            res.status(201).json({ Message: "Successfully updated history of collaboration" });
+            console.log("Successfully updated language of collaboration");
+            res.status(201).json({ Message: "Successfully updated language of collaboration" });
         }
     } catch (error) {
         console.error("Error updating history of collaboration:", error);
@@ -138,12 +143,14 @@ app.put(`${historyUrlPrefix}/endtime`, async (req, res) => {
             WHERE roomid = $1
             ORDER BY time_started DESC
             LIMIT 2
-        ) RETURNING *` ;
+        ) AND time_ended IS NULL RETURNING *` ;
         const result = await pool.query(query, [roomid, time_ended]);
         if (result.rows.length === 0) {
-            res.status(404).json({ error: "No history of collaboration found" })
+            console.log("No history of collaboration found");
+            res.status(404).json({ error: "No history of collaboration found" });
         }
         else {
+            console.log("Successfully updated end time of collaboration");
             res.status(201).json({ Message: "Successfully updated end time of collaboration" });
         }
     } catch (error) {
@@ -160,8 +167,10 @@ app.get(`${historyUrlPrefix}`, verifyToken, async (req, res) => {
         FROM history WHERE current_username = $1 and time_ended IS NOT NULL`;
         const result = await pool.query(query, [username]);
         if (result.rows.length === 0) {
-            res.status(404).json({ error: "No history of collaboration found" })
+            console.log("No history of collaboration found");
+            res.status(404).json({ error: "No history of collaboration found" });
         } else {
+            console.log("Successfully retrieved history of collaboration");
             res.json(result.rows);
         }
     } catch (error) {
@@ -178,8 +187,10 @@ app.get(`${historyUrlPrefix}/stats`, verifyToken, async (req, res) => {
         where current_username = $1 and time_ended IS NOT NULL`;
         const result = await pool.query(query, [username]);
         if (result.rows.length === 0) {
+            console.log("No history of collaboration found");
             res.status(404).json({ error: "No history of collaboration found" })
         } else {
+            console.log("Successfully retrieved statistics of collaboration");
             res.json(result.rows);
         }
     } catch (error) {
@@ -200,6 +211,20 @@ app.get(`${historyUrlPrefix}/:roomid`, async (req, res) => {
     } catch (error) {
         console.error("Error getting code of collaboration:", error);
         res.status(500).json({ error: "Error getting code of collaboration" });
+    }
+});
+
+// Delete the history of the user
+app.delete(`${historyUrlPrefix}/:username`, verifyToken, async (req, res) => {
+    try {
+        const username = req.params.username;
+        const query = "DELETE FROM history WHERE current_username = $1";
+        await pool.query(query, [username]);
+        res.status(200).json({ Message: "Successfully deleted user from history"})
+        console.log(`Successfully deleted user: ${username} from history`);
+    } catch (error) {
+        console.error("Error in deleting the user from history", error);
+        res.status(500).json({ error: "Error deleting the user from history" });
     }
 });
 
