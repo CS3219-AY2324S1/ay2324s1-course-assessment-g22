@@ -146,34 +146,32 @@ app.post("/api/users", async (req, res) => {
   const { username, email, password, firstname, lastname } = req.body;
   try {
     // Password strength Check
+    let isStrongPassword = true;
+    let passwordError = "";
     if (password.length < 8) {
-      res.status(400).json({
-        error: "Password is too short. Minimum length is 8 characters.",
-      });
-      return;
+      isStrongPassword = false;
+      passwordError += "\nPassword must be at least 8 characters long.";
     }
     if (!password.match(/[a-z]/g)) {
-      res.status(400).json({
-        error: "Password must contain at least one lowercase letter.",
-      });
-      return;
+      isStrongPassword = false;
+      passwordError += "\nPassword must contain at least one lowercase letter.";
     }
     if (!password.match(/[A-Z]/g)) {
-      res.status(400).json({
-        error: "Password must contain at least one uppercase letter.",
-      });
-      return;
+      isStrongPassword = false;
+      passwordError += "\nPassword must contain at least one uppercase letter.";
     }
     if (!password.match(/[0-9]/g)) {
-      res.status(400).json({
-        error: "Password must contain at least one number.",
-      });
-      return;
+      isStrongPassword = false;
+      passwordError += "\nPassword must contain at least one number.";
     }
     if (!password.match(/[^a-zA-Z\d]/g)) {
-      res.status(400).json({
-        error: "Password must contain at least one special character.",
-      });
+      isStrongPassword = false;
+      passwordError +=
+        "\nPassword must contain at least one special character.";
+    }
+
+    if (!isStrongPassword) {
+      res.status(400).json({ error: passwordError });
       return;
     }
 
@@ -188,10 +186,21 @@ app.post("/api/users", async (req, res) => {
     ]);
     res.status(201).json({ Message: "Successfully Created User" });
   } catch (error) {
-    console.error("Error creating user:", error);
-    res
-      .status(500)
-      .json({ error: "A user with this username or email already exists." });
+    if (error.code === "23505") {
+      if (error.constraint === "useraccounts_username_key") {
+        console.error("Error creating user: Username already exists.");
+        res.status(409).json({ error: "Username already exists." });
+      } else if (error.constraint === "useraccounts_email_key") {
+        console.error("Error creating user: Email already exists.");
+        res.status(409).json({ error: "Email already exists." });
+      } else {
+        console.error("Error creating user:", error);
+        res.status(409).json({ error: "Duplicate entry error." });
+      }
+    } else {
+      console.error("Error creating user:", error);
+      res.status(400).json({ error: "An unexpected error occurred." });
+    }
   }
 });
 

@@ -25,4 +25,5 @@ INSERT INTO userAccounts (username, email, password, firstname, lastname, role) 
 ('m', 'maintainer3@example.com', 'm', 'Steve', 'The Maintainer', 'maintainer'),
 ('m2', 'maintainer4@example.com', 'm2', 'ShortUsername', 'MaintainerAccount', 'maintainer'),
 ('m3', 'maintainer5@example.com', 'm3', 'ShortUsername', 'MaintainerAccount2', 'maintainer'),
-('test', 'maintainer6@example.com', 'test', 'Tom', 'The Tester', 'maintainer');
+('test', 'maintainer6@example.com', 'test', 'Tom', 'The Tester', 'maintainer'),
+('abba', 'maintainer7@example.com', '123', 'abba', 'The Tester', 'maintainer');
