@@ -42,7 +42,6 @@ export const Register = () => {
       })
       .catch((error) => {
         console.error("Register failed:", error.response);
-        // alert(`Register failed! ${error.response.data.error}`);
         toast.error(<div className="whitespace-pre-line">
           Register failed! {error.response.data.error}
         </div>, {
