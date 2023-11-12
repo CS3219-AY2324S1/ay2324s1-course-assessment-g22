@@ -3,7 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSignIn } from "react-auth-kit";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { USERS_BASE_URL } from "./Constants";
 import { TOKEN_EXPIRE_TIME } from "./Constants";
 
@@ -15,6 +16,7 @@ export const Login = ({ onLogin }) => {
 
   const handleSubmit = (x) => {
     x.preventDefault();
+    toast.dismiss();
 
     let loginData = {
       username: username,
@@ -74,12 +76,22 @@ export const Login = ({ onLogin }) => {
       })
       .catch((error) => {
         console.error("Login failed:", error.response);
-        alert("Incorrect Username or Password");
+        toast.error("Incorrect Username or Password");
       });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <ToastContainer
+        position="top-center"
+        theme="colored"
+        autoClose={3000}
+        isLoading={false}
+        pauseOnHover={false}
+        hideProgressBar={true}
+        draggable={false}
+        closeButton={false}
+      />
       <div className="bg-white p-8 rounded shadow-md w-96">
         <h2 className="text-2xl font-bold mb-4">Log In</h2>
         <form onSubmit={handleSubmit}>

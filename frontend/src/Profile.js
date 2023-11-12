@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "react-modal";
 import Cookies from "js-cookie";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useSignOut, useAuthUser } from "react-auth-kit";
 import { HISTORY_URL, USERS_BASE_URL } from "./Constants";
 
@@ -84,7 +86,7 @@ const Profile = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+    toast.dismiss();
     try {
       const response = await axios.put(
         `${USERS_BASE_URL}/api/users`,
@@ -100,12 +102,13 @@ const Profile = () => {
       setIsEditModalOpen(false);
     } catch (error) {
       console.error("Error updating user:", error);
-      alert(`Error updating user! ${error.response.data.error}`);
+      toast.error(`Error updating user! ${error.response.data.error}`)
     }
   };
 
   const handleDelete = async () => {
     // Send a DELETE request to delete the user's account and history
+    toast.dismiss();
     try {
       const historyresponse = await axios.delete(`${HISTORY_URL}/${auth().username}`, {
         headers: {
@@ -123,12 +126,12 @@ const Profile = () => {
         });
 
       console.log("User deleted:", userresponse.data);
-      alert("User deleted");
-      signOut();
+      toast.info("Your account is now deleted");
+      setTimeout(() => signOut(), 2000);
 
     } catch (error) {
       console.error("Error deleting user and/or user history:", error);
-      alert(`Error deleting user! ${error.response.data.error}`);
+      toast.error(`Error deleting user! ${error.response.data.error}`);
     }
   };
 
@@ -148,6 +151,16 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex flex-row items-center justify-center bg-gray-100">
+      <ToastContainer
+        position="top-center"
+        theme="colored"
+        autoClose={3000}
+        isLoading={false}
+        pauseOnHover={false}
+        hideProgressBar={true}
+        draggable={false}
+        closeButton={false}
+      />
       <div className="bg-white p-8 rounded shadow-md max-w-md w-full mb-4 md:mb-0">
         <div className="mb-4">
           <label className="block text-gray-600 font-medium">
