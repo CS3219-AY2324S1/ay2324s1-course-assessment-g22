@@ -173,7 +173,6 @@ export default function CollaborationPage({ matchsocket }) {
           </div>
           <Editor
             height="70vh"
-            defaultLanguage={languages[1].value}
             language={
               language === undefined ? languages[1].value : language.value
             }
