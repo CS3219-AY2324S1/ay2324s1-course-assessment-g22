@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { USERS_BASE_URL } from "./Constants";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -16,9 +18,10 @@ export const Register = () => {
 
   const handleSubmit = (x) => {
     x.preventDefault();
+    toast.dismiss();
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 
@@ -34,17 +37,31 @@ export const Register = () => {
       .post(`${USERS_BASE_URL}/api/users`, registerData)
       .then((response) => {
         console.log("Register successful:", response.data);
-        alert("Register successful!");
-        navigate("/");
+        toast.success("Register successful!");
+        setTimeout(() => navigate("/"), 2000);
       })
       .catch((error) => {
         console.error("Register failed:", error.response);
-        alert(`Register failed! ${error.response.data.error}`);
+        toast.error(<div className="whitespace-pre-line">
+          Register failed! {error.response.data.error}
+        </div>, {
+          style: { width: "450px" }
+        })
       });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <ToastContainer
+        position="top-center"
+        theme="colored"
+        autoClose={3000}
+        isLoading={false}
+        pauseOnHover={false}
+        hideProgressBar={true}
+        draggable={false}
+        closeButton={false}
+      />
       <div className="bg-white p-8 rounded shadow-md w-96">
         <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
         <form onSubmit={handleSubmit}>
