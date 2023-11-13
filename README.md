@@ -26,6 +26,7 @@ module.exports = {
 ```
 POSTGRES_JWT_SECRET=puturownjwtsecrethere
 ```
+
 # Instructions on testing Peerprep
 
 - Launch Docker (Recommended: Docker Desktop)
@@ -33,3 +34,7 @@ POSTGRES_JWT_SECRET=puturownjwtsecrethere
 - If you wish to run the containers in the background, run `docker compose up --build -d` instead
 - To stop the containers, run `docker compose stop` or press `CTRL + C`
 - To stop and remove the containers, run `docker compose down`
+
+# Cloud Deployment
+
+- Access http://34.142.208.22:3000/ to view.
