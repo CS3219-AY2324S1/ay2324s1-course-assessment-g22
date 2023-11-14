@@ -12,6 +12,7 @@ backend/matching-service/node_modules/
 /backend/question-service/.env
 /backend/question-service/config/dbAdmin.js
 /backend/question-service/node_modules/
+/backend/question-service/config/.env
 
 backend/user-service/node_modules/
 backend/user-service/.env
