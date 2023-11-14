@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: matching-postgresql
+spec:
+  serviceName: matching-postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matching-postgresql
+  template:
+    metadata:
+      labels:
+        app: matching-postgresql
+    spec:
+      containers:
+        - name: matching-postgresql
+          image: postgres:15
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: matching-service
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: matching-postgresql-config
+            - mountPath: /database/postgres/matching-service
+              name: matching-database
+      volumes:
+        - name: matching-postgresql-config
+          configMap:
+            name: matching-schema
+  volumeClaimTemplates:
+    - metadata:
+        name: matching-database
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

@@ -1,5 +1,5 @@
 // API URLS
-export const NGINX_GATEWAY = "http://localhost:3000";
+export const NGINX_GATEWAY = "http://localhost:3000";  // Change to your own nginx gateway for cloud deployment
 
 export const USERS_BASE_URL = `${NGINX_GATEWAY}`;
 export const QUESTIONS_URL = `${NGINX_GATEWAY}/api/questions`;

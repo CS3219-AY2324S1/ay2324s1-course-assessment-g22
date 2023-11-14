@@ -1,0 +1,18 @@
+piVersion: apps/v1
+kind: Deployment
+metadata:
+  name: question-service
+spec:
+  selector:
+    matchLabels:
+      app: question-service
+  template:
+    metadata:
+      labels:
+        app: question-service
+    spec:
+      containers:
+        - name: question-service
+          image: <your dockerhub username>/question-service-image:latest
+          ports:
+            - containerPort: 4567
