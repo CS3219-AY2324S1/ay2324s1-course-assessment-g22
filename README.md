@@ -78,7 +78,7 @@ export const NGINX_GATEWAY = "<YOUR-INGRESS-CONTROLLER-IP-ADDRESS>";
 12. Change directory to `backend/user-service/`. Create an `.env file`. add the following below and save it.
 
 ```
-POSTGRES_JWT_SECRET="9d47ec0224bd2cf16684f14ed7ce2758c91b332da8c29fa6e0752134496b9fda"
+POSTGRES_JWT_SECRET="same 256 bit secret as local test"
 FRONTEND_SERVICE_URL="<YOUR-FRONTEND-IP-ADDRESS>" # example "http://123.123.123.123:3000"
 POSTGRES_HOST="<YOUR-USER-POSTGRESQL-HOST>"  # "example 123.123.123.123"
 
@@ -94,7 +94,7 @@ FRONTEND_SERVICE_URL="<YOUR-FRONTEND-IP-ADDRESS>" # example "http://123.123.123.
 14. Change directory to `backend/matching-service`. Create an `.env file`. add the following below and save it.
 
 ```
-POSTGRES_JWT_SECRET="9d47ec0224bd2cf16684f14ed7ce2758c91b332da8c29fa6e0752134496b9fda"
+POSTGRES_JWT_SECRET="same 256 bit secret as local test"
 FRONTEND_SERVICE_URL="<YOUR-FRONTEND-IP-ADDRESS>" # example "http://123.123.123.123:3000"
 POSTGRES_HOST="<YOUR-MATCHING-POSTGRESQL-HOST>"  # "example 123.123.123.123""
 RABBITMQ_URL="amqp://<YOUR-RABBITMQ-IP-ADDRESS>" # example "amqp://123.123.123.123:5672"
@@ -104,7 +104,7 @@ RABBITMQ_URL="amqp://<YOUR-RABBITMQ-IP-ADDRESS>" # example "amqp://123.123.123.1
 15. Change directory to `backend/history-service`. Create an `.env file`. add the following below and save it.
 
 ```
-POSTGRES_JWT_SECRET="9d47ec0224bd2cf16684f14ed7ce2758c91b332da8c29fa6e0752134496b9fda"
+POSTGRES_JWT_SECRET="same 256 bit secret as local test"
 FRONTEND_SERVICE_URL="<YOUR-FRONTEND-IP-ADDRESS>" # example "http://123.123.123.123:3000"
 POSTGRES_HOST="<YOUR-HISTORY-POSTGRESQL-HOST>"  # "example 123.123.123.123""
 
@@ -113,7 +113,7 @@ POSTGRES_HOST="<YOUR-HISTORY-POSTGRESQL-HOST>"  # "example 123.123.123.123""
 16. Change directory to `backend/collab-service`. Create an `.env file`. add the following below and save it.
 
 ```
-POSTGRES_JWT_SECRET="9d47ec0224bd2cf16684f14ed7ce2758c91b332da8c29fa6e0752134496b9fda"
+POSTGRES_JWT_SECRET="same 256 bit secret as local test"
 FRONTEND_SERVICE_URL="<YOUR-FRONTEND-IP-ADDRESS>" # example "http://123.123.123.123:3000"
 REDIS_HOST="<YOUR-REDIS-HOST>" # example "123.123.123.123"
 ```
@@ -121,7 +121,7 @@ REDIS_HOST="<YOUR-REDIS-HOST>" # example "123.123.123.123"
 17. Change directory to `backend/chat-service`. Create an `.env file`. add the following below and save it.
 
 ```
-POSTGRES_JWT_SECRET="9d47ec0224bd2cf16684f14ed7ce2758c91b332da8c29fa6e0752134496b9fda"
+POSTGRES_JWT_SECRET="same 256 bit secret as local test"
 FRONTEND_SERVICE_URL="<YOUR-FRONTEND-IP-ADDRESS>" # example "http://123.123.123.123:3000"
 POSTGRES_HOST="<YOUR-CHAT-POSTGRESQL-HOST>"  # "example 123.123.123.123""
 ```
@@ -200,6 +200,24 @@ image: <your dockerhub username>/collab-service-image:latest
 image: <your dockerhub username>/chat-service-image:latest
 ```
 
-26. At `cloudFiles/` directory, deploy the rest of the deployment, statefulset and pod files with `kubectl  apply -f <yaml file>`
+### Set up sql configurations for databases
 
-27. Once everything is running, you can access the frontend ip address to use the application.
+26. Change directory to `backend/user-service/sqlFiles`
+
+- run `kubectl create configmap user-postgresql-config --from-file=userAccountsSchema.sql`
+
+27. Change directory to `backend/matching-service/`
+
+- run `kubectl create configmap matching-schema --from-file=matchingSchema.sql`
+
+28. Change directory to `backend/history-service/`
+
+- run `kubectl create configmap history-schema --from-file=historySchema.sql`
+
+29. Change directory to `backend/chat-service/`
+
+- run `kubectl create configmap chat-schema --from-file=chatSchema.sql`
+
+30. Change directory `cloudFiles/` directory, deploy the rest of the deployment, statefulset and pod files with `kubectl  apply -f <yaml file>`
+
+31. Once everything is running, you can access the frontend ip address to use the application.
