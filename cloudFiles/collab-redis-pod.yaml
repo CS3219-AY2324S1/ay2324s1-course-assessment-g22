@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.network/ay2324s1-course-assessment-g22-collab-network: "true"
+    io.kompose.service: collab-redis
+  name: collab-redis
+  namespace: default
+spec:
+  containers:
+    - image: redis
+      name: collab-redis
+      ports:
+        - containerPort: 6379
+          protocol: TCP
+      resources: {}
+  restartPolicy: OnFailure
+status: {}
