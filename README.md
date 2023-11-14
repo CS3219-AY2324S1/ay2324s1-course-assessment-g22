@@ -44,7 +44,7 @@ This app is deployed on Google Cloud Platform (GCP) using Google Kubernetes Engi
 - Access http://35.247.174.141/
 - In the event that the IP address is changed, refer to [our report on google docs](https://docs.google.com/document/d/1YpUB-q5aCOhER3i9_EstFiJVLXR2czvf3JHKF419nH0/edit?usp=sharing) for the new IP address.
 
-## Steps to Setup Cloud Deployment
+## Steps to deploy PeerPrep on Google Cloud Platform
 
 1. Create your own project in GCP and cluster in GKE
 2. Open up your Google Shell. Ensure that it is configured to your selected project
