@@ -2,7 +2,7 @@
 
 # Setup for PeerPrep
 
-- Add dbAdmin.js in ~/backend/question-service/config
+- Add dbAdmin.js in ~/backend/question-service/config ("dbAdmin.js" can be obtained on Canvas Submission from Sharing Assignment Private Info Assignment 5)
 
 ```
 const username = "REDACTED";
