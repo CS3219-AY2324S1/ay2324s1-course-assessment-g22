@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: chat-service
+  labels:
+    app: chat-service
+spec:
+  containers:
+    - name: chat-service
+      image: <your dockerhub username>/chat-service-image:latest
+      ports:
+        - containerPort: 5002

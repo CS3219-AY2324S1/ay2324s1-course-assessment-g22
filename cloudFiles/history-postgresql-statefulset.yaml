@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: history-postgresql
+  name: history-postgresql
+  namespace: default
+spec:
+  replicas: 1
+  serviceName: history-postgresql
+  selector:
+    matchLabels:
+      io.kompose.service: history-postgresql
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/ay2324s1-course-assessment-g22-history-network: "true"
+        io.kompose.service: history-postgresql
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: history-service
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgres:15
+          name: history-postgresql
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: history-postgresql-config
+            - name: history-database
+              mountPath: /database/postgres/history-service
+      volumes:
+        - name: history-postgresql-config
+          configMap:
+            name: history-schema
+  volumeClaimTemplates:
+    - metadata:
+        name: history-database
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

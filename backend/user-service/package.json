@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "(npm test)"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g22.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g22/issues"
+  },
+  "homepage": "https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g22#readme",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "axios": "^1.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3",
+    "socket.io": "^4.7.2"
+  }
+}

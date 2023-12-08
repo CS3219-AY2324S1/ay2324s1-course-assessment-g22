@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: matching-rabbitmq
+  name: matching-rabbitmq
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: matching-rabbitmq
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/ay2324s1-course-assessment-g22-matching-network: "true"
+        io.kompose.service: matching-rabbitmq
+    spec:
+      containers:
+        - image: rabbitmq
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics -q ping
+            failureThreshold: 25
+            periodSeconds: 10
+            timeoutSeconds: 10
+          name: matching-rabbitmq
+          ports:
+            - containerPort: 5672
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}

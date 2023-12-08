@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: user-postgresql
+spec:
+  serviceName: user-postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-postgresql
+  template:
+    metadata:
+      labels:
+        app: user-postgresql
+    spec:
+      containers:
+        - name: user-postgresql
+          image: postgres:15
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: user-service
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d/
+              name: user-postgresql-config
+            - mountPath: /database/postgres/user-service
+              name: user-database
+      volumes:
+        - name: user-postgresql-config
+          configMap:
+            name: user-postgresql-config
+  volumeClaimTemplates:
+    - metadata:
+        name: user-database
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

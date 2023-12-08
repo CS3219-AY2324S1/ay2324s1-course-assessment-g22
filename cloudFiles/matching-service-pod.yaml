@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: matching-service
+  labels:
+    app: matching-service
+spec:
+  containers:
+    - name: user-service
+      image: <your dockerhub username>/matching-service-image:latest
+      ports:
+        - containerPort: 5000

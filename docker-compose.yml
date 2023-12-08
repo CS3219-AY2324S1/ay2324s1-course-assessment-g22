@@ -1,0 +1,188 @@
+version: "3.8"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - question-service
+      - user-service
+      - user-postgresql
+      - matching-service
+      - matching-postgresql
+      - matching-rabbitmq
+      - collab-service
+      - collab-redis
+      - history-service
+      - chat-service
+    restart: always
+    networks:
+      - question-network
+      - user-network
+      - matching-network
+      - collab-network
+      - history-network
+      - chat-network
+    environment:
+      NODE_ENV: production
+
+  question-service:
+    build: ./backend/question-service
+    ports:
+      - "4567:4567"
+    networks:
+      - question-network
+
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - "4000:4000"
+    networks:
+      - user-network
+    depends_on:
+      - user-postgresql
+
+  user-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user-service
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./backend/user-service/sqlFiles/userAccountsSchema.sql:/docker-entrypoint-initdb.d/userAccountsSchema.sql
+      - userdatabase:/database/postgres/user-service
+    networks:
+      - user-network
+
+  matching-service:
+    build: ./backend/matching-service
+    ports:
+      - "5000:5000"
+    networks:
+      - question-network
+      - matching-network
+      - history-network
+    restart: on-failure
+    depends_on:
+      matching-postgresql:
+        condition: service_started
+      matching-rabbitmq:
+        condition: service_healthy
+
+  matching-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: matching-service
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./backend/matching-service/matchingSchema.sql:/docker-entrypoint-initdb.d/matchingSchema.sql
+      - matchingdatabase:/database/postgres/matching-service
+    networks:
+      - matching-network
+
+  matching-rabbitmq:
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 25
+    networks:
+      - matching-network
+
+  collab-service:
+    build: ./backend/collab-service
+    ports:
+      - "5001:5001"
+    networks:
+      - history-network
+      - collab-network
+    depends_on:
+      collab-redis:
+        condition: service_started
+
+  collab-redis:
+    image: redis
+    ports:
+      - 6379:6379
+    restart: on-failure
+    networks:
+      - collab-network
+
+  history-service:
+    build: ./backend/history-service
+    ports:
+      - "5003:5003"
+    networks:
+      - history-network
+    depends_on:
+      history-postgresql:
+        condition: service_started
+
+  history-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: history-service
+    ports:
+      - "5436:5432"
+    volumes:
+      - ./backend/history-service/historySchema.sql:/docker-entrypoint-initdb.d/historySchema.sql
+      - historydatabase:/database/postgres/history-service
+    networks:
+      - history-network
+
+  chat-service:
+    build: ./backend/chat-service
+    ports:
+      - "5002:5002"
+    networks:
+      - chat-network
+    restart: on-failure
+    depends_on:
+      chat-postgresql:
+        condition: service_started
+
+  chat-postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chat-service
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./backend/chat-service/chatSchema.sql:/docker-entrypoint-initdb.d/chatSchema.sql
+      - chatdatabase:/database/postgres/chat-service
+    networks:
+      - chat-network
+
+volumes:
+  userdatabase:
+  matchingdatabase:
+  collabdatabase:
+  historydatabase:
+  chatdatabase:
+
+networks:
+  user-network:
+    driver: bridge
+  question-network:
+    driver: bridge
+  matching-network:
+    driver: bridge
+  collab-network:
+    driver: bridge
+  history-network:
+    driver: bridge
+  chat-network:
+    driver: bridge

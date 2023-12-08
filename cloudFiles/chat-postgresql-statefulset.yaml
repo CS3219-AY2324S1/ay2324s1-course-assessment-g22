@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: chat-postgresql
+  name: chat-postgresql
+  namespace: default
+spec:
+  serviceName: chat-postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: chat-postgresql
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/ay2324s1-course-assessment-g22-chat-network: "true"
+        io.kompose.service: chat-postgresql
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: chat-service
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgres:15
+          name: chat-postgresql
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: chat-postgresql-config
+            - name: chat-database
+              mountPath: /database/postgres/chat-service
+      volumes:
+        - name: chat-postgresql-config
+          configMap:
+            name: chat-schema
+  volumeClaimTemplates:
+    - metadata:
+        name: chat-database
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
